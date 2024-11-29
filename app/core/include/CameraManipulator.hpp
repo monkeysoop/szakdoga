@@ -49,4 +49,11 @@ private:
     float m_goForward = 0.0f;
     float m_goRight = 0.0f;
     float m_goUp = 0.0f;
+
+    bool m_forward_pressed = false;
+    bool m_backward_pressed = false;
+    bool m_left_pressed = false;
+    bool m_right_pressed = false;
+    bool m_up_pressed = false;
+    bool m_down_pressed = false;
 };

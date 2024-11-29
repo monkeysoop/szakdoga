@@ -27,8 +27,8 @@ App::App(GLsizei width, GLsizei height) :
         glDebugMessageCallback(SDL_GLDebugMessageCallback, nullptr);
     }
 
-    m_camera.SetView(glm::vec3(0, 5, 25),  // From where we look at the scene - eye
-                     glm::vec3(0, 0, 1),   // Which point of the scene we are looking at - at
+    m_camera.SetView(glm::vec3(2, 2, 2),  // From where we look at the scene - eye
+                     glm::vec3(0, 0, 0),   // Which point of the scene we are looking at - at
                      glm::vec3(0, 1, 0)    // Upwards direction - up
     );
 
@@ -48,9 +48,6 @@ void App::Render() {
     m_framebuffer.Bind();
     m_naive_shader.Use();
     glProgramUniformMatrix4fv(m_naive_shader.GetProgramID(), m_naive_shader.ul("inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
-    std::cout << m_camera.GetEye()[0] << std::endl;
-    std::cout << m_camera.GetEye()[1] << std::endl;
-    std::cout << m_camera.GetEye()[2] << std::endl;
     glUniform3fv(m_naive_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
     glUniform1f(m_naive_shader.ul("near"), m_camera.GetZNear());
     glUniform1f(m_naive_shader.ul("far"), m_camera.GetZFar());
@@ -69,6 +66,10 @@ void App::RenderImGui() {
     ImGui::Begin("Demo window");
     ImGui::Button("Hello!");
     ImGui::End();
+}
+
+void App::KeyboardDown(const SDL_KeyboardEvent& key) {
+    m_camera_manipulator.KeyboardDown(key);
 }
 
 void App::KeyboardUp(const SDL_KeyboardEvent& key) {

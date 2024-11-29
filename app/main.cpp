@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(0);  // 0 - no vsync, 1 - vsync
 
     glewExperimental = GL_TRUE;
     GLenum glew_status = glewInit();
@@ -89,6 +89,10 @@ int main(int argc, char *argv[]) {
 
     bool running = true;
     bool show_imgui = false;
+
+    Uint32 start_time = SDL_GetTicks();
+	int nFrames = 0;
+
     while (running) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
@@ -103,9 +107,10 @@ int main(int argc, char *argv[]) {
                 case SDL_KEYDOWN:
                     if (ev.key.keysym.sym == SDLK_ESCAPE) {
                         running = false;
-                    }
-                    if (ev.key.keysym.sym == SDLK_i) {
+                    } else if (ev.key.keysym.sym == SDLK_i) {
                         show_imgui = !show_imgui;
+                    } else if (!is_keyboard_captured) {
+                        app.KeyboardDown(ev.key);
                     }
                     break;
                 case SDL_KEYUP:
@@ -135,6 +140,13 @@ int main(int argc, char *argv[]) {
             {static_cast<float>(CurrentTick) / 1000.0f, static_cast<float>(CurrentTick - LastTick) / 1000.0f};
         LastTick = CurrentTick;  // Mentsük el utolsóként az aktuális "tick"-et!
         
+        nFrames++;
+		if (SDL_GetTicks() - start_time > 1000) {
+			std::cout << "FPS: " << nFrames << "\t\ttime per frame: " << (1000.0 / nFrames) << " ms" << std::endl;
+			nFrames = 0;
+			start_time += 1000.0;
+		}
+
         app.Update(updateInfo);
 
         app.Render();

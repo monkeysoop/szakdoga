@@ -63,21 +63,27 @@ void CameraManipulator::KeyboardDown(const SDL_KeyboardEvent& key) {
                 m_speed /= 4.0f;
             break;
         case SDLK_w:
+            m_forward_pressed = true;
             m_goForward = 1;
             break;
         case SDLK_s:
+            m_backward_pressed = true;
             m_goForward = -1;
             break;
         case SDLK_a:
+            m_left_pressed = true;
             m_goRight = -1;
             break;
         case SDLK_d:
+            m_right_pressed = true;
             m_goRight = 1;
             break;
         case SDLK_e:
+            m_up_pressed = true;
             m_goUp = 1;
             break;
         case SDLK_q:
+            m_down_pressed = true;
             m_goUp = -1;
             break;
     }
@@ -90,16 +96,28 @@ void CameraManipulator::KeyboardUp(const SDL_KeyboardEvent& key) {
             m_speed *= 4.0f;
             break;
         case SDLK_w:
+            m_forward_pressed = false;
+            m_goForward = m_backward_pressed ? -1 : 0;
+            break;
         case SDLK_s:
-            m_goForward = 0;
+            m_backward_pressed = false;
+            m_goForward = m_forward_pressed ? 1 : 0;
             break;
         case SDLK_a:
+            m_left_pressed = false;
+            m_goRight = m_right_pressed ? 1 : 0;
+            break;
         case SDLK_d:
-            m_goRight = 0;
+            m_right_pressed = false;
+            m_goRight = m_left_pressed ? -1 : 0;
             break;
         case SDLK_q:
+            m_down_pressed = false;
+            m_goUp = m_up_pressed ? 1 : 0;
+            break;
         case SDLK_e:
-            m_goUp = 0;
+            m_up_pressed = false;
+            m_goUp = m_down_pressed ? -1 : 0;
             break;
     }
 }

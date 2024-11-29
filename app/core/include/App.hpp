@@ -32,6 +32,7 @@ public:
     void Render();
     void RenderImGui();
 
+    void KeyboardDown(const SDL_KeyboardEvent& key);
     void KeyboardUp(const SDL_KeyboardEvent& key);
     void MouseMove(const SDL_MouseMotionEvent& mouse);
     void MouseWheel(const SDL_MouseWheelEvent& wheel);
