@@ -47,12 +47,10 @@ void App::Update(const SUpdateInfo& updateInfo) {
 void App::Render() {
     m_framebuffer.Bind();
     m_naive_shader.Use();
-    glProgramUniformMatrix4fv(m_naive_shader.GetProgramID(), m_naive_shader.ul("inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
+    glUniformMatrix4fv(m_naive_shader.ul("inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
     glUniform3fv(m_naive_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
-    glUniform1f(m_naive_shader.ul("near"), m_camera.GetZNear());
-    glUniform1f(m_naive_shader.ul("far"), m_camera.GetZFar());
-    glUniform1f(m_naive_shader.ul("width"), (GLfloat)m_width);
-    glUniform1f(m_naive_shader.ul("height"), (GLfloat)m_height);
+    glUniform1f(m_naive_shader.ul("width"), static_cast<GLfloat>(m_width));
+    glUniform1f(m_naive_shader.ul("height"), static_cast<GLfloat>(m_height));
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.skyboxTextureID);
     glUniform1i(m_naive_shader.ul("skyboxTexture"), 0);
@@ -88,6 +86,6 @@ void App::Resize(GLsizei width, GLsizei height) {
     m_width = width;
     m_height = height;
     glViewport(0, 0, width, height);
-    m_framebuffer.Resize(width, width);
-    m_camera.SetAspect(static_cast<float>(width) / width);
+    m_framebuffer.Resize(width, height);
+    m_camera.SetAspect(static_cast<float>(width) / static_cast<float>(width));
 }
