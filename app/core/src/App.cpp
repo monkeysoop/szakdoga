@@ -4,7 +4,6 @@
 #include "SDL_GLDebugMessageCallback.h"
 
 #include <iostream>
-#include <SDL2/SDL_image.h>
 
 
 App::App(GLsizei width, GLsizei height) : 
@@ -33,8 +32,6 @@ App::App(GLsizei width, GLsizei height) :
     );
 
     m_camera_manipulator.SetCamera(&m_camera);
-
-    m_skybox.InitTexture();
 }
 
 App::~App() {}
@@ -52,7 +49,7 @@ void App::Render() {
     glUniform1f(m_naive_shader.ul("width"), static_cast<GLfloat>(m_width));
     glUniform1f(m_naive_shader.ul("height"), static_cast<GLfloat>(m_height));
     glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.skyboxTextureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
     glUniform1i(m_naive_shader.ul("skyboxTexture"), 0);
     m_naive_shader.Dispatch(((m_width + 15) / 16), ((m_height + 15) / 16), 1);
     m_naive_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

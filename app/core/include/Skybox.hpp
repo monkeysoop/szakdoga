@@ -1,14 +1,14 @@
 #pragma once
+
 #include <GL/glew.h>
-#include <glm/gtc/type_ptr.hpp>
 
 class Skybox {
 public:
 	Skybox();
 	~Skybox();
 
-	void InitTexture();
-	void CleanTexture();
+	GLuint GetTextureID();
 
-	GLuint skyboxTextureID = 0;
+private:
+    GLuint m_texture_id;
 };
