@@ -1,14 +1,14 @@
 #include "Skybox.hpp"
 
 #include <SDL2/SDL_image.h>
-#include <array>
+#include <vector>
+#include <ranges>
 #include <string>
 
 Skybox::Skybox() {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_texture_id);
-    glTextureStorage2D(m_texture_id, 1, GL_RGBA8, 900, 900);
 
-    std::array<std::string, 6> filenames = {
+    std::vector<std::string> filenames = {
         "assets/skybox_xpos.png", 
         "assets/skybox_xneg.png", 
         "assets/skybox_ypos.png",
@@ -17,22 +17,37 @@ Skybox::Skybox() {
         "assets/skybox_zneg.png"
     };
 
-    for (int i = 0; i < 6; i++) {
-        SDL_Surface* loaded_img = IMG_Load(filenames[i].c_str());
 
-        if (loaded_img == nullptr) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while loading texture: %s", filenames[i].c_str());
+    std::vector<SDL_Surface*> surfaces{};
+
+    int max_width = 0;
+    int max_height = 0;
+
+    for (const std::string& filename : filenames) {
+        SDL_Surface* loaded_surface = IMG_Load(filename.c_str());
+
+        if (loaded_surface == nullptr) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while loading texture: %s", filename.c_str());
         }
 
-        SDL_Surface* formattedSurf = SDL_ConvertSurfaceFormat(loaded_img, ((SDL_BYTEORDER == SDL_LIL_ENDIAN) ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_RGBA8888), 0);
-        SDL_FreeSurface(loaded_img);
-        if (formattedSurf == nullptr) {
+        SDL_Surface* formatted_surface = SDL_ConvertSurfaceFormat(loaded_surface, ((SDL_BYTEORDER == SDL_LIL_ENDIAN) ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_RGBA8888), 0);
+        SDL_FreeSurface(loaded_surface);
+        if (formatted_surface == nullptr) {
             SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while processing texture");
             return;
         }
 
-        glTextureSubImage3D(m_texture_id, 0, 0, 0, i, formattedSurf->w, formattedSurf->h, 1, GL_RGBA, GL_UNSIGNED_BYTE, formattedSurf->pixels);
-        SDL_FreeSurface(formattedSurf);
+        surfaces.push_back(formatted_surface);
+        max_width = std::max(max_width, formatted_surface->w);
+        max_height = std::max(max_height, formatted_surface->h);
+    }
+
+
+    glTextureStorage2D(m_texture_id, 1, GL_RGBA8, max_width, max_height);
+
+    for (size_t index = 0; index < surfaces.size(); index++) {
+        glTextureSubImage3D(m_texture_id, 0, 0, 0, index, surfaces[index]->w, surfaces[index]->h, 1, GL_RGBA, GL_UNSIGNED_BYTE, surfaces[index]->pixels);
+        SDL_FreeSurface(surfaces[index]);
     }
 
     glTextureParameteri(m_texture_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
