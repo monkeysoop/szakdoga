@@ -18,17 +18,12 @@
 #include "Skybox.hpp"
 
 
-struct SUpdateInfo {
-    float ElapsedTimeInSec = 0.0f;  // Elapsed time since start of the program
-    float DeltaTimeInSec = 0.0f;    // Elapsed time since last update
-};
-
 class App {
 public:
     App(GLsizei width, GLsizei height);
     ~App();
 
-    void Update(const SUpdateInfo& updateInfo);
+    void Update(float elapsed_time_in_seconds, float delta_time_in_seconds);
     void Render();
     void RenderImGui();
 
@@ -49,4 +44,10 @@ private:
     CompShader m_naive_shader;
 
     Skybox m_skybox;
+
+    float m_time_in_seconds;
+    float m_epsilon;
+    float m_max_distance;
+    int m_max_iteration_count;
+    int m_max_reflection_count;
 };

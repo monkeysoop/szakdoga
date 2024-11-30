@@ -14,7 +14,12 @@ App::App(GLsizei width, GLsizei height) :
     m_framebuffer{width, height}, 
     m_test_shader{"assets/test.comp"}, 
     m_naive_shader{"assets/naive_sphere_tracing.comp"},
-    m_skybox{} 
+    m_skybox{},
+    m_time_in_seconds{0.0f},
+    m_epsilon{0.001f},
+    m_max_distance{1000.0f},
+    m_max_iteration_count{1000},
+    m_max_reflection_count{10}
 {
     GLint context_flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
@@ -36,8 +41,9 @@ App::App(GLsizei width, GLsizei height) :
 
 App::~App() {}
 
-void App::Update(const SUpdateInfo& updateInfo) {
-    m_camera_manipulator.Update(updateInfo.DeltaTimeInSec);
+void App::Update(float elapsed_time_in_seconds, float delta_time_in_seconds) {
+    m_time_in_seconds = elapsed_time_in_seconds;
+    m_camera_manipulator.Update(delta_time_in_seconds);
 }
 
 
@@ -48,6 +54,11 @@ void App::Render() {
     glUniform3fv(m_naive_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
     glUniform1f(m_naive_shader.ul("width"), static_cast<GLfloat>(m_width));
     glUniform1f(m_naive_shader.ul("height"), static_cast<GLfloat>(m_height));
+    glUniform1f(m_naive_shader.ul("time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
+    glUniform1f(m_naive_shader.ul("epsilon"), static_cast<GLfloat>(m_epsilon));
+    glUniform1f(m_naive_shader.ul("max_distance"), static_cast<GLfloat>(m_max_distance));
+    glUniform1i(m_naive_shader.ul("max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+    glUniform1i(m_naive_shader.ul("max_reflection_count"), static_cast<GLint>(m_max_reflection_count));
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
     glUniform1i(m_naive_shader.ul("skyboxTexture"), 0);
@@ -58,8 +69,12 @@ void App::Render() {
 }
 
 void App::RenderImGui() {
-    ImGui::Begin("Demo window");
-    ImGui::Button("Hello!");
+    if (ImGui::Begin("Settings")) {
+		ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
+		ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
+		ImGui::SliderInt("max iteration count", &m_max_iteration_count, 0, 1000);
+		ImGui::SliderInt("max reflection count", &m_max_reflection_count, 0, 10);
+    }
     ImGui::End();
 }
 
