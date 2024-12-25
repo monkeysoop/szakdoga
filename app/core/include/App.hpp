@@ -40,14 +40,20 @@ private:
     Camera m_camera;
     CameraManipulator m_camera_manipulator;
     Framebuffer m_framebuffer;
-    CompShader m_test_shader;
     CompShader m_naive_shader;
+    CompShader m_cone_shader;
+    CompShader m_cone_final_shader;
+    Texture2D m_cone_distance_texture_1;
+    Texture2D m_cone_distance_texture_2;
+    Texture2D m_cone_distance_texture_blank;
 
     Skybox m_skybox;
+
+    bool m_render_mode;
 
     float m_time_in_seconds;
     float m_epsilon;
     float m_max_distance;
     int m_max_iteration_count;
-    int m_max_reflection_count;
+    int m_initial_cone_size;
 };
