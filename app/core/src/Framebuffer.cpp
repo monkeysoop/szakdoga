@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 
 Framebuffer::Framebuffer(GLsizei width, GLsizei height)
-    : m_width{width}, m_height{height}, m_target_texture{width, height} {
+    : m_width{width}, m_height{height}, m_target_texture{width, height, GL_RGBA32F} {
     glCreateFramebuffers(1, &m_framebuffer_id);
     glNamedFramebufferTexture(m_framebuffer_id, GL_COLOR_ATTACHMENT0, m_target_texture.GetTextureID(), 0);
     if (glCheckNamedFramebufferStatus(m_framebuffer_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

@@ -4,7 +4,7 @@
 
 class Texture2D {
 public:
-    Texture2D(GLsizei width, GLsizei height);
+    Texture2D(GLsizei width, GLsizei height, GLenum format);
     ~Texture2D();
 
     void Resize(GLsizei width, GLsizei height);
@@ -13,4 +13,5 @@ public:
 
 private:
     GLuint m_texture_id;
+    GLenum m_format;
 };

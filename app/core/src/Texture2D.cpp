@@ -1,8 +1,8 @@
 #include "Texture2D.hpp"
 
-Texture2D::Texture2D(GLsizei width, GLsizei height) {
+Texture2D::Texture2D(GLsizei width, GLsizei height, GLenum format) : m_format{format} {
     glCreateTextures(GL_TEXTURE_2D, 1, &m_texture_id);
-    glTextureStorage2D(m_texture_id, 1, GL_RGBA32F, width, height);
+    glTextureStorage2D(m_texture_id, 1, format, width, height);
 
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -18,7 +18,7 @@ void Texture2D::Resize(GLsizei width, GLsizei height) {
     glDeleteTextures(1, &m_texture_id);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &m_texture_id);
-    glTextureStorage2D(m_texture_id, 1, GL_RGBA32F, width, height);
+    glTextureStorage2D(m_texture_id, 1, m_format, width, height);
 
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -31,5 +31,5 @@ GLuint Texture2D::GetTextureID() {
 }
 
 void Texture2D::Bind(GLuint unit, GLenum access) {
-    glBindImageTexture(unit, m_texture_id, 0, GL_FALSE, 0, access, GL_RGBA32F);
+    glBindImageTexture(unit, m_texture_id, 0, GL_FALSE, 0, access, m_format);
 }
