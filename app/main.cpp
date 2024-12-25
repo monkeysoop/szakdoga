@@ -14,7 +14,7 @@
 
 
 #define WIDTH 640
-#define HEIGHT 480
+#define HEIGHT 512
 
 int main(int argc, char *argv[]) {
     SDL_LogSetPriority(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR);
@@ -134,20 +134,18 @@ int main(int argc, char *argv[]) {
                     break;
             }
         }
-        static Uint32 LastTick = SDL_GetTicks();  // statikusan tároljuk, mi volt az előző "tick".
-        Uint32 CurrentTick = SDL_GetTicks();      // Mi az aktuális.
-        SUpdateInfo updateInfo                    // Váltsuk át másodpercekre!
-            {static_cast<float>(CurrentTick) / 1000.0f, static_cast<float>(CurrentTick - LastTick) / 1000.0f};
-        LastTick = CurrentTick;  // Mentsük el utolsóként az aktuális "tick"-et!
-        
         nFrames++;
 		if (SDL_GetTicks() - start_time > 1000) {
 			std::cout << "FPS: " << nFrames << "\t\ttime per frame: " << (1000.0 / nFrames) << " ms" << std::endl;
 			nFrames = 0;
 			start_time += 1000.0;
 		}
+        static Uint32 LastTick = SDL_GetTicks();  // statikusan tároljuk, mi volt az előző "tick".
+        Uint32 CurrentTick = SDL_GetTicks();      // Mi az aktuális.
+        app.Update(static_cast<float>(CurrentTick) / 1000.0f, static_cast<float>(CurrentTick - LastTick) / 1000.0f);
+        LastTick = CurrentTick;  // Mentsük el utolsóként az aktuális "tick"-et!
+        
 
-        app.Update(updateInfo);
 
         app.Render();
 

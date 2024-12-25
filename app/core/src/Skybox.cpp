@@ -56,6 +56,7 @@ Skybox::Skybox() {
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_texture_id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
+
 Skybox::~Skybox() {
     glDeleteTextures(1, &m_texture_id);
 }

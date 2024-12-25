@@ -1,7 +1,7 @@
 project(
     'main',
     'cpp',
-    default_options: ['cpp_std=c++23'],
+    default_options: ['cpp_std=c++17'],
     version: '0.1.0',
 )
 
