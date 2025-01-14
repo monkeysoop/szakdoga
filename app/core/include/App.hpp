@@ -15,6 +15,7 @@
 #include "Camera.hpp"
 #include "CameraManipulator.hpp"
 #include "Framebuffer.hpp"
+#include "CompShader.hpp"
 #include "Skybox.hpp"
 
 

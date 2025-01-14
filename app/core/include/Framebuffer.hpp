@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 
 #include "Texture2D.hpp"
-#include "CompShader.hpp"
 
 class Framebuffer {
 public:

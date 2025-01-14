@@ -195,7 +195,7 @@ void main() {
     vec2 pixel_coord = vec2(gl_GlobalInvocationID.xy);
     vec2 normalized_pixel_coord = (pixel_coord * cone_size) / vec2(width, height);
     vec2 ndc_coord = normalized_pixel_coord * 2.0f - 1.0f + offset;
-    ndc_coord.x *= (width / height);
+    //ndc_coord.x *= (width / height);
 
 
     vec2 ndc_corner_c = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);

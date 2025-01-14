@@ -203,7 +203,7 @@ void main() {
 
     vec2 normalizedPixel = vec2(pixelCoord) / vec2(width, height);
     vec2 ndcCoord = normalizedPixel * 2.0f - 1.0f + (1.0 / height);
-    ndcCoord.x *= (width / height);
+    //ndcCoord.x *= (width / height);
     vec4 tempPixel = vec4(ndcCoord, -1.0, 1.0);
     vec4 projectedPosition = inv_view_proj_mat * tempPixel;
     projectedPosition /= projectedPosition.w;

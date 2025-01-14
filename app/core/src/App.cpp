@@ -182,7 +182,7 @@ void App::Resize(GLsizei width, GLsizei height) {
     m_height = height;
     glViewport(0, 0, width, height);
     m_framebuffer.Resize(width, height);
-    m_camera.SetAspect(static_cast<float>(width) / static_cast<float>(width));
+    m_camera.SetAspect(static_cast<float>(width) / static_cast<float>(height));
     m_cone_distance_texture_1.Resize(width, height);
     m_cone_distance_texture_2.Resize(width, height);
 }
