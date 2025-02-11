@@ -171,9 +171,6 @@ void naive_sphere_tracing(Ray ray) {
     } while (d > epsilon * t && t < max_distance && steps < max_iteration_count);
 
 
-    //t /= 100.0;
-    //imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(t, t, t, 1.0));
-    //return;
     if (d <= epsilon * t) {
         vec3 position = ray.position + t * ray.direction;
         vec3 normal = Normal(position);
@@ -193,8 +190,6 @@ void main() {
 
     vec2 normalized_pixel_coord = vec2(pixel_coord) / vec2(width, height);
     vec2 ndc_coord = normalized_pixel_coord * 2.0f - 1.0f + (1.0 / height);
-    //ndc_coord.x *= (width / height);
-
     vec4 projected_position = inv_view_proj_mat * vec4(ndc_coord, -1.0, 1.0);
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - position);
