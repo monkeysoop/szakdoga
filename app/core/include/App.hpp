@@ -40,13 +40,20 @@ private:
 
     Camera m_camera;
     CameraManipulator m_camera_manipulator;
+
     Framebuffer m_framebuffer;
+
     CompShader m_naive_shader;
     CompShader m_cone_shader;
     CompShader m_cone_final_shader;
+    CompShader m_cone_precompute_shader;
+
     Texture2D m_cone_distance_texture_1;
     Texture2D m_cone_distance_texture_2;
     Texture2D m_cone_distance_texture_blank;
+
+    int m_initial_cone_size;
+    Texture2D m_cone_precomputed_texture;
 
     Skybox m_skybox;
 
@@ -56,5 +63,6 @@ private:
     float m_epsilon;
     float m_max_distance;
     int m_max_iteration_count;
-    int m_initial_cone_size;
+
+    void PrecomputeCones();
 };

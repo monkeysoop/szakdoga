@@ -3,19 +3,16 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 layout (r32f, binding = 0) uniform readonly image2D distancesTexture1;
 layout (r32f, binding = 1) uniform writeonly image2D distancesTexture2;
+layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
 
 
-uniform mat4 inv_view_proj_mat;
+uniform mat4 inv_view_mat;
 uniform vec3 position;
-uniform float width;
-uniform float height;
 
 uniform float time_in_seconds;
 uniform float epsilon;
 uniform float max_distance;
 uniform int max_iteration_count;
-
-uniform int cone_size;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -190,32 +187,14 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
 }
 
 void main() {
-    float offset = cone_size / height;
+    vec4 precomputed = imageLoad(precomputedConesTexture, ivec2(gl_GlobalInvocationID.xy));
 
-    vec2 pixel_coord = vec2(gl_GlobalInvocationID.xy);
-    vec2 normalized_pixel_coord = (pixel_coord * cone_size) / vec2(width, height);
-    vec2 ndc_coord = normalized_pixel_coord * 2.0f - 1.0f + offset;
-    //ndc_coord.x *= (width / height);
+    vec4 ray_target = inv_view_mat * vec4(precomputed.xyz, 1.0);
+    vec3 ray_dir = normalize(ray_target.xyz - position);
+    
+    float cone_scale = precomputed.w;
 
-
-    vec2 ndc_corner_c = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);
-    vec2 ndc_corner_1 = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y + sign(ndc_coord.y) * offset);
-    vec2 ndc_corner_2 = vec2(ndc_coord.x + sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);
-
-    vec4 projected_corner_c = inv_view_proj_mat * vec4(ndc_corner_c, -1.0, 1.0);
-    vec4 projected_corner_1 = inv_view_proj_mat * vec4(ndc_corner_1, -1.0, 1.0);
-    vec4 projected_corner_2 = inv_view_proj_mat * vec4(ndc_corner_2, -1.0, 1.0);
-
-    vec3 ray_corner_c = normalize((projected_corner_c.xyz / projected_corner_c.w) - position);
-    vec3 ray_corner_1 = normalize((projected_corner_1.xyz / projected_corner_1.w) - position);
-    vec3 ray_corner_2 = normalize((projected_corner_2.xyz / projected_corner_2.w) - position);
-
-    vec3 ray_dir = normalize(ray_corner_1 + ray_corner_2);
-
-    float cone_scale = length(ray_corner_1 - ray_corner_2) / 2.0;
-
-    float initial_t;
-    initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
+    float initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
 
     if (initial_t >= max_distance || initial_t < 0.0) {
         imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t));
