@@ -17,6 +17,7 @@
 #include "Framebuffer.hpp"
 #include "CompShader.hpp"
 #include "Skybox.hpp"
+#include "Texture2D.hpp"
 
 
 class App {
