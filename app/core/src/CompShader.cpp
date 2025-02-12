@@ -111,7 +111,11 @@ void CompShader::Barrier(GLbitfield barriers) {
 }
 
 GLint CompShader::ul(const GLchar* name) {
-    return glGetUniformLocation(m_program_id, name);
+    GLint location = glGetUniformLocation(m_program_id, name);
+    if (location == -1) {
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error finding uniform: %s  program id: %d (possibly got optimised away)", name, m_program_id);
+    }
+    return location;
 }
 
 GLuint CompShader::GetProgramID() {
