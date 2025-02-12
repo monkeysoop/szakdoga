@@ -6,13 +6,13 @@ layout (r32f, binding = 1) uniform writeonly image2D distancesTexture2;
 layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
 
 
-uniform mat4 inv_view_mat;
-uniform vec3 position;
+uniform mat4 u_inv_view_mat;
+uniform vec3 u_position;
 
-uniform float time_in_seconds;
-uniform float epsilon;
-uniform float max_distance;
-uniform int max_iteration_count;
+uniform float u_time_in_seconds;
+uniform float u_epsilon;
+uniform float u_max_distance;
+uniform int u_max_iteration_count;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -121,8 +121,8 @@ float pendulum(float t) {
 Value sdf(vec3 p) {
     const float freq = 2.0;
 
-    float first_sphere_angle = pendulum(clamp(mod(freq * time_in_seconds, 2.0 * PI), 0.5 * PI, 1.5 * PI) + PI);
-    float last_sphere_angle = pendulum(clamp(mod(freq * time_in_seconds + PI, 2.0 * PI), 0.5 * PI, 1.5 * PI));
+    float first_sphere_angle = pendulum(clamp(mod(freq * u_time_in_seconds, 2.0 * PI), 0.5 * PI, 1.5 * PI) + PI);
+    float last_sphere_angle = pendulum(clamp(mod(freq * u_time_in_seconds + PI, 2.0 * PI), 0.5 * PI, 1.5 * PI));
 
     vec3 first_sphere_pos =    vec3(0.0, -13.0 + 7.0 * cos(first_sphere_angle), -4.0 - 7.0 * sin(first_sphere_angle));
     vec3 last_sphere_pos =     vec3(0.0, -13.0 + 7.0 * cos(last_sphere_angle),   4.0 - 7.0 * sin(last_sphere_angle));
@@ -131,7 +131,7 @@ Value sdf(vec3 p) {
 
     p = vec3(p.x, p.y + 10.0, p.z);
 
-    Value v = Value(max_distance, 0);
+    Value v = Value(u_max_distance, 0);
     v = Unite(v, Value(sdBoxFrame(p + vec3(0.0, -8.0, 0.0), vec3(3.0, 5.0, 6.0), 0.1), 1));
     v = Unite(v, Value(max(sdRoundBox(p + vec3(0.0, -3.0, 0.0), vec3(4.0, 1.0, 7.0), 0.5), -(p.y - 2.99)), 0));
     v = Unite(v, Value(sdSphere(p + first_sphere_pos, 1.0), 2));
@@ -161,25 +161,25 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
     float t = initial_t;
 
     float d;
-    float step_size = epsilon;
+    float step_size = u_epsilon;
 
     int steps = 0;
     do {
         vec3 current_position = ray.position + t * ray.direction;
         d = abs(sdf(current_position).d);
         step_size = d - cone_scale * t;
-        if (step_size < epsilon) {
+        if (step_size < u_epsilon) {
             break;
         }
         t += step_size;
         steps++;
-    } while (t < max_distance && steps < max_iteration_count);
+    } while (t < u_max_distance && steps < u_max_iteration_count);
 
-    if (step_size < epsilon) {
+    if (step_size < u_epsilon) {
         imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(t));
-    } else if (t >= max_distance) {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(max_distance));
-    } else if (steps >= max_iteration_count) {
+    } else if (t >= u_max_distance) {
+        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(u_max_distance));
+    } else if (steps >= u_max_iteration_count) {
         imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(t));
     } else {
         imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(-2.0));
@@ -189,17 +189,17 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
 void main() {
     vec4 precomputed = imageLoad(precomputedConesTexture, ivec2(gl_GlobalInvocationID.xy));
 
-    vec4 ray_target = inv_view_mat * vec4(precomputed.xyz, 1.0);
-    vec3 ray_dir = normalize(ray_target.xyz - position);
+    vec4 ray_target = u_inv_view_mat * vec4(precomputed.xyz, 1.0);
+    vec3 ray_dir = normalize(ray_target.xyz - u_position);
     
     float cone_scale = precomputed.w;
 
     float initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
 
-    if (initial_t >= max_distance || initial_t < 0.0) {
+    if (initial_t >= u_max_distance || initial_t < 0.0) {
         imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t));
         return;
     }
 
-    cone_tracing(Ray(position, ray_dir), initial_t, cone_scale);
+    cone_tracing(Ray(u_position, ray_dir), initial_t, cone_scale);
 }

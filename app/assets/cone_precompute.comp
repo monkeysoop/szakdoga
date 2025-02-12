@@ -4,18 +4,18 @@ layout (local_size_x = 16, local_size_y = 16) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
 
 
-uniform mat4 inv_proj_mat;
+uniform mat4 u_inv_proj_mat;
 
-uniform float width;
-uniform float height;
+uniform float u_width;
+uniform float u_height;
 
-uniform int cone_size;
+uniform int u_cone_size;
 
 void main() {
-    float offset = cone_size / height;
+    float offset = u_cone_size / u_height;
 
     vec2 pixel_coord = vec2(gl_GlobalInvocationID.xy);
-    vec2 normalized_pixel_coord = (pixel_coord * cone_size) / vec2(width, height);
+    vec2 normalized_pixel_coord = (pixel_coord * u_cone_size) / vec2(u_width, u_height);
     vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + offset;
 
 
@@ -23,9 +23,9 @@ void main() {
     vec2 ndc_corner_1 = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y + sign(ndc_coord.y) * offset);
     vec2 ndc_corner_2 = vec2(ndc_coord.x + sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);
 
-    vec4 projected_corner_c = inv_proj_mat * vec4(ndc_corner_c, -1.0, 1.0);
-    vec4 projected_corner_1 = inv_proj_mat * vec4(ndc_corner_1, -1.0, 1.0);
-    vec4 projected_corner_2 = inv_proj_mat * vec4(ndc_corner_2, -1.0, 1.0);
+    vec4 projected_corner_c = u_inv_proj_mat * vec4(ndc_corner_c, -1.0, 1.0);
+    vec4 projected_corner_1 = u_inv_proj_mat * vec4(ndc_corner_1, -1.0, 1.0);
+    vec4 projected_corner_2 = u_inv_proj_mat * vec4(ndc_corner_2, -1.0, 1.0);
 
     vec3 ray_corner_c = normalize((projected_corner_c.xyz / projected_corner_c.w));
     vec3 ray_corner_1 = normalize((projected_corner_1.xyz / projected_corner_1.w));

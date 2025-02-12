@@ -83,13 +83,13 @@ void App::Render() {
             }
             m_cone_precomputed_texture.Bind(2, GL_READ_ONLY, level);
 
-            glUniformMatrix4fv(m_cone_shader.ul("inv_view_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewMatrix())));
-            glUniform3fv(m_cone_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
+            glUniformMatrix4fv(m_cone_shader.ul("u_inv_view_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewMatrix())));
+            glUniform3fv(m_cone_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
 
-            glUniform1f(m_cone_shader.ul("time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
-            glUniform1f(m_cone_shader.ul("epsilon"), static_cast<GLfloat>(m_epsilon));
-            glUniform1f(m_cone_shader.ul("max_distance"), static_cast<GLfloat>(m_max_distance));
-            glUniform1i(m_cone_shader.ul("max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+            glUniform1f(m_cone_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
+            glUniform1f(m_cone_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
+            glUniform1f(m_cone_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
+            glUniform1i(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
             m_cone_shader.Dispatch(((m_width / cone_size) / 16), ((m_height / cone_size) / 16), 1);
             m_cone_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -112,17 +112,17 @@ void App::Render() {
         }
         glActiveTexture(GL_TEXTURE0);
 	    glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
-        glUniform1i(m_cone_final_shader.ul("skyboxTexture"), 0);
+        glUniform1i(m_cone_final_shader.ul("u_skyboxTexture"), 0);
 
-        glUniformMatrix4fv(m_cone_final_shader.ul("inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
-        glUniform3fv(m_cone_final_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
-        glUniform1f(m_cone_final_shader.ul("width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_cone_final_shader.ul("height"), static_cast<GLfloat>(m_height));
+        glUniformMatrix4fv(m_cone_final_shader.ul("u_inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
+        glUniform3fv(m_cone_final_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
+        glUniform1f(m_cone_final_shader.ul("u_width"), static_cast<GLfloat>(m_width));
+        glUniform1f(m_cone_final_shader.ul("u_height"), static_cast<GLfloat>(m_height));
         
-        glUniform1f(m_cone_final_shader.ul("time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
-        glUniform1f(m_cone_final_shader.ul("epsilon"), static_cast<GLfloat>(m_epsilon));
-        glUniform1f(m_cone_final_shader.ul("max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1i(m_cone_final_shader.ul("max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+        glUniform1f(m_cone_final_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
+        glUniform1f(m_cone_final_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
+        glUniform1f(m_cone_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
+        glUniform1i(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
         m_cone_final_shader.Dispatch((m_width / 16), (m_height / 16), 1);
         m_cone_final_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -134,17 +134,17 @@ void App::Render() {
         m_naive_shader.Use();
         glActiveTexture(GL_TEXTURE0);
 	    glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
-        glUniform1i(m_naive_shader.ul("skyboxTexture"), 0);
+        glUniform1i(m_naive_shader.ul("u_skyboxTexture"), 0);
         
-        glUniformMatrix4fv(m_naive_shader.ul("inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
-        glUniform3fv(m_naive_shader.ul("position"), 1, glm::value_ptr(m_camera.GetEye()));
-        glUniform1f(m_naive_shader.ul("width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_naive_shader.ul("height"), static_cast<GLfloat>(m_height));
+        glUniformMatrix4fv(m_naive_shader.ul("u_inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
+        glUniform3fv(m_naive_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
+        glUniform1f(m_naive_shader.ul("u_width"), static_cast<GLfloat>(m_width));
+        glUniform1f(m_naive_shader.ul("u_height"), static_cast<GLfloat>(m_height));
 
-        glUniform1f(m_naive_shader.ul("time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
-        glUniform1f(m_naive_shader.ul("epsilon"), static_cast<GLfloat>(m_epsilon));
-        glUniform1f(m_naive_shader.ul("max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1i(m_naive_shader.ul("max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+        glUniform1f(m_naive_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
+        glUniform1f(m_naive_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
+        glUniform1f(m_naive_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
+        glUniform1i(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
         m_naive_shader.Dispatch((m_width / 16), (m_height / 16), 1);
         m_naive_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         m_framebuffer.UnBind();
@@ -214,11 +214,11 @@ void App::PrecomputeCones() {
     int level = 0;
 
     while (cone_size <= m_initial_cone_size) {
-        glUniformMatrix4fv(m_cone_precompute_shader.ul("inv_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetProj())));
-        glUniform1f(m_cone_precompute_shader.ul("width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_cone_precompute_shader.ul("height"), static_cast<GLfloat>(m_height));
+        glUniformMatrix4fv(m_cone_precompute_shader.ul("u_inv_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetProj())));
+        glUniform1f(m_cone_precompute_shader.ul("u_width"), static_cast<GLfloat>(m_width));
+        glUniform1f(m_cone_precompute_shader.ul("u_height"), static_cast<GLfloat>(m_height));
 
-        glUniform1i(m_cone_precompute_shader.ul("cone_size"), static_cast<GLint>(cone_size));
+        glUniform1i(m_cone_precompute_shader.ul("u_cone_size"), static_cast<GLint>(cone_size));
 
         m_cone_precomputed_texture.Bind(0, GL_WRITE_ONLY, level);
 

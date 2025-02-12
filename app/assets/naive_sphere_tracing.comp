@@ -3,17 +3,17 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
 
-uniform samplerCube skyboxTexture;
+uniform samplerCube u_skyboxTexture;
 
-uniform mat4 inv_view_proj_mat;
-uniform vec3 position;
-uniform float width;
-uniform float height;
+uniform mat4 u_inv_view_proj_mat;
+uniform vec3 u_position;
+uniform float u_width;
+uniform float u_height;
 
-uniform float time_in_seconds;
-uniform float epsilon;
-uniform float max_distance;
-uniform int max_iteration_count;
+uniform float u_time_in_seconds;
+uniform float u_epsilon;
+uniform float u_max_distance;
+uniform int u_max_iteration_count;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -122,8 +122,8 @@ float pendulum(float t) {
 Value sdf(vec3 p) {
     const float freq = 2.0;
 
-    float first_sphere_angle = pendulum(clamp(mod(freq * time_in_seconds, 2.0 * PI), 0.5 * PI, 1.5 * PI) + PI);
-    float last_sphere_angle = pendulum(clamp(mod(freq * time_in_seconds + PI, 2.0 * PI), 0.5 * PI, 1.5 * PI));
+    float first_sphere_angle = pendulum(clamp(mod(freq * u_time_in_seconds, 2.0 * PI), 0.5 * PI, 1.5 * PI) + PI);
+    float last_sphere_angle = pendulum(clamp(mod(freq * u_time_in_seconds + PI, 2.0 * PI), 0.5 * PI, 1.5 * PI));
 
     vec3 first_sphere_pos =    vec3(0.0, -13.0 + 7.0 * cos(first_sphere_angle), -4.0 - 7.0 * sin(first_sphere_angle));
     vec3 last_sphere_pos =     vec3(0.0, -13.0 + 7.0 * cos(last_sphere_angle),   4.0 - 7.0 * sin(last_sphere_angle));
@@ -132,7 +132,7 @@ Value sdf(vec3 p) {
 
     p = vec3(p.x, p.y + 10.0, p.z);
 
-    Value v = Value(max_distance, 0);
+    Value v = Value(u_max_distance, 0);
     v = Unite(v, Value(sdBoxFrame(p + vec3(0.0, -8.0, 0.0), vec3(3.0, 5.0, 6.0), 0.1), 1));
     v = Unite(v, Value(max(sdRoundBox(p + vec3(0.0, -3.0, 0.0), vec3(4.0, 1.0, 7.0), 0.5), -(p.y - 2.99)), 0));
     v = Unite(v, Value(sdSphere(p + first_sphere_pos, 1.0), 2));
@@ -168,18 +168,18 @@ void naive_sphere_tracing(Ray ray) {
         d = abs(sdf(current_position).d);
         t += d;
         steps++;
-    } while (d > epsilon * t && t < max_distance && steps < max_iteration_count);
+    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
 
-    if (d <= epsilon * t) {
+    if (d <= u_epsilon * t) {
         vec3 position = ray.position + t * ray.direction;
         vec3 normal = Normal(position);
         float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
         float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
         vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
         imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
-    } else if (t >= max_distance){
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(skyboxTexture, ray.direction));
+    } else if (t >= u_max_distance){
+        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
     } else {
         imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
     }
@@ -188,11 +188,11 @@ void naive_sphere_tracing(Ray ray) {
 void main() {
     ivec2 pixel_coord = ivec2(gl_GlobalInvocationID.xy);
 
-    vec2 normalized_pixel_coord = vec2(pixel_coord) / vec2(width, height);
-    vec2 ndc_coord = normalized_pixel_coord * 2.0f - 1.0f + (1.0 / height);
-    vec4 projected_position = inv_view_proj_mat * vec4(ndc_coord, -1.0, 1.0);
+    vec2 normalized_pixel_coord = vec2(pixel_coord) / vec2(u_width, u_height);
+    vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + (1.0 / u_height);
+    vec4 projected_position = u_inv_view_proj_mat * vec4(ndc_coord, -1.0, 1.0);
     projected_position /= projected_position.w;
-    vec3 ray_dir = normalize(projected_position.xyz - position);
+    vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    naive_sphere_tracing(Ray(position, ray_dir));
+    naive_sphere_tracing(Ray(u_position, ray_dir));
 }
