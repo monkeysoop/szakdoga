@@ -20,4 +20,6 @@ private:
 
     GLuint m_framebuffer_id;
     Texture2D m_target_texture;
+
+    void Init();
 };
