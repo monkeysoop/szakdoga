@@ -6,17 +6,17 @@ layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
 
 uniform mat4 u_inv_proj_mat;
 
-uniform float u_width;
-uniform float u_height;
+uniform uint u_width;
+uniform uint u_height;
 
-uniform int u_cone_size;
+uniform uint u_cone_size;
 
 void main() {
     if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
         return;
     }
 
-    float offset = u_cone_size / u_height;
+    float offset = float(u_cone_size) / float(u_height);
 
     vec2 normalized_pixel_coord = vec2(gl_GlobalInvocationID.xy * u_cone_size) / vec2(u_width, u_height);
     vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + offset;

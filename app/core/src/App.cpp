@@ -98,13 +98,13 @@ void App::Render() {
 
             glUniformMatrix4fv(m_cone_shader.ul("u_inv_view_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewMatrix())));
             glUniform3fv(m_cone_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
-            glUniform1f(m_cone_shader.ul("u_width"), static_cast<GLfloat>(m_width));
-            glUniform1f(m_cone_shader.ul("u_height"), static_cast<GLfloat>(m_height));
+            glUniform1ui(m_cone_shader.ul("u_width"), static_cast<GLfloat>(m_width));
+            glUniform1ui(m_cone_shader.ul("u_height"), static_cast<GLfloat>(m_height));
 
             glUniform1f(m_cone_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
             glUniform1f(m_cone_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
             glUniform1f(m_cone_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-            glUniform1i(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+            glUniform1ui(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
             m_cone_shader.Dispatch(
                 DivideAndRoundUp(DivideAndRoundUp(m_width, cone_size), LOCAL_WORKGROUP_SIZE_X),
@@ -135,13 +135,13 @@ void App::Render() {
 
         glUniformMatrix4fv(m_cone_final_shader.ul("u_inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
         glUniform3fv(m_cone_final_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
-        glUniform1f(m_cone_final_shader.ul("u_width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_cone_final_shader.ul("u_height"), static_cast<GLfloat>(m_height));
+        glUniform1ui(m_cone_final_shader.ul("u_width"), static_cast<GLuint>(m_width));
+        glUniform1ui(m_cone_final_shader.ul("u_height"), static_cast<GLuint>(m_height));
         
         glUniform1f(m_cone_final_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
         glUniform1f(m_cone_final_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_cone_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1i(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+        glUniform1ui(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
 
         m_cone_final_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
@@ -161,13 +161,13 @@ void App::Render() {
         
         glUniformMatrix4fv(m_naive_shader.ul("u_inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
         glUniform3fv(m_naive_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
-        glUniform1f(m_naive_shader.ul("u_width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_naive_shader.ul("u_height"), static_cast<GLfloat>(m_height));
+        glUniform1ui(m_naive_shader.ul("u_width"), static_cast<GLuint>(m_width));
+        glUniform1ui(m_naive_shader.ul("u_height"), static_cast<GLuint>(m_height));
 
         glUniform1f(m_naive_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
         glUniform1f(m_naive_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_naive_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1i(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+        glUniform1ui(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
         m_naive_shader.Dispatch(
             (m_width + LOCAL_WORKGROUP_SIZE_X - 1) / LOCAL_WORKGROUP_SIZE_X, 
             (m_height + LOCAL_WORKGROUP_SIZE_Y - 1) / LOCAL_WORKGROUP_SIZE_Y, 
@@ -253,10 +253,10 @@ void App::PrecomputeCones() {
 
     while (cone_size <= m_initial_cone_size) {
         glUniformMatrix4fv(m_cone_precompute_shader.ul("u_inv_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetProj())));
-        glUniform1f(m_cone_precompute_shader.ul("u_width"), static_cast<GLfloat>(m_width));
-        glUniform1f(m_cone_precompute_shader.ul("u_height"), static_cast<GLfloat>(m_height));
+        glUniform1ui(m_cone_precompute_shader.ul("u_width"), static_cast<GLuint>(m_width));
+        glUniform1ui(m_cone_precompute_shader.ul("u_height"), static_cast<GLuint>(m_height));
 
-        glUniform1i(m_cone_precompute_shader.ul("u_cone_size"), static_cast<GLint>(cone_size));
+        glUniform1ui(m_cone_precompute_shader.ul("u_cone_size"), static_cast<GLuint>(cone_size));
 
         m_cone_precomputed_texture.Bind(0, GL_WRITE_ONLY, level);
 

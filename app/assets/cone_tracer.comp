@@ -8,13 +8,13 @@ layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
 
 uniform mat4 u_inv_view_mat;
 uniform vec3 u_position;
-uniform float u_width;
-uniform float u_height;
+uniform uint u_width;
+uniform uint u_height;
 
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
 uniform float u_max_distance;
-uniform int u_max_iteration_count;
+uniform uint u_max_iteration_count;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -165,7 +165,7 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
     float d;
     float step_size = u_epsilon;
 
-    int steps = 0;
+    uint steps = 0;
     do {
         vec3 current_position = ray.position + t * ray.direction;
         d = abs(sdf(current_position).d);

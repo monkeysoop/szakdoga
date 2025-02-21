@@ -7,13 +7,13 @@ uniform samplerCube u_skyboxTexture;
 
 uniform mat4 u_inv_view_proj_mat;
 uniform vec3 u_position;
-uniform float u_width;
-uniform float u_height;
+uniform uint u_width;
+uniform uint u_height;
 
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
 uniform float u_max_distance;
-uniform int u_max_iteration_count;
+uniform uint u_max_iteration_count;
 
 const float PI = 3.1415926535897932384626433832795;
 
@@ -162,7 +162,7 @@ void naive_sphere_tracing(Ray ray) {
     float t = 0.0;
     float d;
 
-    int steps = 0;
+    uint steps = 0;
     do {
         vec3 current_position = ray.position + t * ray.direction;
         d = abs(sdf(current_position).d);
@@ -191,7 +191,7 @@ void main() {
     }
 
     vec2 normalized_pixel_coord = vec2(gl_GlobalInvocationID.xy) / vec2(u_width, u_height);
-    vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + (1.0 / u_height);
+    vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + (1.0 / float(u_height));
     vec4 projected_position = u_inv_view_proj_mat * vec4(ndc_coord, -1.0, 1.0);
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
