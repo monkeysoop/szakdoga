@@ -169,8 +169,8 @@ void App::Render() {
         glUniform1f(m_naive_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1ui(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
         m_naive_shader.Dispatch(
-            (m_width + LOCAL_WORKGROUP_SIZE_X - 1) / LOCAL_WORKGROUP_SIZE_X, 
-            (m_height + LOCAL_WORKGROUP_SIZE_Y - 1) / LOCAL_WORKGROUP_SIZE_Y, 
+            DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
+            DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
             1
         );
         m_naive_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
