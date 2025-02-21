@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (local_size_x = 16, local_size_y = 16) in;
+layout (local_size_x = 8, local_size_y = 8) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
 layout (r32f, binding = 1) uniform readonly image2D distancesTexture;
 
@@ -195,13 +195,15 @@ void Render(Ray ray, float t) {
 }
 
 void main() {
-    ivec2 pixel_coord = ivec2(gl_GlobalInvocationID.xy);
+    if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
+        return;
+    }
 
-    vec2 normalized_pixel_coord = vec2(pixel_coord) / vec2(u_width, u_height);
+    vec2 normalized_pixel_coord = vec2(gl_GlobalInvocationID.xy) / vec2(u_width, u_height);
     vec2 ndc_coord = normalized_pixel_coord * 2.0 - 1.0 + (1.0 / u_height);
     vec4 projected_position = u_inv_view_proj_mat * vec4(ndc_coord, -1.0, 1.0);
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    Render(Ray(u_position, ray_dir), imageLoad(distancesTexture, ivec2(gl_GlobalInvocationID.xy) / 2).r);
+    Render(Ray(u_position, ray_dir), imageLoad(distancesTexture, ivec2(gl_GlobalInvocationID.xy / 2)).r);
 }

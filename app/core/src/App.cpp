@@ -6,6 +6,14 @@
 #include <iostream>
 #include <cmath>
 
+#define LOCAL_WORKGROUP_SIZE_X 8
+#define LOCAL_WORKGROUP_SIZE_Y 8
+
+
+GLuint DivideAndRoundUp(GLuint number, GLuint divisor) {
+    return (number + divisor - 1) / divisor;
+}
+
 
 App::App(GLsizei width, GLsizei height) : 
     m_width{width}, 
@@ -21,7 +29,12 @@ App::App(GLsizei width, GLsizei height) :
     m_cone_distance_texture_2{width, height, GL_R32F},
     m_cone_distance_texture_blank{width, height, GL_R32F},
     m_initial_cone_size{4},
-    m_cone_precomputed_texture{static_cast<int>(width / 2), static_cast<int>(height / 2), GL_RGBA32F, static_cast<int>(std::log2(m_initial_cone_size))},
+    m_cone_precomputed_texture{
+        static_cast<int>((width + m_initial_cone_size - 1) / 2), 
+        static_cast<int>((height + m_initial_cone_size - 1) / 2), 
+        GL_RGBA32F, 
+        static_cast<int>(std::log2(m_initial_cone_size))
+    },
     m_skybox{},
     m_render_mode{true},
     m_time_in_seconds{0.0f},
@@ -85,13 +98,19 @@ void App::Render() {
 
             glUniformMatrix4fv(m_cone_shader.ul("u_inv_view_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewMatrix())));
             glUniform3fv(m_cone_shader.ul("u_position"), 1, glm::value_ptr(m_camera.GetEye()));
+            glUniform1f(m_cone_shader.ul("u_width"), static_cast<GLfloat>(m_width));
+            glUniform1f(m_cone_shader.ul("u_height"), static_cast<GLfloat>(m_height));
 
             glUniform1f(m_cone_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
             glUniform1f(m_cone_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
             glUniform1f(m_cone_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
             glUniform1i(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
-            m_cone_shader.Dispatch(((m_width / cone_size) / 16), ((m_height / cone_size) / 16), 1);
+            m_cone_shader.Dispatch(
+                DivideAndRoundUp(DivideAndRoundUp(m_width, cone_size), LOCAL_WORKGROUP_SIZE_X),
+                DivideAndRoundUp(DivideAndRoundUp(m_height, cone_size), LOCAL_WORKGROUP_SIZE_Y),
+                1
+            );
             m_cone_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
             cone_size /= 2;
@@ -124,7 +143,11 @@ void App::Render() {
         glUniform1f(m_cone_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1i(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
-        m_cone_final_shader.Dispatch((m_width / 16), (m_height / 16), 1);
+        m_cone_final_shader.Dispatch(
+            DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
+            DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
+            1
+        );
         m_cone_final_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         m_framebuffer.UnBind();
         m_framebuffer.Blit();
@@ -145,7 +168,11 @@ void App::Render() {
         glUniform1f(m_naive_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_naive_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1i(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
-        m_naive_shader.Dispatch((m_width / 16), (m_height / 16), 1);
+        m_naive_shader.Dispatch(
+            (m_width + LOCAL_WORKGROUP_SIZE_X - 1) / LOCAL_WORKGROUP_SIZE_X, 
+            (m_height + LOCAL_WORKGROUP_SIZE_Y - 1) / LOCAL_WORKGROUP_SIZE_Y, 
+            1
+        );
         m_naive_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         m_framebuffer.UnBind();
         m_framebuffer.Blit();
@@ -160,13 +187,21 @@ void App::RenderImGui() {
 		ImGui::SliderInt("max iteration count", &m_max_iteration_count, 0, 1000);
         if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
             m_initial_cone_size /= 2;
-            m_cone_precomputed_texture.ChangeLevels(static_cast<int>(std::log2(m_initial_cone_size)));
+            m_cone_precomputed_texture.Resize(
+                static_cast<int>((m_width + m_initial_cone_size - 1) / 2), 
+                static_cast<int>((m_height + m_initial_cone_size - 1) / 2), 
+                static_cast<int>(std::log2(m_initial_cone_size))
+            );
             PrecomputeCones();
         }
         ImGui::Text("cone size: %d", m_initial_cone_size);
         if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
             m_initial_cone_size *= 2;
-            m_cone_precomputed_texture.ChangeLevels(static_cast<int>(std::log2(m_initial_cone_size)));
+            m_cone_precomputed_texture.Resize(
+                static_cast<int>((m_width + m_initial_cone_size - 1) / 2), 
+                static_cast<int>((m_height + m_initial_cone_size - 1) / 2), 
+                static_cast<int>(std::log2(m_initial_cone_size))
+            );
             PrecomputeCones();
         }
     }
@@ -203,7 +238,10 @@ void App::Resize(GLsizei width, GLsizei height) {
     m_cone_distance_texture_2.Resize(width, height);
     m_cone_distance_texture_blank.Resize(width, height);
 
-    m_cone_precomputed_texture.Resize(static_cast<int>(width / 2), static_cast<int>(height / 2));
+    m_cone_precomputed_texture.Resize(
+        static_cast<int>((width + m_initial_cone_size - 1) / 2), 
+        static_cast<int>((height + m_initial_cone_size - 1) / 2)
+    );
     PrecomputeCones();
 }
 
@@ -222,7 +260,11 @@ void App::PrecomputeCones() {
 
         m_cone_precomputed_texture.Bind(0, GL_WRITE_ONLY, level);
 
-        m_cone_precompute_shader.Dispatch(((m_width / cone_size) / 16), ((m_height / cone_size) / 16), 1);
+        m_cone_precompute_shader.Dispatch(
+            DivideAndRoundUp(DivideAndRoundUp(m_width, cone_size), LOCAL_WORKGROUP_SIZE_X),
+            DivideAndRoundUp(DivideAndRoundUp(m_height, cone_size), LOCAL_WORKGROUP_SIZE_Y),
+            1
+        );
         m_cone_precompute_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         cone_size *= 2;

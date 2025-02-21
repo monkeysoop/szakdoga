@@ -22,8 +22,11 @@ void Texture2D::Resize(GLsizei width, GLsizei height) {
     Init();
 }
 
-void Texture2D::ChangeLevels(GLsizei levels) {
+void Texture2D::Resize(GLsizei width, GLsizei height, GLsizei levels) {
     glDeleteTextures(1, &m_texture_id);
+
+    m_width = width;
+    m_height = height;
 
     m_levels = levels;
 

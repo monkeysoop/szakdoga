@@ -8,7 +8,7 @@ public:
     ~Texture2D();
 
     void Resize(GLsizei width, GLsizei height);
-    void ChangeLevels(GLsizei levels);
+    void Resize(GLsizei width, GLsizei height, GLsizei levels);
     GLuint GetTextureID();
     void Bind(GLuint unit, GLenum access, GLint level=0);
 

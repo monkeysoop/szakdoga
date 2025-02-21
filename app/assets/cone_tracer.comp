@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (local_size_x = 16, local_size_y = 16) in;
+layout (local_size_x = 8, local_size_y = 8) in;
 layout (r32f, binding = 0) uniform readonly image2D distancesTexture1;
 layout (r32f, binding = 1) uniform writeonly image2D distancesTexture2;
 layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
@@ -8,6 +8,8 @@ layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
 
 uniform mat4 u_inv_view_mat;
 uniform vec3 u_position;
+uniform float u_width;
+uniform float u_height;
 
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
@@ -187,6 +189,10 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
 }
 
 void main() {
+    if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
+        return;
+    }
+
     vec4 precomputed = imageLoad(precomputedConesTexture, ivec2(gl_GlobalInvocationID.xy));
 
     vec4 ray_target = u_inv_view_mat * vec4(precomputed.xyz, 1.0);
