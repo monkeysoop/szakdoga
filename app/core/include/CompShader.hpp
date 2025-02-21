@@ -17,4 +17,5 @@ public:
 
 private:
     GLuint m_program_id;
+    static GLuint m_currently_used_id;
 };

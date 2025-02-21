@@ -5,6 +5,8 @@
 
 #include "CompShader.hpp"
 
+GLuint CompShader::m_currently_used_id{0}; 
+
 void compileShaderFromSource(const GLuint loadedShader, std::string_view shaderCode) {
     // kod hozzarendelese a shader-hez
     const char* sourcePointer = shaderCode.data();
@@ -99,6 +101,7 @@ CompShader::~CompShader() {
 }
 
 void CompShader::Use() {
+    m_currently_used_id = m_program_id;
     glUseProgram(m_program_id);
 }
 
@@ -114,6 +117,9 @@ GLint CompShader::ul(const GLchar* name) {
     GLint location = glGetUniformLocation(m_program_id, name);
     if (location == -1) {
         SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error finding uniform: %s  program id: %d (possibly got optimised away)", name, m_program_id);
+    }
+    if (m_program_id != m_currently_used_id) {
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Warning getting the location of a uniform of a program that is currently not being used (uniform name: %s)", name);
     }
     return location;
 }
