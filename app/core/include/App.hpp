@@ -1,14 +1,11 @@
 #pragma once
 
-// GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
-// GLEW
 #include <GL/glew.h>
 
-// SDL
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
@@ -65,5 +62,9 @@ private:
     float m_max_distance;
     int m_max_iteration_count;
 
+private:
+    void NaiveRender();
+    void ConeRender();
     void PrecomputeCones();
+    GLuint DivideAndRoundUp(GLuint number, GLuint divisor);
 };
