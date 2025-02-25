@@ -1,98 +1,51 @@
-#include <string>
-#include <fstream>
-
 #include <SDL2/SDL.h>
+
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <sstream>
+#include <iterator>
 
 #include "CompShader.hpp"
 
+
+
 GLuint CompShader::m_currently_used_id{0}; 
 
-void compileShaderFromSource(const GLuint loadedShader, std::string_view shaderCode) {
-    // kod hozzarendelese a shader-hez
-    const char* sourcePointer = shaderCode.data();
-    GLint sourceLength = static_cast<GLint>(shaderCode.length());
 
-    glShaderSource(loadedShader, 1, &sourcePointer, &sourceLength);
-
-    // shader leforditasa
-    glCompileShader(loadedShader);
-
-    // ellenorizzuk, h minden rendben van-e
-    GLint result = GL_FALSE;
-    int infoLogLength;
-
-    // forditas statuszanak lekerdezese
-    glGetShaderiv(loadedShader, GL_COMPILE_STATUS, &result);
-    glGetShaderiv(loadedShader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-    if ((GL_FALSE == result) || (infoLogLength != 0)) {
-        // hibauzenet elkerese es kiirasa
-        std::string ErrorMessage(infoLogLength, '\0');
-        glGetShaderInfoLog(loadedShader, infoLogLength, NULL, ErrorMessage.data());
-
-        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader compile error: %s", ErrorMessage.data());
-    }
-}
-void loadShader(const GLuint loadedShader, const std::filesystem::path& _fileName) {
-    // ha nem sikerult hibauzenet es -1 visszaadasa
-    if (loadedShader == 0) {
-        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Shader needs to be inited before loading %s !", _fileName.c_str());
-        return;
-    }
-
-    // shaderkod betoltese _fileName fajlbol
-    std::string shaderCode = "";
-
-    // _fileName megnyitasa
-    std::ifstream shaderStream(_fileName);
-    if (!shaderStream.is_open()) {
-        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading shader %s!", _fileName.c_str());
-        return;
-    }
-
-    // file tartalmanak betoltese a shaderCode string-be
-    std::string line = "";
-    while (std::getline(shaderStream, line)) {
-        shaderCode += line + "\n";
-    }
-
-    shaderStream.close();
-
-    compileShaderFromSource(loadedShader, shaderCode);
-}
-
-CompShader::CompShader(const std::filesystem::path& comp_filename) {
+CompShader::CompShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
     m_program_id = glCreateProgram();
 
-    if (m_program_id == 0)
-        return;
+    if (m_program_id == 0) {
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
+    }
 
     GLuint comp_id = glCreateShader(GL_COMPUTE_SHADER);
 
     if (comp_id == 0) {
-        SDL_SetError("Error while initing shaders (glCreateShader)!");
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating shader!");
     }
 
-    loadShader(comp_id, comp_filename);
+    std::string shader_source_code = LoadShader(comp_filename, include_filenames);
 
-    // adjuk hozzá a programhoz a shadereket
+    CompileShader(comp_id, shader_source_code);
+
     glAttachShader(m_program_id, comp_id);
 
-    // illesszük össze a shadereket (kimenő-bemenő változók összerendelése stb.)
     glLinkProgram(m_program_id);
 
-    // linkeles ellenorzese
-    GLint infoLogLength = 0, result = 0;
+    GLint result = GL_FALSE;
+    GLint info_log_length = 0;
 
     glGetProgramiv(m_program_id, GL_LINK_STATUS, &result);
-    glGetProgramiv(m_program_id, GL_INFO_LOG_LENGTH, &infoLogLength);
-    if (GL_FALSE == result || infoLogLength != 0) {
-        std::string ErrorMessage(infoLogLength, '\0');
-        glGetProgramInfoLog(m_program_id, infoLogLength, nullptr, ErrorMessage.data());
-        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader linking error: %s", ErrorMessage.data());
+    glGetProgramiv(m_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+
+    if ((result == GL_FALSE) || (info_log_length != 0)) {
+        std::string error_message(info_log_length, '\0');
+        glGetProgramInfoLog(m_program_id, info_log_length, nullptr, error_message.data());
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader linking error: %s", error_message.data());
     }
 
-    // mar nincs ezekre szukseg
     glDeleteShader(comp_id);
 }
 
@@ -126,4 +79,72 @@ GLint CompShader::ul(const GLchar* name) {
 
 GLuint CompShader::GetProgramID() {
     return m_program_id;
+}
+
+std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
+    std::string shader_source_code = "";
+
+    std::ifstream shader_file(comp_filename);
+    if (!shader_file.is_open()) {
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading shader: %s!", comp_filename.c_str());
+    }
+
+    std::string current_line = "";
+    while (std::getline(shader_file, current_line)) {
+        const std::string include_token{"#include"};
+        
+        std::string::size_type include_pos = current_line.find(include_token);
+
+        if (include_pos != std::string::npos) {
+            std::istringstream ss{current_line.substr(include_pos + include_token.length() + 1)};
+            std::string unquoted_include_filename;
+            ss >> std::quoted(unquoted_include_filename);
+
+            for (const std::filesystem::path& include_filename : include_filenames) {
+                if (include_filename.string() == unquoted_include_filename) {
+                    std::ifstream include_file(include_filename);
+
+                    if (!include_file.is_open()) {
+                        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading included shader: %s!", include_filename.c_str());
+                    }
+
+                    std::string include_source_code{
+                        std::istreambuf_iterator<char>(include_file),
+                        std::istreambuf_iterator<char>()
+                    };
+
+                    shader_source_code += include_source_code + "\n"; // the extra "\n" might be unnecesseary but couldn't hurt
+
+                    break;
+                }
+            }
+        } else {
+            shader_source_code += current_line + "\n";
+        }
+    }
+
+    return shader_source_code;
+}
+
+void CompShader::CompileShader(GLuint shader_id, const std::string& source_code) {
+    const GLchar* source_data = static_cast<const GLchar*>(source_code.data());
+    const GLint source_length = static_cast<const GLint>(source_code.length());
+
+    glShaderSource(shader_id, 1, &source_data, &source_length);
+
+    glCompileShader(shader_id);
+
+    GLint result = GL_FALSE;
+    GLint info_log_length;
+
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result);
+    glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+
+    if ((result == GL_FALSE) || (info_log_length != 0)) {
+        std::string error_message(info_log_length, '\0');
+
+        glGetShaderInfoLog(shader_id, info_log_length, NULL, error_message.data());
+
+        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader compile error: %s", error_message.data());
+    }
 }
