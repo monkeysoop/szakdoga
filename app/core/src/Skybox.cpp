@@ -3,18 +3,18 @@
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <ranges>
-#include <string>
+#include <filesystem>
 
 Skybox::Skybox() {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_texture_id);
 
-    std::vector<std::string> filenames = {
-        "assets/skybox_xpos.png", 
-        "assets/skybox_xneg.png", 
-        "assets/skybox_ypos.png",
-        "assets/skybox_yneg.png", 
-        "assets/skybox_zpos.png", 
-        "assets/skybox_zneg.png"
+    std::vector<std::filesystem::path> filenames = {
+        std::filesystem::path{"assets"} / "skybox_xpos.png", 
+        std::filesystem::path{"assets"} / "skybox_xneg.png", 
+        std::filesystem::path{"assets"} / "skybox_ypos.png", 
+        std::filesystem::path{"assets"} / "skybox_yneg.png", 
+        std::filesystem::path{"assets"} / "skybox_zpos.png", 
+        std::filesystem::path{"assets"} / "skybox_zneg.png" 
     };
 
 
@@ -23,7 +23,7 @@ Skybox::Skybox() {
     int max_width = 0;
     int max_height = 0;
 
-    for (const std::string& filename : filenames) {
+    for (const std::filesystem::path& filename : filenames) {
         SDL_Surface* loaded_surface = IMG_Load(filename.c_str());
 
         if (loaded_surface == nullptr) {

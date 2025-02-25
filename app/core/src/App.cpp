@@ -3,12 +3,13 @@
 #include "App.hpp"
 #include "SDL_GLDebugMessageCallback.h"
 
+#include <filesystem>
 #include <iostream>
 #include <cmath>
 
+
 #define LOCAL_WORKGROUP_SIZE_X 8
 #define LOCAL_WORKGROUP_SIZE_Y 8
-
 
 
 App::App(GLsizei width, GLsizei height) : 
@@ -17,10 +18,10 @@ App::App(GLsizei width, GLsizei height) :
     m_camera{}, 
     m_camera_manipulator{}, 
     m_framebuffer{width, height}, 
-    m_naive_shader{"assets/naive_sphere_tracing.comp"},
-    m_cone_shader{"assets/cone_tracer.comp"},
-    m_cone_final_shader{"assets/cone_tracer_final_stage.comp"},
-    m_cone_precompute_shader{"assets/cone_precompute.comp"},
+    m_naive_shader{std::filesystem::path{"assets"} / "naive_sphere_tracing.comp"},
+    m_cone_shader{std::filesystem::path{"assets"} / "cone_tracer.comp"},
+    m_cone_final_shader{std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp"},
+    m_cone_precompute_shader{std::filesystem::path{"assets"} / "cone_precompute.comp"},
     m_cone_distance_texture_1{width, height, GL_R32F},
     m_cone_distance_texture_2{width, height, GL_R32F},
     m_cone_distance_texture_blank{width, height, GL_R32F},
