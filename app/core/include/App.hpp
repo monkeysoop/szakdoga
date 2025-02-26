@@ -46,8 +46,8 @@ private:
     CompShader m_cone_final_shader;
     CompShader m_cone_precompute_shader;
 
-    Texture2D m_cone_distance_texture_1;
-    Texture2D m_cone_distance_texture_2;
+    Texture2D m_cone_distance_iteration_texture_1;
+    Texture2D m_cone_distance_iteration_texture_2;
 
     int m_initial_cone_size;
     Texture2D m_cone_precomputed_texture;
@@ -55,6 +55,7 @@ private:
     Skybox m_skybox;
 
     bool m_render_mode;
+    bool m_show_iterations;
 
     float m_time_in_seconds;
     float m_epsilon;

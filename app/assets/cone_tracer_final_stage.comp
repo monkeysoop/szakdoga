@@ -2,7 +2,7 @@
 
 layout (local_size_x = 8, local_size_y = 8) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
-layout (r32f, binding = 1) uniform readonly image2D distancesTexture;
+layout (rg32f, binding = 1) uniform readonly image2D distancesIterationsTexture;
 
 uniform samplerCube u_skyboxTexture;
 
@@ -14,9 +14,10 @@ uniform uint u_height;
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
 uniform float u_max_distance;
-uniform uint u_max_iteration_count;
+uniform float u_max_iteration_count;
 
 uniform bool u_first_pass;
+uniform bool u_show_iterations;
 
 
 #include "assets/sdf.include"
@@ -29,39 +30,52 @@ struct Ray {
 
 
 
-void naive_sphere_tracing(Ray ray, float t0) {
-    float t = t0;
+vec4 naive_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
+    float t = initial_t;
     float d;
 
-    uint steps = 0;
+    float steps = initial_iteration;
     do {
         vec3 current_position = ray.position + t * ray.direction;
         d = abs(sdf(current_position).d);
         t += d;
-        steps++;
+        steps += 1.0;
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
-    if (d <= u_epsilon * t) {
-        vec3 current_position = ray.position + t * ray.direction;
-        vec3 normal = Normal(current_position);
-        float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-        float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-        vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
-    } else if (t >= u_max_distance){
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
+    if (u_show_iterations) {
+        return vec4(steps / u_max_iteration_count);
     } else {
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        if (d <= u_epsilon * t) {
+            vec3 current_position = ray.position + t * ray.direction;
+            vec3 normal = Normal(current_position);
+            float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+            float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+            vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+            return vec4(color, 1.0);
+        } else if (t >= u_max_distance){
+            return texture(u_skyboxTexture, ray.direction);
+        } else {
+            // iteration count exceeded
+            return vec4(1.0, 0.0, 0.0, 0.0);
+        }
     }
 }
 
-void Render(Ray ray, float t) {
-    if (t >= u_max_distance) {
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
-    } else if (t >= 0) {
-        naive_sphere_tracing(ray, t);
+vec4 Render(Ray ray, float initial_t, float initial_iteration) {
+    if (initial_t >= u_max_distance) {
+        if (u_show_iterations) {
+            return vec4(initial_iteration / u_max_iteration_count);
+        } else {
+            return texture(u_skyboxTexture, ray.direction);
+        }
+    } else if (initial_iteration >= u_max_iteration_count) {
+        if (u_show_iterations) {
+            return vec4(initial_iteration / u_max_iteration_count);
+        } else {
+            return vec4(1.0, 0.0, 0.0, 0.0);
+        }
     } else {
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        return naive_sphere_tracing(ray, initial_t, initial_iteration);
     }
 }
 
@@ -77,9 +91,15 @@ void main() {
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
     float initial_t = 0.0;
+    float initial_iteration = 0.0;
     if (!u_first_pass) {
-        initial_t = imageLoad(distancesTexture, ivec2(gl_GlobalInvocationID.xy / 2)).r;
+        vec4 initial = imageLoad(distancesIterationsTexture, ivec2(gl_GlobalInvocationID.xy / 2));
+
+        initial_t = initial.r;
+        initial_iteration = initial.g * 0.25;
     }
 
-    Render(Ray(u_position, ray_dir), initial_t);
+    vec4 res = Render(Ray(u_position, ray_dir), initial_t, initial_iteration);
+
+    imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), res);
 }

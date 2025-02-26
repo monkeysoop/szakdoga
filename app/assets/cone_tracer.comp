@@ -1,8 +1,8 @@
 #version 430 core
 
 layout (local_size_x = 8, local_size_y = 8) in;
-layout (r32f, binding = 0) uniform readonly image2D distancesTexture1;
-layout (r32f, binding = 1) uniform writeonly image2D distancesTexture2;
+layout (rg32f, binding = 0) uniform readonly image2D distancesIterationsTexture1;
+layout (rg32f, binding = 1) uniform writeonly image2D distancesIterationsTexture2;
 layout (rgba32f, binding = 2) uniform readonly image2D precomputedConesTexture;
 
 
@@ -14,7 +14,7 @@ uniform uint u_height;
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
 uniform float u_max_distance;
-uniform uint u_max_iteration_count;
+uniform float u_max_iteration_count;
 
 uniform bool u_first_pass;
 
@@ -29,13 +29,13 @@ struct Ray {
 
 
 
-void cone_tracing(Ray ray, float initial_t, float cone_scale) {
+vec2 cone_tracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
     float t = initial_t;
 
     float d;
     float step_size = u_epsilon;
 
-    uint steps = 0;
+    float steps = initial_iteration;
     do {
         vec3 current_position = ray.position + t * ray.direction;
         d = abs(sdf(current_position).d);
@@ -44,17 +44,16 @@ void cone_tracing(Ray ray, float initial_t, float cone_scale) {
             break;
         }
         t += step_size;
-        steps++;
+        steps += 1.0;
     } while (t < u_max_distance && steps < u_max_iteration_count);
 
     if (step_size < u_epsilon) {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(t));
+        return vec2(t, steps);
     } else if (t >= u_max_distance) {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(u_max_distance));
-    } else if (steps >= u_max_iteration_count) {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(t));
+        return vec2(u_max_distance, steps);
     } else {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(-2.0));
+        // iteration count exceeded
+        return vec2(t, u_max_iteration_count);
     }
 }
 
@@ -71,14 +70,20 @@ void main() {
     float cone_scale = precomputed.w;
 
     float initial_t = 0.0;
+    float initial_iteration = 0.0;
     if (!u_first_pass) {
-        initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
+        vec4 initial = imageLoad(distancesIterationsTexture1, ivec2(gl_GlobalInvocationID.xy / 2));
 
-        if (initial_t >= u_max_distance || initial_t < 0.0) {
-            imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t));
+        initial_t = initial.r;
+        initial_iteration = initial.g * 0.25;
+
+        if (initial_t >= u_max_distance || initial_iteration >= u_max_iteration_count) {
+            imageStore(distancesIterationsTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t, initial_iteration, 0.0, 0.0));
             return;
         }
     }
 
-    cone_tracing(Ray(u_position, ray_dir), initial_t, cone_scale);
+    vec2 res = cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
+
+    imageStore(distancesIterationsTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(res.x, res.y, 0.0, 0.0));
 }

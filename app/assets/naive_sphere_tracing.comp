@@ -15,6 +15,8 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
+uniform bool u_show_iterations;
+
 
 #include "assets/sdf.include"
 
@@ -38,18 +40,21 @@ void naive_sphere_tracing(Ray ray) {
         steps++;
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
-
-    if (d <= u_epsilon * t) {
-        vec3 position = ray.position + t * ray.direction;
-        vec3 normal = Normal(position);
-        float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-        float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-        vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
-    } else if (t >= u_max_distance){
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
+    if (u_show_iterations) {
+        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
     } else {
-        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        if (d <= u_epsilon * t) {
+            vec3 position = ray.position + t * ray.direction;
+            vec3 normal = Normal(position);
+            float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+            float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+            vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+        } else if (t >= u_max_distance){
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
+        } else {
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        }
     }
 }
 

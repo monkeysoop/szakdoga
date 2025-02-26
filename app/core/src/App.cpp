@@ -22,8 +22,8 @@ App::App(GLsizei width, GLsizei height) :
     m_cone_shader{std::filesystem::path{"assets"} / "cone_tracer.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
     m_cone_final_shader{std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
     m_cone_precompute_shader{std::filesystem::path{"assets"} / "cone_precompute.comp"},
-    m_cone_distance_texture_1{width, height, GL_R32F},
-    m_cone_distance_texture_2{width, height, GL_R32F},
+    m_cone_distance_iteration_texture_1{width, height, GL_RG32F},
+    m_cone_distance_iteration_texture_2{width, height, GL_RG32F},
     m_initial_cone_size{4},
     m_cone_precomputed_texture{
         static_cast<int>((width + m_initial_cone_size - 1) / 2), 
@@ -33,6 +33,7 @@ App::App(GLsizei width, GLsizei height) :
     },
     m_skybox{},
     m_render_mode{true},
+    m_show_iterations{false},
     m_time_in_seconds{0.0f},
     m_epsilon{0.001f},
     m_max_distance{1000.0f},
@@ -76,6 +77,7 @@ void App::Render() {
 void App::RenderImGui() {
     if (ImGui::Begin("Settings")) {
 		ImGui::Checkbox("use cone tracing", &m_render_mode);
+		ImGui::Checkbox("show iteration counts", &m_show_iterations);
 		ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
 		ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
 		ImGui::SliderInt("max iteration count", &m_max_iteration_count, 0, 1000);
@@ -128,8 +130,8 @@ void App::Resize(GLsizei width, GLsizei height) {
     
     m_camera.SetAspect(static_cast<float>(width) / static_cast<float>(height));
 
-    m_cone_distance_texture_1.Resize(width, height);
-    m_cone_distance_texture_2.Resize(width, height);
+    m_cone_distance_iteration_texture_1.Resize(width, height);
+    m_cone_distance_iteration_texture_2.Resize(width, height);
 
     m_cone_precomputed_texture.Resize(
         static_cast<int>((width + m_initial_cone_size - 1) / 2), 
@@ -184,6 +186,8 @@ void App::NaiveRender() {
     glUniform1f(m_naive_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
     glUniform1ui(m_naive_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
 
+    glUniform1i(m_naive_shader.ul("u_show_iterations"), static_cast<GLint>(m_show_iterations));
+
     m_naive_shader.Dispatch(
         DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
         DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
@@ -207,11 +211,11 @@ void App::ConeRender() {
 
     while (cone_size > 1) {
         if (t) {
-            m_cone_distance_texture_1.Bind(0, GL_READ_ONLY);
-            m_cone_distance_texture_2.Bind(1, GL_WRITE_ONLY);
+            m_cone_distance_iteration_texture_1.Bind(0, GL_READ_ONLY);
+            m_cone_distance_iteration_texture_2.Bind(1, GL_WRITE_ONLY);
         } else {
-            m_cone_distance_texture_2.Bind(0, GL_READ_ONLY);
-            m_cone_distance_texture_1.Bind(1, GL_WRITE_ONLY);
+            m_cone_distance_iteration_texture_2.Bind(0, GL_READ_ONLY);
+            m_cone_distance_iteration_texture_1.Bind(1, GL_WRITE_ONLY);
         }
         m_cone_precomputed_texture.Bind(2, GL_READ_ONLY, level);
 
@@ -223,7 +227,7 @@ void App::ConeRender() {
         glUniform1f(m_cone_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
         glUniform1f(m_cone_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_cone_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1ui(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
+        glUniform1f(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
         glUniform1i(m_cone_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
 
@@ -247,9 +251,9 @@ void App::ConeRender() {
     m_cone_final_shader.Use();
 
     if (t) {
-        m_cone_distance_texture_1.Bind(1, GL_READ_ONLY);
+        m_cone_distance_iteration_texture_1.Bind(1, GL_READ_ONLY);
     } else {
-        m_cone_distance_texture_2.Bind(1, GL_READ_ONLY);
+        m_cone_distance_iteration_texture_2.Bind(1, GL_READ_ONLY);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -264,9 +268,10 @@ void App::ConeRender() {
     glUniform1f(m_cone_final_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
     glUniform1f(m_cone_final_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
     glUniform1f(m_cone_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-    glUniform1ui(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
+    glUniform1f(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
     glUniform1i(m_cone_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
+    glUniform1i(m_cone_final_shader.ul("u_show_iterations"), static_cast<GLint>(m_show_iterations));
 
     m_cone_final_shader.Dispatch(
         DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
