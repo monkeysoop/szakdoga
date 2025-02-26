@@ -16,6 +16,8 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
+uniform bool u_first_pass;
+
 
 #include "assets/sdf.include"
 
@@ -74,5 +76,10 @@ void main() {
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    Render(Ray(u_position, ray_dir), imageLoad(distancesTexture, ivec2(gl_GlobalInvocationID.xy / 2)).r);
+    float initial_t = 0.0;
+    if (!u_first_pass) {
+        initial_t = imageLoad(distancesTexture, ivec2(gl_GlobalInvocationID.xy / 2)).r;
+    }
+
+    Render(Ray(u_position, ray_dir), initial_t);
 }

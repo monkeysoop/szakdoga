@@ -24,7 +24,6 @@ App::App(GLsizei width, GLsizei height) :
     m_cone_precompute_shader{std::filesystem::path{"assets"} / "cone_precompute.comp"},
     m_cone_distance_texture_1{width, height, GL_R32F},
     m_cone_distance_texture_2{width, height, GL_R32F},
-    m_cone_distance_texture_blank{width, height, GL_R32F},
     m_initial_cone_size{4},
     m_cone_precomputed_texture{
         static_cast<int>((width + m_initial_cone_size - 1) / 2), 
@@ -131,7 +130,6 @@ void App::Resize(GLsizei width, GLsizei height) {
 
     m_cone_distance_texture_1.Resize(width, height);
     m_cone_distance_texture_2.Resize(width, height);
-    m_cone_distance_texture_blank.Resize(width, height);
 
     m_cone_precomputed_texture.Resize(
         static_cast<int>((width + m_initial_cone_size - 1) / 2), 
@@ -205,22 +203,15 @@ void App::ConeRender() {
     bool t = true;
     int level = static_cast<int>(std::log2(m_initial_cone_size)) - 1;
 
+    GLboolean first_pass = GL_TRUE;
+
     while (cone_size > 1) {
-        if (cone_size == m_initial_cone_size) {
-            m_cone_distance_texture_blank.Bind(0, GL_READ_ONLY);
-            if (t) {
-                m_cone_distance_texture_2.Bind(1, GL_WRITE_ONLY);
-            } else {
-                m_cone_distance_texture_1.Bind(1, GL_WRITE_ONLY);
-            }
+        if (t) {
+            m_cone_distance_texture_1.Bind(0, GL_READ_ONLY);
+            m_cone_distance_texture_2.Bind(1, GL_WRITE_ONLY);
         } else {
-            if (t) {
-                m_cone_distance_texture_1.Bind(0, GL_READ_ONLY);
-                m_cone_distance_texture_2.Bind(1, GL_WRITE_ONLY);
-            } else {
-                m_cone_distance_texture_2.Bind(0, GL_READ_ONLY);
-                m_cone_distance_texture_1.Bind(1, GL_WRITE_ONLY);
-            }
+            m_cone_distance_texture_2.Bind(0, GL_READ_ONLY);
+            m_cone_distance_texture_1.Bind(1, GL_WRITE_ONLY);
         }
         m_cone_precomputed_texture.Bind(2, GL_READ_ONLY, level);
 
@@ -234,6 +225,8 @@ void App::ConeRender() {
         glUniform1f(m_cone_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1ui(m_cone_shader.ul("u_max_iteration_count"), static_cast<GLint>(m_max_iteration_count));
 
+        glUniform1i(m_cone_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
+
         m_cone_shader.Dispatch(
             DivideAndRoundUp(DivideAndRoundUp(m_width, cone_size), LOCAL_WORKGROUP_SIZE_X),
             DivideAndRoundUp(DivideAndRoundUp(m_height, cone_size), LOCAL_WORKGROUP_SIZE_Y),
@@ -245,20 +238,18 @@ void App::ConeRender() {
         cone_size /= 2;
         t = !t;
         level--;
+
+        first_pass = GL_FALSE;
     }
 
     m_framebuffer.Bind();
 
     m_cone_final_shader.Use();
 
-    if (m_initial_cone_size > 1) {
-        if (t) {
-            m_cone_distance_texture_1.Bind(1, GL_READ_ONLY);
-        } else {
-            m_cone_distance_texture_2.Bind(1, GL_READ_ONLY);
-        }
+    if (t) {
+        m_cone_distance_texture_1.Bind(1, GL_READ_ONLY);
     } else {
-        m_cone_distance_texture_blank.Bind(1, GL_READ_ONLY);
+        m_cone_distance_texture_2.Bind(1, GL_READ_ONLY);
     }
 
     glActiveTexture(GL_TEXTURE0);
@@ -274,6 +265,8 @@ void App::ConeRender() {
     glUniform1f(m_cone_final_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
     glUniform1f(m_cone_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
     glUniform1ui(m_cone_final_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
+
+    glUniform1i(m_cone_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
 
     m_cone_final_shader.Dispatch(
         DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),

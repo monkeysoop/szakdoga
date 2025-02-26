@@ -16,6 +16,8 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
+uniform bool u_first_pass;
+
 
 #include "assets/sdf.include"
 
@@ -68,11 +70,14 @@ void main() {
     
     float cone_scale = precomputed.w;
 
-    float initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
+    float initial_t = 0.0;
+    if (!u_first_pass) {
+        initial_t = imageLoad(distancesTexture1, ivec2(gl_GlobalInvocationID.xy / 2)).r;
 
-    if (initial_t >= u_max_distance || initial_t < 0.0) {
-        imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t));
-        return;
+        if (initial_t >= u_max_distance || initial_t < 0.0) {
+            imageStore(distancesTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(initial_t));
+            return;
+        }
     }
 
     cone_tracing(Ray(u_position, ray_dir), initial_t, cone_scale);

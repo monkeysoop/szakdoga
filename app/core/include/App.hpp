@@ -48,7 +48,6 @@ private:
 
     Texture2D m_cone_distance_texture_1;
     Texture2D m_cone_distance_texture_2;
-    Texture2D m_cone_distance_texture_blank;
 
     int m_initial_cone_size;
     Texture2D m_cone_precomputed_texture;
