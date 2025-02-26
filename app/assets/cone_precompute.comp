@@ -11,6 +11,8 @@ uniform uint u_height;
 
 uniform uint u_cone_size;
 
+
+
 void main() {
     if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
         return;
@@ -25,18 +27,20 @@ void main() {
     vec2 ndc_corner_c = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);
     vec2 ndc_corner_1 = vec2(ndc_coord.x - sign(ndc_coord.x) * offset, ndc_coord.y + sign(ndc_coord.y) * offset);
     vec2 ndc_corner_2 = vec2(ndc_coord.x + sign(ndc_coord.x) * offset, ndc_coord.y - sign(ndc_coord.y) * offset);
+    vec2 ndc_corner_o = vec2(ndc_coord.x + sign(ndc_coord.x) * offset, ndc_coord.y + sign(ndc_coord.y) * offset);
 
     vec4 projected_corner_c = u_inv_proj_mat * vec4(ndc_corner_c, -1.0, 1.0);
     vec4 projected_corner_1 = u_inv_proj_mat * vec4(ndc_corner_1, -1.0, 1.0);
     vec4 projected_corner_2 = u_inv_proj_mat * vec4(ndc_corner_2, -1.0, 1.0);
+    vec4 projected_corner_o = u_inv_proj_mat * vec4(ndc_corner_o, -1.0, 1.0);
 
     vec3 ray_corner_c = normalize((projected_corner_c.xyz / projected_corner_c.w));
     vec3 ray_corner_1 = normalize((projected_corner_1.xyz / projected_corner_1.w));
     vec3 ray_corner_2 = normalize((projected_corner_2.xyz / projected_corner_2.w));
+    vec3 ray_corner_o = normalize((projected_corner_o.xyz / projected_corner_o.w));
 
     vec3 ray_dir = normalize(ray_corner_1 + ray_corner_2);
-
-    float cone_scale = length(ray_corner_1 - ray_corner_2) / 2.0;
+    float cone_scale = max(length(ray_corner_1 - ray_corner_2) / 2.0, max(length(ray_dir - ray_corner_c), length(ray_dir - ray_corner_o)));
 
     imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(ray_dir, cone_scale));
 }
