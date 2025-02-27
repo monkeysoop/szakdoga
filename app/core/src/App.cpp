@@ -100,6 +100,9 @@ void App::RenderImGui() {
             );
             PrecomputeCones();
         }
+        if (ImGui::Button("take screenhsot")) {
+            m_framebuffer.Screenshot("screenshot.png");
+        }
     }
     ImGui::End();
 }
