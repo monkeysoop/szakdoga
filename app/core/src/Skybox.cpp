@@ -5,6 +5,8 @@
 #include <ranges>
 #include <filesystem>
 
+
+
 Skybox::Skybox() {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_texture_id);
 
@@ -30,7 +32,7 @@ Skybox::Skybox() {
             SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while loading texture: %s", filename.c_str());
         }
 
-        SDL_Surface* formatted_surface = SDL_ConvertSurfaceFormat(loaded_surface, ((SDL_BYTEORDER == SDL_LIL_ENDIAN) ? SDL_PIXELFORMAT_ABGR8888 : SDL_PIXELFORMAT_RGBA8888), 0);
+        SDL_Surface* formatted_surface = SDL_ConvertSurfaceFormat(loaded_surface, SDL_PIXELFORMAT_RGBA32, 0);
         SDL_FreeSurface(loaded_surface);
         if (formatted_surface == nullptr) {
             SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while processing texture");

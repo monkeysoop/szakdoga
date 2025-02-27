@@ -98,7 +98,7 @@ std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, c
         if (include_pos != std::string::npos) {
             std::istringstream ss{current_line.substr(include_pos + include_token.length() + 1)};
             std::string unquoted_include_filename;
-            ss >> std::quoted(unquoted_include_filename);
+            ss >> std::quoted(unquoted_include_filename); // this is very stupid but this essentially strips the quotes
 
             for (const std::filesystem::path& include_filename : include_filenames) {
                 if (include_filename.string() == unquoted_include_filename) {
