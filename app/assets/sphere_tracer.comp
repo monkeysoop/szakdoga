@@ -45,6 +45,7 @@ void naive_sphere_tracing(Ray ray) {
         steps++;
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
+
     if (u_show_iterations) {
         imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
     } else {
@@ -66,30 +67,28 @@ void naive_sphere_tracing(Ray ray) {
 void relaxed_sphere_tracing(Ray ray) {
     const float w = 1.6;
 
-    float d;
+    float next_d;
+    float next_t = 0.0;
 
+    float d = 0.0;
     float t = 0.0;
 
     uint steps = 0;
 
-    float next_d;
-    float next_t;
-
-    d = abs(sdf(ray.position + t * ray.direction).d);
-    while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count) {
-        next_t = t + w * d;
+    do {
         next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-
-        if ((d + next_d) < w * d) {
-            next_t = t + d; 
-            next_d = abs(sdf(ray.position + next_t * ray.direction).d);       
-            steps++;
-        }
-
-        t = next_t;
-        d = next_d;
         steps++;
-    } 
+
+        if ((d + next_d) < w * d && next_t > (t + d)) {
+            next_t = t + d;
+        } else {
+            t = next_t;
+            d = next_d;
+
+            next_t = next_t + w * next_d;
+        }
+    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
+ 
 
     if (u_show_iterations) {
         imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
@@ -111,45 +110,42 @@ void relaxed_sphere_tracing(Ray ray) {
 
 void enhanced_sphere_tracing(Ray ray) {
     const float w = 0.9;
+    const float m = 10.0;
 
+    float next_d;
+    float next_t = 0.0;
+
+    float d = 0.0;
     float t = 0.0;
+
+    float s = 0.0;
+    float next_s = 0.0;
 
     uint steps = 0;
 
-    float prev_d;
-
-    float s;
-    float d;
-
-    float next_d;
-    float next_t;
-    float next_s;
-
-    d = abs(sdf(ray.position + t * ray.direction).d);
-
-    // this makes first next_s to be equal to d (makes the numerator 0 and the denominator non 0)
-    prev_d = -1.0 * d;
-    s = -2.0 * d;
-    while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count) {
-        next_s = d + w * d * ((-1.0 * prev_d + d + s) / (prev_d - d + s));
-        
-        next_s = clamp(next_s, d, 10.0 * d);
-        next_t = t + next_s;
+    do {
         next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-
-        if ((d + next_d + 0.000001) < next_s) {
-            next_s = d;
-            next_t = t + next_s; 
-            next_d = abs(sdf(ray.position + next_t * ray.direction).d);     
-            steps++;
-        }
-
-        t = next_t;
-        s = next_s;
-        prev_d = d;
-        d = next_d;
         steps++;
-    }    
+
+        if ((d + next_d + 0.000001) < next_s && next_t > (t + d)) {
+            next_s = d;
+
+            s = next_s;
+
+            next_t = t + next_s;
+        } else {
+            next_s = next_d + w * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
+            next_s = clamp(next_s, next_d, m * next_d);
+            
+            t = next_t;
+            d = next_d;
+            
+            s = next_s;
+
+            next_t = next_t + next_s;
+        }
+    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
+
 
     if (u_show_iterations) {
         imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
