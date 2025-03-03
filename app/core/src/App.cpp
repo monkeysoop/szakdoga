@@ -32,7 +32,7 @@ App::App(GLsizei width, GLsizei height) :
         static_cast<int>(std::log2(m_initial_cone_size))
     },
     m_skybox{},
-    m_render_mode{true},
+    m_render_mode{SphereTracingType::NAIVE},
     m_show_iterations{false},
     m_time_in_seconds{0.0f},
     m_epsilon{0.001f},
@@ -67,16 +67,21 @@ void App::Update(float elapsed_time_in_seconds, float delta_time_in_seconds) {
 }
 
 void App::Render() {
-    if (m_render_mode) {
-        ConeRender();
+    if (m_render_mode == SphereTracingType::CONE) {
+        ConeTraceRender();
     } else {
-        NaiveRender();
+        SphereTraceRender();
     }
 }
 
 void App::RenderImGui() {
     if (ImGui::Begin("Settings")) {
-		ImGui::Checkbox("use cone tracing", &m_render_mode);
+        int mode = static_cast<int>(m_render_mode);
+        ImGui::RadioButton("naive", &mode, static_cast<int>(SphereTracingType::NAIVE));
+        ImGui::RadioButton("relaxed", &mode, static_cast<int>(SphereTracingType::RELAXED));
+        ImGui::RadioButton("enhanced", &mode, static_cast<int>(SphereTracingType::ENHANCED));
+        ImGui::RadioButton("cone", &mode, static_cast<int>(SphereTracingType::CONE));
+        m_render_mode = static_cast<SphereTracingType>(mode);
 		ImGui::Checkbox("show iteration counts", &m_show_iterations);
 		ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
 		ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
@@ -170,7 +175,7 @@ void App::PrecomputeCones() {
     }
 }
 
-void App::NaiveRender() {
+void App::SphereTraceRender() {
     m_framebuffer.Bind();
 
     m_naive_shader.Use();
@@ -191,6 +196,8 @@ void App::NaiveRender() {
 
     glUniform1i(m_naive_shader.ul("u_show_iterations"), static_cast<GLint>(m_show_iterations));
 
+    glUniform1ui(m_naive_shader.ul("u_render_mode"), static_cast<GLuint>(m_render_mode));
+
     m_naive_shader.Dispatch(
         DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
         DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
@@ -203,7 +210,7 @@ void App::NaiveRender() {
     m_framebuffer.Blit();
 }
 
-void App::ConeRender() {
+void App::ConeTraceRender() {
     m_cone_shader.Use();
 
     int cone_size = m_initial_cone_size;

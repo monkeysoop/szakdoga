@@ -16,6 +16,13 @@
 #include "Skybox.hpp"
 #include "Texture2D.hpp"
 
+enum class SphereTracingType : unsigned {
+    NAIVE = 0,
+    RELAXED = 1,
+    ENHANCED = 2,
+    CONE = 3,
+};
+
 
 class App {
 public:
@@ -54,7 +61,7 @@ private:
 
     Skybox m_skybox;
 
-    bool m_render_mode;
+    SphereTracingType m_render_mode;
     bool m_show_iterations;
 
     float m_time_in_seconds;
@@ -63,8 +70,8 @@ private:
     int m_max_iteration_count;
 
 private:
-    void NaiveRender();
-    void ConeRender();
+    void SphereTraceRender();
+    void ConeTraceRender();
     void PrecomputeCones();
     GLuint DivideAndRoundUp(GLuint number, GLuint divisor);
 };

@@ -17,6 +17,11 @@ uniform uint u_max_iteration_count;
 
 uniform bool u_show_iterations;
 
+uniform uint u_render_mode;
+
+const uint NAIVE = 0;
+const uint RELAXED = 1;
+const uint ENHANCED = 2;
 
 #include "assets/sdf.include"
 
@@ -58,6 +63,112 @@ void naive_sphere_tracing(Ray ray) {
     }
 }
 
+void relaxed_sphere_tracing(Ray ray) {
+    const float w = 1.6;
+
+    float d;
+
+    float t = 0.0;
+
+    uint steps = 0;
+
+    float next_d;
+    float next_t;
+
+    d = abs(sdf(ray.position + t * ray.direction).d);
+    while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count) {
+        next_t = t + w * d;
+        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
+
+        if ((d + next_d) < w * d) {
+            next_t = t + d; 
+            next_d = abs(sdf(ray.position + next_t * ray.direction).d);       
+            steps++;
+        }
+
+        t = next_t;
+        d = next_d;
+        steps++;
+    } 
+
+    if (u_show_iterations) {
+        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
+    } else {
+        if (d <= u_epsilon * t) {
+            vec3 position = ray.position + t * ray.direction;
+            vec3 normal = Normal(position);
+            float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+            float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+            vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+        } else if (t >= u_max_distance){
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
+        } else {
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        }
+    }
+}
+
+void enhanced_sphere_tracing(Ray ray) {
+    const float w = 0.9;
+
+    float t = 0.0;
+
+    uint steps = 0;
+
+    float prev_d;
+
+    float s;
+    float d;
+
+    float next_d;
+    float next_t;
+    float next_s;
+
+    d = abs(sdf(ray.position + t * ray.direction).d);
+
+    // this makes first next_s to be equal to d (makes the numerator 0 and the denominator non 0)
+    prev_d = -1.0 * d;
+    s = -2.0 * d;
+    while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count) {
+        next_s = d + w * d * ((-1.0 * prev_d + d + s) / (prev_d - d + s));
+        
+        next_s = clamp(next_s, d, 10.0 * d);
+        next_t = t + next_s;
+        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
+
+        if ((d + next_d + 0.000001) < next_s) {
+            next_s = d;
+            next_t = t + next_s; 
+            next_d = abs(sdf(ray.position + next_t * ray.direction).d);     
+            steps++;
+        }
+
+        t = next_t;
+        s = next_s;
+        prev_d = d;
+        d = next_d;
+        steps++;
+    }    
+
+    if (u_show_iterations) {
+        imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(float(steps) / float(u_max_iteration_count)));
+    } else {
+        if (d <= u_epsilon * t) {
+            vec3 position = ray.position + t * ray.direction;
+            vec3 normal = Normal(position);
+            float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+            float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+            vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
+        } else if (t >= u_max_distance){
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), texture(u_skyboxTexture, ray.direction));
+        } else {
+            imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(1.0, 0.0, 0.0, 0.0));
+        }
+    }
+}
+
 void main() {
     if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
         return;
@@ -69,5 +180,9 @@ void main() {
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    naive_sphere_tracing(Ray(u_position, ray_dir));
+    switch (u_render_mode) {
+        case NAIVE: naive_sphere_tracing(Ray(u_position, ray_dir)); break;
+        case RELAXED: relaxed_sphere_tracing(Ray(u_position, ray_dir)); break;
+        case ENHANCED: enhanced_sphere_tracing(Ray(u_position, ray_dir)); break;
+    }
 }
