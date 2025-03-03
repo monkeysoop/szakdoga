@@ -100,6 +100,8 @@ std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, c
             std::string unquoted_include_filename;
             ss >> std::quoted(unquoted_include_filename); // this is very stupid but this essentially strips the quotes
 
+            bool any_match = false;
+
             for (const std::filesystem::path& include_filename : include_filenames) {
                 if (include_filename.string() == unquoted_include_filename) {
                     std::ifstream include_file(include_filename);
@@ -115,9 +117,14 @@ std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, c
 
                     shader_source_code += include_source_code + "\n"; // the extra "\n" might be unnecesseary but couldn't hurt
 
+                    any_match = true;
                     break;
                 }
             }
+            if (!any_match) {
+                SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, included file not found, filename: %s!", unquoted_include_filename.c_str());
+            }
+
         } else {
             shader_source_code += current_line + "\n";
         }
