@@ -9,7 +9,7 @@
 
 
 
-Framebuffer::Framebuffer(GLsizei width, GLsizei height) : 
+Framebuffer::Framebuffer(unsigned width, unsigned height) : 
     m_width{width}, 
     m_height{height}, 
     m_target_texture{width, height, GL_RGBA32F}
@@ -34,7 +34,7 @@ void Framebuffer::Blit() {
     glBlitNamedFramebuffer(m_framebuffer_id, 0, 0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
-void Framebuffer::Resize(GLsizei width, GLsizei height) {
+void Framebuffer::Resize(unsigned width, unsigned height) {
     m_width = width;
     m_height = height;
     

@@ -58,7 +58,7 @@ void CompShader::Use() {
     glUseProgram(m_program_id);
 }
 
-void CompShader::Dispatch(GLuint x, GLuint y, GLuint z) {
+void CompShader::Dispatch(unsigned x, unsigned y, unsigned z) {
     glDispatchCompute(x, y, z);
 }
 
@@ -128,7 +128,7 @@ std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, c
 
 void CompShader::CompileShader(GLuint shader_id, const std::string& source_code) {
     const GLchar* source_data = static_cast<const GLchar*>(source_code.data());
-    const GLint source_length = static_cast<const GLint>(source_code.length());
+    const GLint source_length = static_cast<GLint>(source_code.length());
 
     glShaderSource(shader_id, 1, &source_data, &source_length);
 

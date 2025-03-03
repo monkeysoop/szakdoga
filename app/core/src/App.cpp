@@ -8,11 +8,11 @@
 #include <cmath>
 
 
-#define LOCAL_WORKGROUP_SIZE_X 8
-#define LOCAL_WORKGROUP_SIZE_Y 8
+const unsigned LOCAL_WORKGROUP_SIZE_X = 8;
+const unsigned LOCAL_WORKGROUP_SIZE_Y = 8;
 
 
-App::App(GLsizei width, GLsizei height) : 
+App::App(unsigned width, unsigned height) : 
     m_width{width}, 
     m_height{height}, 
     m_camera{}, 
@@ -26,10 +26,10 @@ App::App(GLsizei width, GLsizei height) :
     m_cone_distance_iteration_texture_2{width, height, GL_RG32F},
     m_initial_cone_size{4},
     m_cone_precomputed_texture{
-        static_cast<int>((width + m_initial_cone_size - 1) / 2), 
-        static_cast<int>((height + m_initial_cone_size - 1) / 2), 
+        static_cast<unsigned>((width + m_initial_cone_size - 1) / 2), 
+        static_cast<unsigned>((height + m_initial_cone_size - 1) / 2), 
         GL_RGBA32F, 
-        static_cast<int>(std::log2(m_initial_cone_size))
+        static_cast<unsigned>(std::log2(m_initial_cone_size))
     },
     m_skybox{},
     m_render_mode{SphereTracingType::NAIVE},
@@ -85,13 +85,15 @@ void App::RenderImGui() {
 		ImGui::Checkbox("show iteration counts", &m_show_iterations);
 		ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
 		ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
-		ImGui::SliderInt("max iteration count", &m_max_iteration_count, 0, 1000);
+        int iter_count = static_cast<int>(m_max_iteration_count);
+		ImGui::SliderInt("max iteration count", &iter_count, 0, 1000);
+        m_max_iteration_count = static_cast<unsigned>(iter_count);
         if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
             m_initial_cone_size /= 2;
             m_cone_precomputed_texture.Resize(
-                static_cast<int>((m_width + m_initial_cone_size - 1) / 2), 
-                static_cast<int>((m_height + m_initial_cone_size - 1) / 2), 
-                static_cast<int>(std::log2(m_initial_cone_size))
+                static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
+                static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
+                static_cast<unsigned>(std::log2(m_initial_cone_size))
             );
             PrecomputeCones();
         }
@@ -99,9 +101,9 @@ void App::RenderImGui() {
         if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
             m_initial_cone_size *= 2;
             m_cone_precomputed_texture.Resize(
-                static_cast<int>((m_width + m_initial_cone_size - 1) / 2), 
-                static_cast<int>((m_height + m_initial_cone_size - 1) / 2), 
-                static_cast<int>(std::log2(m_initial_cone_size))
+                static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
+                static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
+                static_cast<unsigned>(std::log2(m_initial_cone_size))
             );
             PrecomputeCones();
         }
@@ -129,7 +131,7 @@ void App::MouseWheel(const SDL_MouseWheelEvent& wheel) {
     PrecomputeCones();
 }
 
-void App::Resize(GLsizei width, GLsizei height) {
+void App::Resize(unsigned width, unsigned height) {
     m_width = width;
     m_height = height;
 
@@ -142,8 +144,8 @@ void App::Resize(GLsizei width, GLsizei height) {
     m_cone_distance_iteration_texture_2.Resize(width, height);
 
     m_cone_precomputed_texture.Resize(
-        static_cast<int>((width + m_initial_cone_size - 1) / 2), 
-        static_cast<int>((height + m_initial_cone_size - 1) / 2)
+        static_cast<unsigned>((width + m_initial_cone_size - 1) / 2), 
+        static_cast<unsigned>((height + m_initial_cone_size - 1) / 2)
     );
     PrecomputeCones();
 }
@@ -151,8 +153,8 @@ void App::Resize(GLsizei width, GLsizei height) {
 void App::PrecomputeCones() {
     m_cone_precompute_shader.Use();
 
-    int cone_size = 2;
-    int level = 0;
+    unsigned cone_size = 2;
+    unsigned level = 0;
 
     while (cone_size <= m_initial_cone_size) {
         glUniformMatrix4fv(m_cone_precompute_shader.ul("u_inv_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetProj())));
@@ -213,9 +215,9 @@ void App::SphereTraceRender() {
 void App::ConeTraceRender() {
     m_cone_shader.Use();
 
-    int cone_size = m_initial_cone_size;
+    unsigned cone_size = m_initial_cone_size;
     bool t = true;
-    int level = static_cast<int>(std::log2(m_initial_cone_size)) - 1;
+    unsigned level = static_cast<unsigned>(std::log2(m_initial_cone_size)) - 1;
 
     GLboolean first_pass = GL_TRUE;
 
@@ -296,6 +298,6 @@ void App::ConeTraceRender() {
 
 }
 
-GLuint App::DivideAndRoundUp(GLuint number, GLuint divisor) {
+unsigned App::DivideAndRoundUp(unsigned number, unsigned divisor) {
     return (number + divisor - 1) / divisor;
 }

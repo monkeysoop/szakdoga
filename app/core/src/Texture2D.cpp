@@ -1,6 +1,6 @@
 #include "Texture2D.hpp"
 
-Texture2D::Texture2D(GLsizei width, GLsizei height, GLenum format, GLsizei levels) : 
+Texture2D::Texture2D(unsigned width, unsigned height, GLenum format, unsigned levels) : 
     m_width{width},
     m_height{height},
     m_format{format}, 
@@ -13,7 +13,7 @@ Texture2D::~Texture2D() {
     glDeleteTextures(1, &m_texture_id);
 }
 
-void Texture2D::Resize(GLsizei width, GLsizei height) {
+void Texture2D::Resize(unsigned width, unsigned height) {
     glDeleteTextures(1, &m_texture_id);
 
     m_width = width;
@@ -22,7 +22,7 @@ void Texture2D::Resize(GLsizei width, GLsizei height) {
     Init();
 }
 
-void Texture2D::Resize(GLsizei width, GLsizei height, GLsizei levels) {
+void Texture2D::Resize(unsigned width, unsigned height, unsigned levels) {
     glDeleteTextures(1, &m_texture_id);
 
     m_width = width;
@@ -37,7 +37,7 @@ GLuint Texture2D::GetTextureID() {
     return m_texture_id;
 }
 
-void Texture2D::Bind(GLuint unit, GLenum access, GLint level) {
+void Texture2D::Bind(GLuint unit, GLenum access, unsigned level) {
     glBindImageTexture(unit, m_texture_id, level, GL_FALSE, 0, access, m_format);
 }
 

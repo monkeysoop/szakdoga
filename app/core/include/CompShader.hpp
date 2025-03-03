@@ -11,7 +11,7 @@ public:
     ~CompShader();
 
     void Use();
-    void Dispatch(GLuint x, GLuint y, GLuint z);
+    void Dispatch(unsigned x, unsigned y, unsigned z);
     void Barrier(GLbitfield barriers);
     GLint ul(const GLchar* name);
     GLuint GetProgramID();

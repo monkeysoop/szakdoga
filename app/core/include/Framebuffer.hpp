@@ -10,18 +10,18 @@
 
 class Framebuffer {
 public:
-    Framebuffer(GLsizei width, GLsizei height);
+    Framebuffer(unsigned width, unsigned height);
     ~Framebuffer();
 
     void Bind();
     void UnBind();
     void Blit();
-    void Resize(GLsizei width, GLsizei height);
+    void Resize(unsigned width, unsigned height);
     void Screenshot(const std::filesystem::path& screenshot_path);
 
 private:
-    GLsizei m_width;
-    GLsizei m_height;
+    unsigned m_width;
+    unsigned m_height;
 
     GLuint m_framebuffer_id;
     Texture2D m_target_texture;

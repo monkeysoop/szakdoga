@@ -26,7 +26,7 @@ enum class SphereTracingType : unsigned {
 
 class App {
 public:
-    App(GLsizei width, GLsizei height);
+    App(unsigned width, unsigned height);
     ~App();
 
     void Update(float elapsed_time_in_seconds, float delta_time_in_seconds);
@@ -37,11 +37,11 @@ public:
     void KeyboardUp(const SDL_KeyboardEvent& key);
     void MouseMove(const SDL_MouseMotionEvent& mouse);
     void MouseWheel(const SDL_MouseWheelEvent& wheel);
-    void Resize(GLsizei width, GLsizei height);
+    void Resize(unsigned width, unsigned height);
 
 private:
-    GLsizei m_width;
-    GLsizei m_height;
+    unsigned m_width;
+    unsigned m_height;
 
     Camera m_camera;
     CameraManipulator m_camera_manipulator;
@@ -56,7 +56,7 @@ private:
     Texture2D m_cone_distance_iteration_texture_1;
     Texture2D m_cone_distance_iteration_texture_2;
 
-    int m_initial_cone_size;
+    unsigned m_initial_cone_size;
     Texture2D m_cone_precomputed_texture;
 
     Skybox m_skybox;
@@ -67,11 +67,11 @@ private:
     float m_time_in_seconds;
     float m_epsilon;
     float m_max_distance;
-    int m_max_iteration_count;
+    unsigned m_max_iteration_count;
 
 private:
     void SphereTraceRender();
     void ConeTraceRender();
     void PrecomputeCones();
-    GLuint DivideAndRoundUp(GLuint number, GLuint divisor);
+    unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
 };
