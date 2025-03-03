@@ -18,7 +18,7 @@ App::App(GLsizei width, GLsizei height) :
     m_camera{}, 
     m_camera_manipulator{}, 
     m_framebuffer{width, height}, 
-    m_naive_shader{std::filesystem::path{"assets"} / "naive_sphere_tracing.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
+    m_naive_shader{std::filesystem::path{"assets"} / "sphere_tracer.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
     m_cone_shader{std::filesystem::path{"assets"} / "cone_tracer.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
     m_cone_final_shader{std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
     m_cone_precompute_shader{std::filesystem::path{"assets"} / "cone_precompute.comp"},
