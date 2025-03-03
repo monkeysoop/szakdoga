@@ -13,8 +13,8 @@
 #include <iostream>
 
 
-#define WIDTH 640
-#define HEIGHT 512
+const unsigned WIDTH = 640;
+const unsigned HEIGHT = 512;
 
 int main(int argc, char *argv[]) {
     SDL_LogSetPriority(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR);
