@@ -74,4 +74,5 @@ private:
     void ConeTraceRender();
     void PrecomputeCones();
     unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
+    void Benchmark();
 };

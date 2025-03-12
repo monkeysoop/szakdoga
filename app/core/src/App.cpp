@@ -110,6 +110,9 @@ void App::RenderImGui() {
         if (ImGui::Button("take screenhsot")) {
             m_framebuffer.Screenshot("screenshot.png");
         }
+        if (ImGui::Button("Benchmark")) {
+            Benchmark();
+        }
     }
     ImGui::End();
 }
@@ -300,4 +303,74 @@ void App::ConeTraceRender() {
 
 unsigned App::DivideAndRoundUp(unsigned number, unsigned divisor) {
     return (number + divisor - 1) / divisor;
+}
+
+void App::Benchmark() {
+    float old_time = m_time_in_seconds;
+    unsigned old_iter_count = m_max_iteration_count;
+    SphereTracingType old_mode = m_render_mode;
+    bool old_show = m_show_iterations;
+    
+    m_time_in_seconds = 0.0;
+
+    
+    std::filesystem::path visual_path{std::filesystem::path{"benchmarks"} / "visual"};
+    
+    m_show_iterations = false;
+
+    m_render_mode = SphereTracingType::NAIVE;
+    m_max_iteration_count = 1000;
+    SphereTraceRender();
+    m_framebuffer.Screenshot(visual_path / "screenshot_baseline.png");
+    
+    for (m_max_iteration_count = 10; m_max_iteration_count <= 100; m_max_iteration_count += 10) {
+        std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+        
+        m_render_mode = SphereTracingType::NAIVE;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(visual_path / "naive" / filename);
+        
+        m_render_mode = SphereTracingType::RELAXED;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(visual_path / "relaxed" / filename);
+        
+        m_render_mode = SphereTracingType::ENHANCED;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(visual_path / "enhanced" / filename);
+        
+        m_render_mode = SphereTracingType::CONE;
+        ConeTraceRender();
+        m_framebuffer.Screenshot(visual_path / "cone" / filename);
+    }
+
+
+    std::filesystem::path performance_path{std::filesystem::path{"benchmarks"} / "performance"};
+    
+    m_show_iterations = true;
+
+    for (m_max_iteration_count = 10; m_max_iteration_count <= 100; m_max_iteration_count += 10) {
+        std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+        
+        m_render_mode = SphereTracingType::NAIVE;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(performance_path / "naive" / filename);
+        
+        m_render_mode = SphereTracingType::RELAXED;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(performance_path / "relaxed" / filename);
+        
+        m_render_mode = SphereTracingType::ENHANCED;
+        SphereTraceRender();
+        m_framebuffer.Screenshot(performance_path / "enhanced" / filename);
+        
+        m_render_mode = SphereTracingType::CONE;
+        ConeTraceRender();
+        m_framebuffer.Screenshot(performance_path / "cone" / filename);
+    }
+
+
+    m_time_in_seconds = old_time;
+    m_max_iteration_count = old_iter_count;
+    m_render_mode = old_mode;
+    m_show_iterations = old_show;
 }
