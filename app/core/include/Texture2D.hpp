@@ -2,24 +2,29 @@
 
 #include <GL/glew.h>
 
-class Texture2D {
-public:
-    Texture2D(unsigned width, unsigned height, GLenum format, unsigned levels=1);
-    ~Texture2D();
 
-    void Resize(unsigned width, unsigned height);
-    void Resize(unsigned width, unsigned height, unsigned levels);
-    GLuint GetTextureID();
-    void Bind(GLuint unit, GLenum access, unsigned level=0);
 
-private:
-    GLuint m_texture_id;
+namespace szakdoga::core {
+    class Texture2D {
+    public:
+        Texture2D(unsigned width, unsigned height, GLenum format, unsigned levels=1);
+        ~Texture2D();
 
-    unsigned m_width;
-    unsigned m_height;
-    
-    GLenum m_format;
-    unsigned m_levels;
+        void Resize(unsigned width, unsigned height);
+        void Resize(unsigned width, unsigned height, unsigned levels);
+        GLuint GetTextureID();
+        void Bind(GLuint unit, GLenum access, unsigned level=0);
 
-    void Init();
-};
+    private:
+        GLuint m_texture_id;
+
+        unsigned m_width;
+        unsigned m_height;
+
+        GLenum m_format;
+        unsigned m_levels;
+
+    private:
+        void Init();
+    };
+} // namespace szakdoga::core

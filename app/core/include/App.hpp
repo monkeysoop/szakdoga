@@ -1,14 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
-#include <GL/glew.h>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-
 #include "Camera.hpp"
 #include "CameraManipulator.hpp"
 #include "Framebuffer.hpp"
@@ -16,63 +7,73 @@
 #include "Skybox.hpp"
 #include "Texture2D.hpp"
 
-enum class SphereTracingType : unsigned {
-    NAIVE = 0,
-    RELAXED = 1,
-    ENHANCED = 2,
-    CONE = 3,
-};
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+#include <GL/glew.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 
 
-class App {
-public:
-    App(unsigned width, unsigned height);
-    ~App();
 
-    void Update(float elapsed_time_in_seconds, float delta_time_in_seconds);
-    void Render();
-    void RenderImGui();
+namespace szakdoga::core {
+    enum class SphereTracingType : unsigned {
+        NAIVE = 0,
+        RELAXED = 1,
+        ENHANCED = 2,
+        CONE = 3,
+    };
 
-    void KeyboardDown(const SDL_KeyboardEvent& key);
-    void KeyboardUp(const SDL_KeyboardEvent& key);
-    void MouseMove(const SDL_MouseMotionEvent& mouse);
-    void MouseWheel(const SDL_MouseWheelEvent& wheel);
-    void Resize(unsigned width, unsigned height);
+    class App {
+    public:
+        App(unsigned width, unsigned height);
+        ~App();
 
-private:
-    unsigned m_width;
-    unsigned m_height;
+        void Update(float elapsed_time_in_seconds, float delta_time_in_seconds);
+        void Render();
+        void RenderImGui();
 
-    Camera m_camera;
-    CameraManipulator m_camera_manipulator;
+        void KeyboardDown(const SDL_KeyboardEvent& key);
+        void KeyboardUp(const SDL_KeyboardEvent& key);
+        void MouseMove(const SDL_MouseMotionEvent& mouse);
+        void MouseWheel(const SDL_MouseWheelEvent& wheel);
+        void Resize(unsigned width, unsigned height);
 
-    Framebuffer m_framebuffer;
+    private:
+        unsigned m_width;
+        unsigned m_height;
 
-    CompShader m_sphere_trace_shader;
-    CompShader m_cone_trace_shader;
-    CompShader m_cone_trace_final_shader;
-    CompShader m_cone_trace_precompute_shader;
+        Camera m_camera;
+        CameraManipulator m_camera_manipulator;
 
-    Texture2D m_cone_trace_distance_iteration_texture_1;
-    Texture2D m_cone_trace_distance_iteration_texture_2;
+        Framebuffer m_framebuffer;
 
-    unsigned m_initial_cone_size;
-    Texture2D m_cone_trace_precomputed_texture;
+        CompShader m_sphere_trace_shader;
+        CompShader m_cone_trace_shader;
+        CompShader m_cone_trace_final_shader;
+        CompShader m_cone_trace_precompute_shader;
 
-    Skybox m_skybox;
+        Texture2D m_cone_trace_distance_iteration_texture_1;
+        Texture2D m_cone_trace_distance_iteration_texture_2;
 
-    SphereTracingType m_render_mode;
-    bool m_show_iterations;
+        unsigned m_initial_cone_size;
+        Texture2D m_cone_trace_precomputed_texture;
 
-    float m_time_in_seconds;
-    float m_epsilon;
-    float m_max_distance;
-    unsigned m_max_iteration_count;
+        Skybox m_skybox;
 
-private:
-    void SphereTraceRender();
-    void ConeTraceRender();
-    void PrecomputeCones();
-    unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
-    void Benchmark();
-};
+        SphereTracingType m_render_mode;
+        bool m_show_iterations;
+
+        float m_time_in_seconds;
+        float m_epsilon;
+        float m_max_distance;
+        unsigned m_max_iteration_count;
+
+    private:
+        void SphereTraceRender();
+        void ConeTraceRender();
+        void PrecomputeCones();
+        unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
+        void Benchmark();
+    };
+} // namespace szakdoga::core

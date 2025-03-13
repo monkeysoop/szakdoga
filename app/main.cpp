@@ -1,16 +1,15 @@
+#include "App.hpp"
+
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
-
-
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_opengl3.h>
 
-#include "App.hpp"
-
 #include <cstdlib>
 #include <iostream>
+
 
 
 const unsigned WIDTH = 640;
@@ -18,7 +17,7 @@ const unsigned HEIGHT = 512;
 
 int main(int argc, char *argv[]) {
     SDL_LogSetPriority(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR);
-    
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "[SDL initialization] Error during the SDL initialization: %s", SDL_GetError());
         return 1;
@@ -29,7 +28,7 @@ int main(int argc, char *argv[]) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    
+
 
     SDL_Window* window = SDL_CreateWindow(
         "something",
@@ -83,7 +82,7 @@ int main(int argc, char *argv[]) {
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
 
-
+    using namespace szakdoga::core;
     App app{WIDTH, HEIGHT};
 
 
@@ -91,7 +90,7 @@ int main(int argc, char *argv[]) {
     bool show_imgui = false;
 
     Uint32 start_time = SDL_GetTicks();
-	int nFrames = 0;
+    int nFrames = 0;
 
     while (running) {
         SDL_Event ev;
@@ -99,7 +98,7 @@ int main(int argc, char *argv[]) {
             ImGui_ImplSDL2_ProcessEvent(&ev);
             bool is_mouse_captured = ImGui::GetIO().WantCaptureMouse;
             bool is_keyboard_captured = ImGui::GetIO().WantCaptureKeyboard;
-            
+
             switch (ev.type) {
                 case SDL_QUIT:
                     running = false;
@@ -135,11 +134,11 @@ int main(int argc, char *argv[]) {
             }
         }
         nFrames++;
-		if (SDL_GetTicks() - start_time > 1000) {
-			std::cout << "FPS: " << nFrames << "\t\ttime per frame: " << (1000.0 / nFrames) << " ms" << std::endl;
-			nFrames = 0;
-			start_time += 1000.0;
-		}
+        if (SDL_GetTicks() - start_time > 1000) {
+            std::cout << "FPS: " << nFrames << "\t\ttime per frame: " << (1000.0 / nFrames) << " ms" << std::endl;
+            nFrames = 0;
+            start_time += 1000.0;
+        }
         static Uint32 LastTick = SDL_GetTicks();  // statikusan tároljuk, mi volt az előző "tick".
         Uint32 CurrentTick = SDL_GetTicks();      // Mi az aktuális.
         app.Update(static_cast<float>(CurrentTick) / 1000.0f, static_cast<float>(CurrentTick - LastTick) / 1000.0f);
