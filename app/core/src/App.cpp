@@ -19,9 +19,19 @@ namespace szakdoga::core {
         m_camera{}, 
         m_camera_manipulator{}, 
         m_framebuffer{width, height}, 
-        m_sphere_trace_shader{std::filesystem::path{"assets"} / "sphere_tracer.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
+        m_render_mode{SphereTracingType::NAIVE},
+        m_show_iterations{false},
+        m_sphere_trace_shader{
+            std::filesystem::path{"assets"} / "sphere_tracer.comp", 
+            {std::filesystem::path{"assets"} / "sdf.include"}, 
+            {{"RENDER_MODE", std::to_string(static_cast<unsigned>(m_render_mode))}, {"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}}
+        },
         m_cone_trace_shader{std::filesystem::path{"assets"} / "cone_tracer.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
-        m_cone_trace_final_shader{std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", {std::filesystem::path{"assets"} / "sdf.include"}},
+        m_cone_trace_final_shader{
+            std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", 
+            {std::filesystem::path{"assets"} / "sdf.include"},
+            {{"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}}
+        },
         m_cone_trace_precompute_shader{std::filesystem::path{"assets"} / "cone_precompute.comp"},
         m_cone_trace_distance_iteration_texture_1{width, height, GL_RG32F},
         m_cone_trace_distance_iteration_texture_2{width, height, GL_RG32F},
@@ -33,8 +43,6 @@ namespace szakdoga::core {
             static_cast<unsigned>(std::log2(m_initial_cone_size))
         },
         m_skybox{},
-        m_render_mode{SphereTracingType::NAIVE},
-        m_show_iterations{false},
         m_time_in_seconds{0.0f},
         m_epsilon{0.001f},
         m_max_distance{1000.0f},
@@ -77,18 +85,31 @@ namespace szakdoga::core {
 
     void App::RenderImGui() {
         if (ImGui::Begin("Settings")) {
+            SphereTracingType old_render_mode = m_render_mode;
             int mode = static_cast<int>(m_render_mode);
             ImGui::RadioButton("naive", &mode, static_cast<int>(SphereTracingType::NAIVE));
             ImGui::RadioButton("relaxed", &mode, static_cast<int>(SphereTracingType::RELAXED));
             ImGui::RadioButton("enhanced", &mode, static_cast<int>(SphereTracingType::ENHANCED));
             ImGui::RadioButton("cone", &mode, static_cast<int>(SphereTracingType::CONE));
             m_render_mode = static_cast<SphereTracingType>(mode);
+
+            bool old_show = m_show_iterations;
             ImGui::Checkbox("show iteration counts", &m_show_iterations);
+
+            if (m_render_mode != old_render_mode || m_show_iterations != old_show) {
+                if (m_render_mode == SphereTracingType::CONE) {
+                    m_cone_trace_final_shader.Recompile({{"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}});
+                } else {
+                    m_sphere_trace_shader.Recompile({{"RENDER_MODE", std::to_string(static_cast<unsigned>(m_render_mode))}, {"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}});
+                }
+            }
+
             ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
             ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
             int iter_count = static_cast<int>(m_max_iteration_count);
             ImGui::SliderInt("max iteration count", &iter_count, 0, 1000);
             m_max_iteration_count = static_cast<unsigned>(iter_count);
+
             if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
                 m_initial_cone_size /= 2;
                 m_cone_trace_precomputed_texture.Resize(
@@ -98,7 +119,9 @@ namespace szakdoga::core {
                 );
                 PrecomputeCones();
             }
+
             ImGui::Text("cone size: %d", m_initial_cone_size);
+
             if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
                 m_initial_cone_size *= 2;
                 m_cone_trace_precomputed_texture.Resize(
@@ -108,9 +131,7 @@ namespace szakdoga::core {
                 );
                 PrecomputeCones();
             }
-            if (ImGui::Button("take screenhsot")) {
-                m_framebuffer.Screenshot("screenshot.png");
-            }
+
             if (ImGui::Button("Benchmark")) {
                 Benchmark();
             }
@@ -200,10 +221,6 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1ui(m_sphere_trace_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
 
-        glUniform1i(m_sphere_trace_shader.ul("u_show_iterations"), static_cast<GLint>(m_show_iterations));
-
-        glUniform1ui(m_sphere_trace_shader.ul("u_render_mode"), static_cast<GLuint>(m_render_mode));
-
         m_sphere_trace_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
             DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
@@ -287,7 +304,6 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
         glUniform1i(m_cone_trace_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
-        glUniform1i(m_cone_trace_final_shader.ul("u_show_iterations"), static_cast<GLint>(m_show_iterations));
 
         m_cone_trace_final_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
@@ -306,72 +322,56 @@ namespace szakdoga::core {
     }
 
     void App::Benchmark() {
+        std::filesystem::path visual_path{std::filesystem::path{"benchmarks"} / "visual"};
+        std::filesystem::path performance_path{std::filesystem::path{"benchmarks"} / "performance"};
+
         float old_time = m_time_in_seconds;
         unsigned old_iter_count = m_max_iteration_count;
-        SphereTracingType old_mode = m_render_mode;
-        bool old_show = m_show_iterations;
 
         m_time_in_seconds = 0.0;
 
-
-        std::filesystem::path visual_path{std::filesystem::path{"benchmarks"} / "visual"};
-
-        m_show_iterations = false;
-
-        m_render_mode = SphereTracingType::NAIVE;
+        m_sphere_trace_shader.Recompile({{"RENDER_MODE", std::to_string(static_cast<unsigned>(SphereTracingType::NAIVE))}, {"SHOW_ITERATIONS", "false"}});
         m_max_iteration_count = 1000;
         SphereTraceRender();
         m_framebuffer.Screenshot(visual_path / "screenshot_baseline.png");
 
-        for (m_max_iteration_count = 10; m_max_iteration_count <= 100; m_max_iteration_count += 10) {
-            std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+        BenchmarkSingle(visual_path / "naive", SphereTracingType::NAIVE, false);
+        BenchmarkSingle(visual_path / "relaxed", SphereTracingType::RELAXED, false);
+        BenchmarkSingle(visual_path / "enhanced", SphereTracingType::ENHANCED, false);
+        BenchmarkSingle(visual_path / "cone", SphereTracingType::CONE, false);
 
-            m_render_mode = SphereTracingType::NAIVE;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(visual_path / "naive" / filename);
-
-            m_render_mode = SphereTracingType::RELAXED;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(visual_path / "relaxed" / filename);
-
-            m_render_mode = SphereTracingType::ENHANCED;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(visual_path / "enhanced" / filename);
-
-            m_render_mode = SphereTracingType::CONE;
-            ConeTraceRender();
-            m_framebuffer.Screenshot(visual_path / "cone" / filename);
-        }
-
-
-        std::filesystem::path performance_path{std::filesystem::path{"benchmarks"} / "performance"};
-
-        m_show_iterations = true;
-
-        for (m_max_iteration_count = 10; m_max_iteration_count <= 100; m_max_iteration_count += 10) {
-            std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
-
-            m_render_mode = SphereTracingType::NAIVE;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(performance_path / "naive" / filename);
-
-            m_render_mode = SphereTracingType::RELAXED;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(performance_path / "relaxed" / filename);
-
-            m_render_mode = SphereTracingType::ENHANCED;
-            SphereTraceRender();
-            m_framebuffer.Screenshot(performance_path / "enhanced" / filename);
-
-            m_render_mode = SphereTracingType::CONE;
-            ConeTraceRender();
-            m_framebuffer.Screenshot(performance_path / "cone" / filename);
-        }
-
+        BenchmarkSingle(performance_path / "naive", SphereTracingType::NAIVE, true);
+        BenchmarkSingle(performance_path / "relaxed", SphereTracingType::RELAXED, true);
+        BenchmarkSingle(performance_path / "enhanced", SphereTracingType::ENHANCED, true);
+        BenchmarkSingle(performance_path / "cone", SphereTracingType::CONE, true);
 
         m_time_in_seconds = old_time;
         m_max_iteration_count = old_iter_count;
-        m_render_mode = old_mode;
-        m_show_iterations = old_show;
+
+        if (m_render_mode == SphereTracingType::CONE) {
+            m_cone_trace_final_shader.Recompile({{"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}});
+        } else {
+            m_sphere_trace_shader.Recompile({{"RENDER_MODE", std::to_string(static_cast<unsigned>(m_render_mode))}, {"SHOW_ITERATIONS", (m_show_iterations ? "true" : "false")}});
+        }
+    }
+
+    void App::BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType render_mode, bool show_iterations) {
+        if (render_mode == SphereTracingType::CONE) {
+            m_cone_trace_final_shader.Recompile({{"SHOW_ITERATIONS", (show_iterations ? "true" : "false")}});
+        } else {
+            m_sphere_trace_shader.Recompile({{"RENDER_MODE", std::to_string(static_cast<unsigned>(render_mode))}, {"SHOW_ITERATIONS", (show_iterations ? "true" : "false")}});
+        }
+
+        for (m_max_iteration_count = 10; m_max_iteration_count <= 100; m_max_iteration_count += 10) {
+            std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+
+            if (render_mode == SphereTracingType::CONE) {
+                ConeTraceRender();
+            } else {
+                SphereTraceRender();
+            }
+
+            m_framebuffer.Screenshot(base_path / filename);
+        }
     }
 } // namespace szakdoga::core

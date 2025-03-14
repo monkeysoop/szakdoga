@@ -12,40 +12,22 @@
 namespace szakdoga::core {
     GLuint CompShader::m_currently_used_id{0}; 
 
-    CompShader::CompShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
+    CompShader::CompShader(
+        const std::filesystem::path& comp_filename, 
+        const std::vector<std::filesystem::path>& include_filenames,
+        const std::map<std::string, std::string>& in_variables
+    ) {
         m_program_id = glCreateProgram();
 
         if (m_program_id == 0) {
             SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
         }
 
-        GLuint comp_id = glCreateShader(GL_COMPUTE_SHADER);
+        LoadShader(comp_filename, include_filenames);
 
-        if (comp_id == 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating shader!");
-        }
+        std::string configured_shader_source_code = ConfigureShader(in_variables);
 
-        std::string shader_source_code = LoadShader(comp_filename, include_filenames);
-
-        CompileShader(comp_id, shader_source_code);
-
-        glAttachShader(m_program_id, comp_id);
-
-        glLinkProgram(m_program_id);
-
-        GLint result = GL_FALSE;
-        GLint info_log_length = 0;
-
-        glGetProgramiv(m_program_id, GL_LINK_STATUS, &result);
-        glGetProgramiv(m_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-
-        if ((result == GL_FALSE) || (info_log_length != 0)) {
-            std::string error_message(info_log_length, '\0');
-            glGetProgramInfoLog(m_program_id, info_log_length, nullptr, error_message.data());
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader linking error: %s", error_message.data());
-        }
-
-        glDeleteShader(comp_id);
+        AttachShader(configured_shader_source_code);
     }
 
     CompShader::~CompShader() {
@@ -69,7 +51,7 @@ namespace szakdoga::core {
         GLint location = glGetUniformLocation(m_program_id, name);
 
         if (location == -1) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error finding uniform: %s  program id: %d (possibly got optimised away)", name, m_program_id);
+            //SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error finding uniform: %s  program id: %d (possibly got optimised away)", name, m_program_id);
         }
 
         if (m_program_id != m_currently_used_id) {
@@ -83,7 +65,22 @@ namespace szakdoga::core {
         return m_program_id;
     }
 
-    std::string CompShader::LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
+    void CompShader::Recompile(const std::map<std::string, std::string>& in_variables) {
+        glDeleteProgram(m_program_id);
+
+        m_program_id = glCreateProgram();
+
+        if (m_program_id == 0) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
+        }
+
+        std::string configured_shader_source_code = ConfigureShader(in_variables);
+
+        AttachShader(configured_shader_source_code);
+    }
+
+
+    void CompShader::LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
         std::string shader_source_code = "";
 
         std::ifstream shader_file{comp_filename};
@@ -93,12 +90,12 @@ namespace szakdoga::core {
 
         std::string current_line = "";
         while (std::getline(shader_file, current_line)) {
-            const std::string include_token{"#include"};
+            const std::string INCLUDE_TOKEN{"#include"};
 
-            std::string::size_type include_pos = current_line.find(include_token);
+            std::string::size_type include_pos = current_line.find(INCLUDE_TOKEN);
 
             if (include_pos != std::string::npos) {
-                std::istringstream ss{current_line.substr(include_pos + include_token.length() + 1)};
+                std::istringstream ss{current_line.substr(include_pos + INCLUDE_TOKEN.length() + 1)};
                 std::string unquoted_include_filename;
                 ss >> std::quoted(unquoted_include_filename); // this is very stupid but this essentially strips the quotes
 
@@ -133,29 +130,89 @@ namespace szakdoga::core {
             }
         }
 
-        return shader_source_code;
+        m_shader_source_code = shader_source_code;
     }
 
-    void CompShader::CompileShader(GLuint shader_id, const std::string& source_code) {
-        const GLchar* source_data = static_cast<const GLchar*>(source_code.data());
-        const GLint source_length = static_cast<GLint>(source_code.length());
+    std::string CompShader::ConfigureShader(const std::map<std::string, std::string>& in_variables) {
+        std::string configured_shader_source_code = "";
 
-        glShaderSource(shader_id, 1, &source_data, &source_length);
 
-        glCompileShader(shader_id);
+        std::istringstream ss{m_shader_source_code};
 
-        GLint result = GL_FALSE;
-        GLint info_log_length;
+        std::string current_line = "";
+        while (std::getline(ss, current_line)) {
+            const char IN_TOKEN = '@';
 
-        glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result);
-        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+            std::string::size_type in_first = current_line.find(IN_TOKEN);
+            std::string::size_type in_last = current_line.rfind(IN_TOKEN);
 
-        if ((result == GL_FALSE) || (info_log_length != 0)) {
-            std::string error_message(info_log_length, '\0');
+            if (in_first != std::string::npos && in_last != std::string::npos) {
+                std::string::size_type len = in_last - in_first;
 
-            glGetShaderInfoLog(shader_id, info_log_length, NULL, error_message.data());
+                if (len < 2) {
+                    SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, incorrect usage of the %c symbol", IN_TOKEN);
+                }
 
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader compile error: %s", error_message.data());
+                std::string in_var = current_line.substr((in_first + 1), (len - 1));
+                
+                std::map<std::string, std::string>::const_iterator iter = in_variables.find(in_var);
+
+                if (iter == in_variables.end()) {
+                    SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, couldn't find in variable: %s in the map provided", in_var.c_str());
+                }
+
+                current_line.replace(in_first, (len + 1), iter->second);
+            }
+
+            configured_shader_source_code += current_line + "\n";
         }
+
+        return configured_shader_source_code;
+    }    
+
+    void CompShader::AttachShader(const std::string& configured_shader_source_code) {
+        GLuint comp_id = glCreateShader(GL_COMPUTE_SHADER);
+
+        if (comp_id == 0) {
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating shader!");
+        }
+
+        const GLchar* source_data = static_cast<const GLchar*>(configured_shader_source_code.data());
+        const GLint source_length = static_cast<GLint>(configured_shader_source_code.length());
+
+        glShaderSource(comp_id, 1, &source_data, &source_length);
+
+        glCompileShader(comp_id);
+
+        GLint compile_result = GL_FALSE;
+        GLint compile_info_log_length = 0;
+
+        glGetShaderiv(comp_id, GL_COMPILE_STATUS, &compile_result);
+        glGetShaderiv(comp_id, GL_INFO_LOG_LENGTH, &compile_info_log_length);
+
+        if ((compile_result == GL_FALSE) || (compile_info_log_length != 0)) {
+            std::string error_message(compile_info_log_length, '\0');
+
+            glGetShaderInfoLog(comp_id, compile_info_log_length, NULL, error_message.data());
+
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (compile_result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader compile error: %s", error_message.data());
+        }
+
+        glAttachShader(m_program_id, comp_id);
+        glLinkProgram(m_program_id);
+
+        GLint link_result = GL_FALSE;
+        GLint link_info_log_length = 0;
+
+        glGetProgramiv(m_program_id, GL_LINK_STATUS, &link_result);
+        glGetProgramiv(m_program_id, GL_INFO_LOG_LENGTH, &link_info_log_length);
+
+        if ((link_result == GL_FALSE) || (link_info_log_length != 0)) {
+            std::string error_message(link_info_log_length, '\0');
+            glGetProgramInfoLog(m_program_id, link_info_log_length, nullptr, error_message.data());
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (link_result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader linking error: %s", error_message.data());
+        }
+
+        glDeleteShader(comp_id);
     }
 } // namespace szakdoga::core

@@ -17,7 +17,9 @@ uniform float u_max_distance;
 uniform float u_max_iteration_count;
 
 uniform bool u_first_pass;
-uniform bool u_show_iterations;
+
+
+const bool SHOW_ITERATIONS = @SHOW_ITERATIONS@;
 
 
 #include "assets/sdf.include"
@@ -42,7 +44,7 @@ vec3 naive_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
         steps += 1.0;
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
-    if (u_show_iterations) {
+    if (SHOW_ITERATIONS) {
         return vec3(steps / u_max_iteration_count);
     } else {
         if (d <= u_epsilon * t) {
@@ -62,13 +64,13 @@ vec3 naive_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
 
 vec3 Render(Ray ray, float initial_t, float initial_iteration) {
     if (initial_t >= u_max_distance) {
-        if (u_show_iterations) {
+        if (SHOW_ITERATIONS) {
             return vec3(initial_iteration / u_max_iteration_count);
         } else {
             return texture(u_skyboxTexture, ray.direction).rgb;
         }
     } else if (initial_iteration >= u_max_iteration_count) {
-        if (u_show_iterations) {
+        if (SHOW_ITERATIONS) {
             return vec3(initial_iteration / u_max_iteration_count);
         } else {
             return vec3(1.0, 0.0, 0.0);

@@ -14,6 +14,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+#include <filesystem>
+
 
 
 namespace szakdoga::core {
@@ -48,6 +50,9 @@ namespace szakdoga::core {
 
         Framebuffer m_framebuffer;
 
+        SphereTracingType m_render_mode;
+        bool m_show_iterations;
+
         CompShader m_sphere_trace_shader;
         CompShader m_cone_trace_shader;
         CompShader m_cone_trace_final_shader;
@@ -61,9 +66,6 @@ namespace szakdoga::core {
 
         Skybox m_skybox;
 
-        SphereTracingType m_render_mode;
-        bool m_show_iterations;
-
         float m_time_in_seconds;
         float m_epsilon;
         float m_max_distance;
@@ -75,5 +77,6 @@ namespace szakdoga::core {
         void PrecomputeCones();
         unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
         void Benchmark();
+        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType render_mode, bool show_iterations);
     };
 } // namespace szakdoga::core

@@ -15,13 +15,14 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
-uniform bool u_show_iterations;
-
-uniform uint u_render_mode;
 
 const uint NAIVE = 0;
 const uint RELAXED = 1;
 const uint ENHANCED = 2;
+
+const uint RENDER_MODE = @RENDER_MODE@;
+const bool SHOW_ITERATIONS = @SHOW_ITERATIONS@;
+
 
 #include "assets/sdf.include"
 
@@ -46,7 +47,7 @@ vec3 naive_sphere_tracing(Ray ray) {
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
 
-    if (u_show_iterations) {
+    if (SHOW_ITERATIONS) {
         return vec3(float(steps) / float(u_max_iteration_count));
     } else {
         if (d <= u_epsilon * t) {
@@ -90,7 +91,7 @@ vec3 relaxed_sphere_tracing(Ray ray) {
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
  
 
-    if (u_show_iterations) {
+    if (SHOW_ITERATIONS) {
         return vec3(float(steps) / float(u_max_iteration_count));
     } else {
         if (d <= u_epsilon * t) {
@@ -147,7 +148,7 @@ vec3 enhanced_sphere_tracing(Ray ray) {
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
 
 
-    if (u_show_iterations) {
+    if (SHOW_ITERATIONS) {
         return vec3(float(steps) / float(u_max_iteration_count));
     } else {
         if (d <= u_epsilon * t) {
@@ -177,7 +178,7 @@ void main() {
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
     vec3 res;
-    switch (u_render_mode) {
+    switch (RENDER_MODE) {
         case NAIVE: res = naive_sphere_tracing(Ray(u_position, ray_dir)); break;
         case RELAXED: res = relaxed_sphere_tracing(Ray(u_position, ray_dir)); break;
         case ENHANCED: res = enhanced_sphere_tracing(Ray(u_position, ray_dir)); break;
