@@ -26,6 +26,12 @@ namespace szakdoga::core {
         CONE = 3,
     };
 
+    enum class SDFSceneType : unsigned {
+        NEWTONS_CRADLE = 0,
+        OLD_CAR = 1,
+        TEMPLE = 2,
+    };
+
     class App {
     public:
         App(unsigned width, unsigned height);
@@ -51,6 +57,7 @@ namespace szakdoga::core {
         Framebuffer m_framebuffer;
 
         SphereTracingType m_render_mode;
+        SDFSceneType m_sdf_scene;
         bool m_show_iterations;
 
         CompShader m_sphere_trace_shader;
@@ -77,6 +84,6 @@ namespace szakdoga::core {
         void PrecomputeCones();
         unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
         void Benchmark();
-        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType render_mode, bool show_iterations);
+        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType render_mode, bool show_iterations, SDFSceneType sdf_scene);
     };
 } // namespace szakdoga::core

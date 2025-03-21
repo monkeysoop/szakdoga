@@ -20,8 +20,13 @@ const uint NAIVE = 0;
 const uint RELAXED = 1;
 const uint ENHANCED = 2;
 
+const uint NEWTONS_CRADLE = 0;
+const uint OLD_CAR = 1;
+const uint TEMPLE = 2;
+
 const uint RENDER_MODE = @RENDER_MODE@;
 const bool SHOW_ITERATIONS = @SHOW_ITERATIONS@;
+const uint SDF_SCENE = @SDF_SCENE@;
 
 
 #include "assets/sdf.include"

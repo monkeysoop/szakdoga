@@ -19,6 +19,13 @@ uniform float u_max_iteration_count;
 uniform bool u_first_pass;
 
 
+const uint NEWTONS_CRADLE = 0;
+const uint OLD_CAR = 1;
+const uint TEMPLE = 2;
+
+const uint SDF_SCENE = @SDF_SCENE@;
+
+
 #include "assets/sdf.include"
 
 
