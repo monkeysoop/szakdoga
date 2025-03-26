@@ -34,7 +34,7 @@ namespace szakdoga::core {
 
     enum class SDFSceneType : unsigned {
         NEWTONS_CRADLE = 0,
-        OLD_CAR = 1,
+        CAR = 1,
         TEMPLE = 2,
     };
 

@@ -21,7 +21,7 @@ uniform float u_enhanced_max_step_factor;
 
 
 #define NEWTONS_CRADLE 0
-#define OLD_CAR 1
+#define CAR 1
 #define TEMPLE 2
 
 #define NORMAL 0

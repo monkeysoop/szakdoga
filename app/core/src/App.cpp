@@ -106,7 +106,7 @@ namespace szakdoga::core {
             if (ImGui::CollapsingHeader("sdf scene")) {
                 int sdf_scene = static_cast<int>(m_sdf_scene);
                 ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
-                ImGui::RadioButton("old car", &sdf_scene, static_cast<int>(SDFSceneType::OLD_CAR));
+                ImGui::RadioButton("old car", &sdf_scene, static_cast<int>(SDFSceneType::CAR));
                 ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
                 m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
             }
