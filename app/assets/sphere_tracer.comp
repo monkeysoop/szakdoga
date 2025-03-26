@@ -15,6 +15,10 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
+uniform float u_relaxed_step_multiplier;
+uniform float u_enhanced_step_multiplier;
+uniform float u_enhanced_max_step_factor;
+
 
 #define NEWTONS_CRADLE 0
 #define OLD_CAR 1
@@ -76,8 +80,6 @@ vec3 naive_sphere_tracing(Ray ray) {
 }
 
 vec3 relaxed_sphere_tracing(Ray ray) {
-    const float w = 1.6;
-
     float next_d;
     float next_t = 0.0;
 
@@ -90,13 +92,13 @@ vec3 relaxed_sphere_tracing(Ray ray) {
         next_d = abs(sdf(ray.position + next_t * ray.direction).d);
         steps++;
 
-        if ((d + next_d) < w * d && next_t > (t + d)) {
+        if ((d + next_d) < u_relaxed_step_multiplier * d && next_t > (t + d)) {
             next_t = t + d;
         } else {
             t = next_t;
             d = next_d;
 
-            next_t = next_t + w * next_d;
+            next_t = next_t + u_relaxed_step_multiplier * next_d;
         }
     } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
  
@@ -121,9 +123,6 @@ vec3 relaxed_sphere_tracing(Ray ray) {
 }
 
 vec3 enhanced_sphere_tracing(Ray ray) {
-    const float w = 0.9;
-    const float m = 10.0;
-
     float next_d;
     float next_t = 0.0;
 
@@ -146,8 +145,8 @@ vec3 enhanced_sphere_tracing(Ray ray) {
 
             next_t = t + next_s;
         } else {
-            next_s = next_d + w * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
-            next_s = clamp(next_s, next_d, m * next_d);
+            next_s = next_d + u_enhanced_step_multiplier * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
+            next_s = clamp(next_s, next_d, u_enhanced_max_step_factor * next_d);
             
             t = next_t;
             d = next_d;

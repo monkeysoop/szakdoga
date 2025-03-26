@@ -84,6 +84,10 @@ namespace szakdoga::core {
         float m_max_distance;
         unsigned m_max_iteration_count;
 
+        float m_relaxed_step_multiplier;
+        float m_enhanced_step_multiplier;
+        float m_enhanced_max_step_factor;
+
     private:
         void SphereTraceRender();
         void ConeTraceRender();

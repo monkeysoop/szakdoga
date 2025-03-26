@@ -60,7 +60,10 @@ namespace szakdoga::core {
         m_time_in_seconds{0.0f},
         m_epsilon{0.001f},
         m_max_distance{1000.0f},
-        m_max_iteration_count{100}
+        m_max_iteration_count{100},
+        m_relaxed_step_multiplier{1.6f},
+        m_enhanced_step_multiplier{0.9f},
+        m_enhanced_max_step_factor{10.0f}
     {
         GLint context_flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
@@ -100,26 +103,70 @@ namespace szakdoga::core {
     void App::RenderImGui() {
         if (ImGui::Begin("Settings")) {
             SDFSceneType old_sdf_scene = m_sdf_scene;
-            int sdf_scene = static_cast<int>(m_sdf_scene);
-            ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
-            ImGui::RadioButton("old car", &sdf_scene, static_cast<int>(SDFSceneType::OLD_CAR));
-            ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
-            m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
+            if (ImGui::CollapsingHeader("sdf scene")) {
+                int sdf_scene = static_cast<int>(m_sdf_scene);
+                ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
+                ImGui::RadioButton("old car", &sdf_scene, static_cast<int>(SDFSceneType::OLD_CAR));
+                ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
+                m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
+            }
 
             RenderModeType old_render_mode = m_render_mode;
-            int mode = static_cast<int>(m_render_mode);
-            ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
-            ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
-            ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));
-            m_render_mode = static_cast<RenderModeType>(mode);
+            if (ImGui::CollapsingHeader("render mode")) {
+                int mode = static_cast<int>(m_render_mode);
+                ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
+                ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
+                ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));
+                m_render_mode = static_cast<RenderModeType>(mode);
+            }
+
+            if (ImGui::CollapsingHeader("general settings")) {
+                ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
+                ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
+                int iter_count = static_cast<int>(m_max_iteration_count);
+                ImGui::SliderInt("max iteration count", &iter_count, 0, 1000);
+                m_max_iteration_count = static_cast<unsigned>(iter_count);
+            }
 
             SphereTracingType old_sphere_tracing_type = m_sphere_tracing_type;
-            int type = static_cast<int>(m_sphere_tracing_type);
-            ImGui::RadioButton("naive", &type, static_cast<int>(SphereTracingType::NAIVE));
-            ImGui::RadioButton("relaxed", &type, static_cast<int>(SphereTracingType::RELAXED));
-            ImGui::RadioButton("enhanced", &type, static_cast<int>(SphereTracingType::ENHANCED));
-            ImGui::RadioButton("cone", &type, static_cast<int>(SphereTracingType::CONE));
-            m_sphere_tracing_type = static_cast<SphereTracingType>(type);
+            if (ImGui::CollapsingHeader("sphere tracing type")) {
+                int type = static_cast<int>(m_sphere_tracing_type);
+                ImGui::RadioButton("naive", &type, static_cast<int>(SphereTracingType::NAIVE));
+                ImGui::RadioButton("relaxed", &type, static_cast<int>(SphereTracingType::RELAXED));
+                if (ImGui::CollapsingHeader("relaxed specific settings")) {
+                    ImGui::SliderFloat("relaxed step size multiplier", &m_relaxed_step_multiplier, 1.0f, 2.0f);
+                }
+                ImGui::RadioButton("enhanced", &type, static_cast<int>(SphereTracingType::ENHANCED));
+                if (ImGui::CollapsingHeader("enhanced specific settings")) {
+                    ImGui::SliderFloat("relaxed step size multiplier", &m_enhanced_step_multiplier, 0.7f, 1.0f);
+                    ImGui::SliderFloat("relaxed max step factor", &m_enhanced_max_step_factor, 1.0f, 20.0f);
+                }
+                ImGui::RadioButton("cone", &type, static_cast<int>(SphereTracingType::CONE));
+                if (ImGui::CollapsingHeader("cone specific settings")) {
+                    if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
+                        m_initial_cone_size /= 2;
+                        m_cone_trace_precomputed_texture.Resize(
+                            static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
+                            static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
+                            static_cast<unsigned>(std::log2(m_initial_cone_size))
+                        );
+                        PrecomputeCones();
+                    }
+
+                    ImGui::Text("initial cone size: %d", m_initial_cone_size);
+
+                    if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
+                        m_initial_cone_size *= 2;
+                        m_cone_trace_precomputed_texture.Resize(
+                            static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
+                            static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
+                            static_cast<unsigned>(std::log2(m_initial_cone_size))
+                        );
+                        PrecomputeCones();
+                    }
+                }
+                m_sphere_tracing_type = static_cast<SphereTracingType>(type);
+            }
 
             if (m_sphere_tracing_type != old_sphere_tracing_type || m_render_mode != old_render_mode || m_sdf_scene != old_sdf_scene) {
                 if (m_sphere_tracing_type == SphereTracingType::CONE) {
@@ -137,34 +184,6 @@ namespace szakdoga::core {
                         {"SPHERE_TRACING_TYPE", std::to_string(static_cast<unsigned>(m_sphere_tracing_type))}
                     });
                 }
-            }
-
-            ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
-            ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
-            int iter_count = static_cast<int>(m_max_iteration_count);
-            ImGui::SliderInt("max iteration count", &iter_count, 0, 1000);
-            m_max_iteration_count = static_cast<unsigned>(iter_count);
-
-            if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
-                m_initial_cone_size /= 2;
-                m_cone_trace_precomputed_texture.Resize(
-                    static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
-                    static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
-                    static_cast<unsigned>(std::log2(m_initial_cone_size))
-                );
-                PrecomputeCones();
-            }
-
-            ImGui::Text("cone size: %d", m_initial_cone_size);
-
-            if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
-                m_initial_cone_size *= 2;
-                m_cone_trace_precomputed_texture.Resize(
-                    static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
-                    static_cast<unsigned>((m_height + m_initial_cone_size - 1) / 2), 
-                    static_cast<unsigned>(std::log2(m_initial_cone_size))
-                );
-                PrecomputeCones();
             }
 
             if (ImGui::Button("Benchmark")) {
@@ -255,6 +274,10 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_sphere_trace_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1ui(m_sphere_trace_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
+
+        glUniform1f(m_sphere_trace_shader.ul("u_relaxed_step_multiplier"), static_cast<GLfloat>(m_relaxed_step_multiplier));
+        glUniform1f(m_sphere_trace_shader.ul("u_enhanced_step_multiplier"), static_cast<GLfloat>(m_enhanced_step_multiplier));
+        glUniform1f(m_sphere_trace_shader.ul("u_enhanced_max_step_factor"), static_cast<GLfloat>(m_enhanced_max_step_factor));
 
         m_sphere_trace_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
