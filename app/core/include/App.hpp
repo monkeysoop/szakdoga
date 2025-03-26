@@ -19,6 +19,12 @@
 
 
 namespace szakdoga::core {
+    enum class RenderModeType : unsigned {
+        NORMAL = 0,
+        ITERATION_COUNT = 1,
+        DEPTH = 2,
+    };
+
     enum class SphereTracingType : unsigned {
         NAIVE = 0,
         RELAXED = 1,
@@ -56,9 +62,9 @@ namespace szakdoga::core {
 
         Framebuffer m_framebuffer;
 
-        SphereTracingType m_render_mode;
+        SphereTracingType m_sphere_tracing_type;
+        RenderModeType m_render_mode;
         SDFSceneType m_sdf_scene;
-        bool m_show_iterations;
 
         CompShader m_sphere_trace_shader;
         CompShader m_cone_trace_shader;
@@ -84,6 +90,6 @@ namespace szakdoga::core {
         void PrecomputeCones();
         unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
         void Benchmark();
-        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType render_mode, bool show_iterations, SDFSceneType sdf_scene);
+        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType sphere_tracing_type, RenderModeType render_mode, SDFSceneType sdf_scene);
     };
 } // namespace szakdoga::core

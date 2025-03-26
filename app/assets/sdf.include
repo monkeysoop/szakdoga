@@ -883,11 +883,13 @@ Value sdf_temple(vec3 p) {
 Value sdf(vec3 p) {
     Value res;
     
-    switch (SDF_SCENE) {
-        case NEWTONS_CRADLE: res = sdf_newton_cradle(p); break;
-        case OLD_CAR: res = sdf_old_car(p); break;
-        case TEMPLE: res = sdf_temple(p); break;
-    }
+#if SDF_SCENE == NEWTONS_CRADLE
+    res = sdf_newton_cradle(p);
+#elif SDF_SCENE == OLD_CAR
+    res = sdf_old_car(p);
+#elif SDF_SCENE == TEMPLE
+    res = sdf_temple(p);
+#endif
 
     return res;
 }
