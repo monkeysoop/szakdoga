@@ -62,9 +62,9 @@ namespace szakdoga::core {
 
         Framebuffer m_framebuffer;
 
-        SphereTracingType m_sphere_tracing_type;
-        RenderModeType m_render_mode;
         SDFSceneType m_sdf_scene;
+        RenderModeType m_render_mode;
+        SphereTracingType m_sphere_tracing_type;
 
         CompShader m_sphere_trace_shader;
         CompShader m_cone_trace_shader;
@@ -90,6 +90,6 @@ namespace szakdoga::core {
         void PrecomputeCones();
         unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
         void Benchmark();
-        void BenchmarkSingle(const std::filesystem::path& base_path, SphereTracingType sphere_tracing_type, RenderModeType render_mode, SDFSceneType sdf_scene);
+        void BenchmarkSingle(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type);
     };
 } // namespace szakdoga::core

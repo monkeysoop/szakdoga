@@ -16,21 +16,21 @@ uniform float u_max_distance;
 uniform uint u_max_iteration_count;
 
 
-#define NAIVE 0
-#define RELAXED 1
-#define ENHANCED 2
+#define NEWTONS_CRADLE 0
+#define OLD_CAR 1
+#define TEMPLE 2
 
 #define NORMAL 0
 #define ITERATION_COUNT 1
 #define DEPTH 2
 
-#define NEWTONS_CRADLE 0
-#define OLD_CAR 1
-#define TEMPLE 2
+#define NAIVE 0
+#define RELAXED 1
+#define ENHANCED 2
 
-#define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
-#define RENDER_MODE @RENDER_MODE@
 #define SDF_SCENE @SDF_SCENE@
+#define RENDER_MODE @RENDER_MODE@
+#define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
 
 
 #include "assets/sdf.include"
