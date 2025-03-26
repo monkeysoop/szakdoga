@@ -106,7 +106,9 @@ namespace szakdoga::core {
             if (ImGui::CollapsingHeader("sdf scene")) {
                 int sdf_scene = static_cast<int>(m_sdf_scene);
                 ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
+                ImGui::SameLine();
                 ImGui::RadioButton("old car", &sdf_scene, static_cast<int>(SDFSceneType::CAR));
+                ImGui::SameLine();
                 ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
                 m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
             }
@@ -115,16 +117,18 @@ namespace szakdoga::core {
             if (ImGui::CollapsingHeader("render mode")) {
                 int mode = static_cast<int>(m_render_mode);
                 ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
+                ImGui::SameLine();
                 ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
+                ImGui::SameLine();
                 ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));
                 m_render_mode = static_cast<RenderModeType>(mode);
             }
 
             if (ImGui::CollapsingHeader("general settings")) {
-                ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f);
-                ImGui::SliderFloat("max distance", &m_max_distance, 0.0f, 10000.0f);
+                ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.01f, "%.6f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("max distance", &m_max_distance, 1.0f, 10000.0f, "%.0f", ImGuiSliderFlags_Logarithmic);
                 int iter_count = static_cast<int>(m_max_iteration_count);
-                ImGui::SliderInt("max iteration count", &iter_count, 0, 1000);
+                ImGui::SliderInt("max iteration count", &iter_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 m_max_iteration_count = static_cast<unsigned>(iter_count);
             }
 
@@ -132,18 +136,30 @@ namespace szakdoga::core {
             if (ImGui::CollapsingHeader("sphere tracing type")) {
                 int type = static_cast<int>(m_sphere_tracing_type);
                 ImGui::RadioButton("naive", &type, static_cast<int>(SphereTracingType::NAIVE));
+                ImGui::SameLine();
                 ImGui::RadioButton("relaxed", &type, static_cast<int>(SphereTracingType::RELAXED));
+                ImGui::SameLine();
+                ImGui::RadioButton("enhanced", &type, static_cast<int>(SphereTracingType::ENHANCED));
+                ImGui::SameLine();
+                ImGui::RadioButton("cone", &type, static_cast<int>(SphereTracingType::CONE));
+                m_sphere_tracing_type = static_cast<SphereTracingType>(type);
+
                 if (ImGui::CollapsingHeader("relaxed specific settings")) {
                     ImGui::SliderFloat("relaxed step size multiplier", &m_relaxed_step_multiplier, 1.0f, 2.0f);
                 }
-                ImGui::RadioButton("enhanced", &type, static_cast<int>(SphereTracingType::ENHANCED));
+
                 if (ImGui::CollapsingHeader("enhanced specific settings")) {
-                    ImGui::SliderFloat("relaxed step size multiplier", &m_enhanced_step_multiplier, 0.7f, 1.0f);
-                    ImGui::SliderFloat("relaxed max step factor", &m_enhanced_max_step_factor, 1.0f, 20.0f);
+                    ImGui::SliderFloat("enhanced step size multiplier", &m_enhanced_step_multiplier, 0.7f, 1.0f);
+                    ImGui::SliderFloat("enhanced max step factor", &m_enhanced_max_step_factor, 1.0f, 20.0f);
                 }
-                ImGui::RadioButton("cone", &type, static_cast<int>(SphereTracingType::CONE));
+
                 if (ImGui::CollapsingHeader("cone specific settings")) {
-                    if (ImGui::Button("decrease cone size") && m_initial_cone_size > 1) {
+                    static int counter = 0;
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text("change cone size");
+                    ImGui::SameLine();
+                    ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
+                    if (ImGui::ArrowButton("decrease cone size", ImGuiDir_Left) && m_initial_cone_size > 1) {
                         m_initial_cone_size /= 2;
                         m_cone_trace_precomputed_texture.Resize(
                             static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
@@ -152,10 +168,8 @@ namespace szakdoga::core {
                         );
                         PrecomputeCones();
                     }
-
-                    ImGui::Text("initial cone size: %d", m_initial_cone_size);
-
-                    if (ImGui::Button("increase cone size") && m_initial_cone_size < 256) {
+                    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+                    if (ImGui::ArrowButton("increase cone size", ImGuiDir_Right) && m_initial_cone_size < 256) {
                         m_initial_cone_size *= 2;
                         m_cone_trace_precomputed_texture.Resize(
                             static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
@@ -164,8 +178,10 @@ namespace szakdoga::core {
                         );
                         PrecomputeCones();
                     }
+                    ImGui::PopItemFlag();
+                    ImGui::SameLine();
+                    ImGui::Text("%d", m_initial_cone_size);
                 }
-                m_sphere_tracing_type = static_cast<SphereTracingType>(type);
             }
 
             if (m_sphere_tracing_type != old_sphere_tracing_type || m_render_mode != old_render_mode || m_sdf_scene != old_sdf_scene) {
