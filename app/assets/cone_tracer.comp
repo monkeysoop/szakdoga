@@ -16,6 +16,10 @@ uniform float u_epsilon;
 uniform float u_max_distance;
 uniform float u_max_iteration_count;
 
+uniform float u_relaxed_step_multiplier;
+uniform float u_enhanced_step_multiplier;
+uniform float u_enhanced_max_step_factor;
+
 uniform bool u_first_pass;
 
 
@@ -23,7 +27,12 @@ uniform bool u_first_pass;
 #define CAR 1
 #define TEMPLE 2
 
+#define NAIVE 0
+#define RELAXED 1
+#define ENHANCED 2
+
 #define SDF_SCENE @SDF_SCENE@
+#define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
 
 
 #include "assets/sdf.include"
@@ -36,30 +45,113 @@ struct Ray {
 
 
 
-vec2 cone_tracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
+vec2 naive_cone_tracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
+    float d;
     float t = initial_t;
 
-    float d;
-    float step_size = u_epsilon;
-
     float steps = initial_iteration;
+
+    float step_size;
+
     do {
-        vec3 current_position = ray.position + t * ray.direction;
-        d = abs(sdf(current_position).d);
-        step_size = d - cone_scale * t;
-        if (step_size < u_epsilon) {
-            break;
-        }
-        t += step_size;
+        d = abs(sdf(ray.position + t * ray.direction).d);
         steps += 1.0;
-    } while (t < u_max_distance && steps < u_max_iteration_count);
+
+        step_size = d - cone_scale * t;
+        t += max(step_size, 0.0);
+    } while (step_size >= u_epsilon && t < u_max_distance && steps < u_max_iteration_count);
 
     if (step_size < u_epsilon) {
         return vec2(t, steps);
     } else if (t >= u_max_distance) {
         return vec2(u_max_distance, steps);
     } else {
-        // iteration count exceeded
+        return vec2(t, u_max_iteration_count);
+    }
+}
+
+vec2 relaxed_cone_tracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
+    float d = 0.0;
+    float t = initial_t;
+
+    float next_d;
+    float next_t = initial_t;
+
+    float steps = initial_iteration;
+
+    float step_size = 0.0; // not necesseary to be initialized
+
+    do {
+        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
+        steps += 1.0;
+
+        if (t != next_t && (d + next_d) < (step_size + (t + d) * cone_scale)) {
+            step_size = d - cone_scale * t;
+            next_t = t + max(step_size, 0.0);
+            
+            t = next_t;
+        } else {
+            t = next_t;
+
+            step_size = u_relaxed_step_multiplier * next_d - u_relaxed_step_multiplier * next_t * cone_scale;
+            next_t += max(step_size, 0.0);
+        }
+        
+        d = next_d;
+    } while (step_size >= u_epsilon && t < u_max_distance && steps < u_max_iteration_count);
+
+    if (step_size < u_epsilon) {
+        return vec2(t, steps);
+    } else if (t >= u_max_distance) {
+        return vec2(u_max_distance, steps);
+    } else {
+        return vec2(t, u_max_iteration_count);
+    }
+}
+
+vec2 enhanced_cone_tracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
+    float d = 0.0;
+    float t = initial_t;
+
+    float next_d;
+    float next_t = initial_t;
+
+    float steps = initial_iteration;
+
+    float prev_step_size = 0.0;
+    float step_size = 0.0;
+
+    do {
+        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
+        steps += 1.0;
+
+        if (t != next_t && (d + next_d) < (step_size + (t + d) * cone_scale)) {
+            step_size = d - cone_scale * t;
+            next_t = t + max(step_size, 0.0);
+
+            prev_step_size = step_size;
+            t = next_t;
+        } else {
+            float factor = 1.0 + u_enhanced_step_multiplier * ((-1.0 * d + next_d + prev_step_size) / (d - next_d + prev_step_size));
+            factor = clamp(factor, 1.0, u_enhanced_max_step_factor);
+
+            t = next_t;
+            d = next_d;
+
+            prev_step_size = step_size;
+
+            step_size = factor * next_d - factor * next_t * cone_scale;
+            next_t += max(step_size, 0.0);
+        }
+
+        d = next_d;
+    } while (step_size >= u_epsilon && t < u_max_distance && steps < u_max_iteration_count);
+
+    if (step_size < u_epsilon) {
+        return vec2(t, steps);
+    } else if (t >= u_max_distance) {
+        return vec2(u_max_distance, steps);
+    } else {
         return vec2(t, u_max_iteration_count);
     }
 }
@@ -90,7 +182,15 @@ void main() {
         }
     }
 
-    vec2 res = cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
+    vec2 res;
+
+#if SPHERE_TRACING_TYPE == NAIVE
+    res = naive_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
+#elif SPHERE_TRACING_TYPE == RELAXED
+    res = relaxed_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
+#elif SPHERE_TRACING_TYPE == ENHANCED
+    res = enhanced_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
+#endif
 
     imageStore(distancesIterationsTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(res.x, res.y, 0.0, 0.0));
 }

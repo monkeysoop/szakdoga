@@ -65,6 +65,8 @@ namespace szakdoga::core {
         SDFSceneType m_sdf_scene;
         RenderModeType m_render_mode;
         SphereTracingType m_sphere_tracing_type;
+        SphereTracingType m_cone_trace_sphere_tracing_type;
+        SphereTracingType m_cone_trace_final_sphere_tracing_type;
 
         CompShader m_sphere_trace_shader;
         CompShader m_cone_trace_shader;
@@ -87,6 +89,14 @@ namespace szakdoga::core {
         float m_relaxed_step_multiplier;
         float m_enhanced_step_multiplier;
         float m_enhanced_max_step_factor;
+
+        float m_cone_trace_relaxed_step_multiplier;
+        float m_cone_trace_enhanced_step_multiplier;
+        float m_cone_trace_enhanced_max_step_factor;
+
+        float m_cone_trace_final_relaxed_step_multiplier;
+        float m_cone_trace_final_enhanced_step_multiplier;
+        float m_cone_trace_final_enhanced_max_step_factor;
 
     private:
         void SphereTraceRender();
