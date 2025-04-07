@@ -96,12 +96,24 @@ namespace szakdoga::core {
         float m_cone_trace_final_enhanced_step_multiplier;
         float m_cone_trace_final_enhanced_max_step_factor;
 
+        unsigned m_benchmark_baseline_iteration_count;
+        unsigned m_benchmark_min_iteration_count;
+        unsigned m_benchmark_max_iteration_count;
+        unsigned m_benchmark_iteration_count_spacing;
+        unsigned m_benchmark_performance_iteration_count;
+        unsigned m_benchmark_performance_number_of_runs;
+
     private:
         void SphereTraceRender();
         void ConeTraceRender();
         void PrecomputeCones();
         unsigned DivideAndRoundUp(unsigned number, unsigned divisor);
         void Benchmark();
-        void BenchmarkSingle(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type);
+        void BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type);
+        void BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type);
+        void WriteTimeTaken(const std::filesystem::path& path, double ms_taken_chrono, double ms_taken_gl);
+        void RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type);
+        void RecompileConeTracer(SDFSceneType sdf_scene, SphereTracingType cone_tracing_type);
+        void RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_final_tracing_type);
     };
 } // namespace szakdoga::core
