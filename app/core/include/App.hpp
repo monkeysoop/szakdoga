@@ -90,6 +90,8 @@ namespace szakdoga::core {
         float m_enhanced_step_multiplier;
         float m_enhanced_max_step_factor;
 
+        float m_cone_trace_intermediate_epsilon;
+
         float m_cone_trace_relaxed_step_multiplier;
         float m_cone_trace_enhanced_step_multiplier;
         float m_cone_trace_enhanced_max_step_factor;

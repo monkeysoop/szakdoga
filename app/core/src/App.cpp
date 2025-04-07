@@ -68,6 +68,7 @@ namespace szakdoga::core {
         m_relaxed_step_multiplier{1.6f},
         m_enhanced_step_multiplier{0.9f},
         m_enhanced_max_step_factor{10.0f},
+        m_cone_trace_intermediate_epsilon{0.02f},
         m_cone_trace_relaxed_step_multiplier{1.6f},
         m_cone_trace_enhanced_step_multiplier{0.9f},
         m_cone_trace_enhanced_max_step_factor{10.0f},
@@ -227,6 +228,8 @@ namespace szakdoga::core {
                     ImGui::PopItemFlag();
                     ImGui::SameLine();
                     ImGui::Text("%d", m_initial_cone_size);
+
+                    ImGui::SliderFloat("cone intermediate epsilon", &m_cone_trace_intermediate_epsilon, 0.00001f, 1.0f, "%.6f", ImGuiSliderFlags_Logarithmic);
 
                     SphereTracingType old_cone_trace_sphere_tracing_type = m_cone_trace_sphere_tracing_type;
                     int cone_trace_type = static_cast<int>(m_cone_trace_sphere_tracing_type);
@@ -405,7 +408,7 @@ namespace szakdoga::core {
             glUniform1ui(m_cone_trace_shader.ul("u_height"), static_cast<GLfloat>(m_height));
 
             glUniform1f(m_cone_trace_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
-            glUniform1f(m_cone_trace_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
+            glUniform1f(m_cone_trace_shader.ul("u_epsilon"), static_cast<GLfloat>(m_cone_trace_intermediate_epsilon));
             glUniform1f(m_cone_trace_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
             glUniform1f(m_cone_trace_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
