@@ -1,0 +1,13 @@
+#ifndef RAY_INCLUDE
+#define RAY_INCLUDE
+
+
+
+struct Ray {
+    vec3 position;
+    vec3 direction;
+};
+
+
+
+#endif

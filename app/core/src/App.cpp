@@ -27,12 +27,23 @@ namespace szakdoga::core {
         m_framebuffer{width, height},
         m_sdf_scene{SDFSceneType::NEWTONS_CRADLE},
         m_render_mode{RenderModeType::NORMAL},
+        m_tracing_type{TracingType::NAIVE},
         m_sphere_tracing_type{SphereTracingType::NAIVE},
         m_cone_trace_sphere_tracing_type{SphereTracingType::NAIVE},
         m_cone_trace_final_sphere_tracing_type{SphereTracingType::NAIVE},
         m_sphere_trace_shader{
             std::filesystem::path{"assets"} / "sphere_tracer.comp", 
-            {std::filesystem::path{"assets"} / "sdf.include"}, 
+            {
+                std::filesystem::path{"assets"} / "ray.include",
+                std::filesystem::path{"assets"} / "value.include", 
+                std::filesystem::path{"assets"} / "sdf.include",
+                std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
+                std::filesystem::path{"assets"} / "sdf_car.include", 
+                std::filesystem::path{"assets"} / "sdf_temple.include", 
+                std::filesystem::path{"assets"} / "tracing_result.include",
+                std::filesystem::path{"assets"} / "tracers.include", 
+                std::filesystem::path{"assets"} / "renderer.include"
+            }, 
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
                 {"RENDER_MODE", std::to_string(static_cast<unsigned>(m_render_mode))}, 
@@ -41,7 +52,14 @@ namespace szakdoga::core {
         },
         m_cone_trace_shader{
             std::filesystem::path{"assets"} / "cone_tracer.comp", 
-            {std::filesystem::path{"assets"} / "sdf.include"},
+            {
+                std::filesystem::path{"assets"} / "ray.include",
+                std::filesystem::path{"assets"} / "value.include", 
+                std::filesystem::path{"assets"} / "sdf.include",
+                std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
+                std::filesystem::path{"assets"} / "sdf_car.include", 
+                std::filesystem::path{"assets"} / "sdf_temple.include"
+            },
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
                 {"SPHERE_TRACING_TYPE", std::to_string(static_cast<unsigned>(m_cone_trace_sphere_tracing_type))}
@@ -49,7 +67,17 @@ namespace szakdoga::core {
         },
         m_cone_trace_final_shader{
             std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", 
-            {std::filesystem::path{"assets"} / "sdf.include"},
+            {
+                std::filesystem::path{"assets"} / "ray.include",
+                std::filesystem::path{"assets"} / "value.include", 
+                std::filesystem::path{"assets"} / "sdf.include",
+                std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
+                std::filesystem::path{"assets"} / "sdf_car.include", 
+                std::filesystem::path{"assets"} / "sdf_temple.include", 
+                std::filesystem::path{"assets"} / "tracing_result.include",
+                std::filesystem::path{"assets"} / "tracers.include", 
+                std::filesystem::path{"assets"} / "renderer.include"
+            },
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
                 {"RENDER_MODE", std::to_string(static_cast<unsigned>(m_render_mode))},
@@ -116,7 +144,7 @@ namespace szakdoga::core {
     }
 
     void App::Render() {
-        if (m_sphere_tracing_type == SphereTracingType::CONE) {
+        if (m_tracing_type == TracingType::CONE) {
             ConeTraceRender();
         } else {
             SphereTraceRender();
@@ -167,18 +195,21 @@ namespace szakdoga::core {
             }
 
             if (ImGui::CollapsingHeader("sphere tracing type")) {
-                SphereTracingType old_sphere_tracing_type = m_sphere_tracing_type;
-                int type = static_cast<int>(m_sphere_tracing_type);
-                ImGui::RadioButton("naive", &type, static_cast<int>(SphereTracingType::NAIVE));
+                int type = static_cast<int>(m_tracing_type);
+                ImGui::RadioButton("naive", &type, static_cast<int>(TracingType::NAIVE));
                 ImGui::SameLine();
-                ImGui::RadioButton("relaxed", &type, static_cast<int>(SphereTracingType::RELAXED));
+                ImGui::RadioButton("relaxed", &type, static_cast<int>(TracingType::RELAXED));
                 ImGui::SameLine();
-                ImGui::RadioButton("enhanced", &type, static_cast<int>(SphereTracingType::ENHANCED));
+                ImGui::RadioButton("enhanced", &type, static_cast<int>(TracingType::ENHANCED));
                 ImGui::SameLine();
-                ImGui::RadioButton("cone", &type, static_cast<int>(SphereTracingType::CONE));
-                m_sphere_tracing_type = static_cast<SphereTracingType>(type);
-                if (m_sphere_tracing_type != old_sphere_tracing_type && m_sphere_tracing_type != SphereTracingType::CONE) {
-                    RecompileSphereTracer(m_sdf_scene, m_render_mode, m_sphere_tracing_type);
+                ImGui::RadioButton("cone", &type, static_cast<int>(TracingType::CONE));
+                m_tracing_type = static_cast<TracingType>(type);
+                if (m_tracing_type != TracingType::CONE) {
+                    SphereTracingType old_sphere_tracing_type = m_sphere_tracing_type;
+                    m_sphere_tracing_type = static_cast<SphereTracingType>(m_tracing_type);
+                    if (old_sphere_tracing_type != m_sphere_tracing_type) {
+                        RecompileSphereTracer(m_sdf_scene, m_render_mode, m_sphere_tracing_type);
+                    }
                 }
 
                 if (ImGui::CollapsingHeader("relaxed specific settings")) {
@@ -376,7 +407,7 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_time_in_seconds"), static_cast<GLfloat>(m_time_in_seconds));
         glUniform1f(m_sphere_trace_shader.ul("u_epsilon"), static_cast<GLfloat>(m_epsilon));
         glUniform1f(m_sphere_trace_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
-        glUniform1ui(m_sphere_trace_shader.ul("u_max_iteration_count"), static_cast<GLuint>(m_max_iteration_count));
+        glUniform1f(m_sphere_trace_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
         glUniform1f(m_sphere_trace_shader.ul("u_relaxed_step_multiplier"), static_cast<GLfloat>(m_relaxed_step_multiplier));
         glUniform1f(m_sphere_trace_shader.ul("u_enhanced_step_multiplier"), static_cast<GLfloat>(m_enhanced_step_multiplier));
@@ -542,8 +573,6 @@ namespace szakdoga::core {
     }
 
     void App::BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) {
-        assert(sphere_tracing_type != SphereTracingType::CONE);
-
         RecompileSphereTracer(sdf_scene, render_mode, sphere_tracing_type);
 
         std::filesystem::path path{};
@@ -595,9 +624,6 @@ namespace szakdoga::core {
     }
 
     void App::BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) {
-        assert(cone_tracing_type != SphereTracingType::CONE);
-        assert(cone_final_tracing_type != SphereTracingType::CONE);
-
         RecompileConeTracer(sdf_scene, cone_tracing_type);
         RecompileConeFinalTracer(sdf_scene, render_mode, cone_final_tracing_type);
 
@@ -666,7 +692,6 @@ namespace szakdoga::core {
     }
 
     void App::RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) {
-        assert(sphere_tracing_type != SphereTracingType::CONE);
         m_sphere_trace_shader.Recompile({
             {"SDF_SCENE", std::to_string(static_cast<unsigned>(sdf_scene))},
             {"RENDER_MODE", std::to_string(static_cast<unsigned>(render_mode))},
@@ -675,7 +700,6 @@ namespace szakdoga::core {
     }
 
     void App::RecompileConeTracer(SDFSceneType sdf_scene, SphereTracingType cone_tracing_type) {
-        assert(cone_tracing_type != SphereTracingType::CONE);
         m_cone_trace_shader.Recompile({
             {"SDF_SCENE", std::to_string(static_cast<unsigned>(sdf_scene))},
             {"SPHERE_TRACING_TYPE", std::to_string(static_cast<unsigned>(cone_tracing_type))}
@@ -683,7 +707,6 @@ namespace szakdoga::core {
     }
 
     void App::RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_final_tracing_type) {
-        assert(cone_final_tracing_type != SphereTracingType::CONE);
         m_cone_trace_final_shader.Recompile({
             {"SDF_SCENE", std::to_string(static_cast<unsigned>(sdf_scene))},
             {"RENDER_MODE", std::to_string(static_cast<unsigned>(render_mode))},

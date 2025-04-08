@@ -36,12 +36,8 @@ uniform bool u_first_pass;
 
 
 #include "assets/sdf.include"
-
-
-struct Ray {
-    vec3 position;
-    vec3 direction;
-};
+#include "assets/value.include"
+#include "assets/ray.include"
 
 
 
@@ -92,12 +88,11 @@ vec2 relaxed_cone_tracing(Ray ray, float initial_t, float initial_iteration, flo
             t = next_t;
         } else {
             t = next_t;
+            d = next_d;
 
             step_size = u_relaxed_step_multiplier * next_d - u_relaxed_step_multiplier * next_t * cone_scale;
             next_t += max(step_size, 0.0);
         }
-        
-        d = next_d;
     } while (step_size >= u_epsilon && t < u_max_distance && steps < u_max_iteration_count);
 
     if (step_size < u_epsilon) {
@@ -143,8 +138,6 @@ vec2 enhanced_cone_tracing(Ray ray, float initial_t, float initial_iteration, fl
             step_size = factor * next_d - factor * next_t * cone_scale;
             next_t += max(step_size, 0.0);
         }
-
-        d = next_d;
     } while (step_size >= u_epsilon && t < u_max_distance && steps < u_max_iteration_count);
 
     if (step_size < u_epsilon) {
@@ -154,6 +147,16 @@ vec2 enhanced_cone_tracing(Ray ray, float initial_t, float initial_iteration, fl
     } else {
         return vec2(t, u_max_iteration_count);
     }
+}
+
+vec2 ConeTracing(Ray ray, float initial_t, float initial_iteration, float cone_scale) {
+#if SPHERE_TRACING_TYPE == NAIVE
+    return naive_cone_tracing(ray, initial_t, initial_iteration, cone_scale);
+#elif SPHERE_TRACING_TYPE == RELAXED
+    return relaxed_cone_tracing(ray, initial_t, initial_iteration, cone_scale);
+#elif SPHERE_TRACING_TYPE == ENHANCED
+    return enhanced_cone_tracing(ray, initial_t, initial_iteration, cone_scale);
+#endif
 }
 
 void main() {
@@ -182,15 +185,7 @@ void main() {
         }
     }
 
-    vec2 res;
-
-#if SPHERE_TRACING_TYPE == NAIVE
-    res = naive_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
-#elif SPHERE_TRACING_TYPE == RELAXED
-    res = relaxed_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
-#elif SPHERE_TRACING_TYPE == ENHANCED
-    res = enhanced_cone_tracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
-#endif
+    vec2 res = ConeTracing(Ray(u_position, ray_dir), initial_t, initial_iteration, cone_scale);
 
     imageStore(distancesIterationsTexture2, ivec2(gl_GlobalInvocationID.xy), vec4(res.x, res.y, 0.0, 0.0));
 }

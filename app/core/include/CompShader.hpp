@@ -32,7 +32,7 @@ namespace szakdoga::core {
         static GLuint m_currently_used_id;
 
     private:
-        void LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames);
+        std::string LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames);
         std::string ConfigureShader(const std::map<std::string, std::string>& in_variables);
         void AttachShader(const std::string& configured_shader_source_code);
     };

@@ -13,7 +13,7 @@ uniform uint u_height;
 uniform float u_time_in_seconds;
 uniform float u_epsilon;
 uniform float u_max_distance;
-uniform uint u_max_iteration_count;
+uniform float u_max_iteration_count;
 
 uniform float u_relaxed_step_multiplier;
 uniform float u_enhanced_step_multiplier;
@@ -37,145 +37,10 @@ uniform float u_enhanced_max_step_factor;
 #define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
 
 
-#include "assets/sdf.include"
+#include "assets/renderer.include"
+#include "assets/ray.include"
 
 
-struct Ray {
-    vec3 position;
-    vec3 direction;
-};
-
-
-
-vec3 naive_sphere_tracing(Ray ray) {
-    float t = 0.0;
-    float d;
-
-    uint steps = 0;
-    do {
-        vec3 current_position = ray.position + t * ray.direction;
-        d = abs(sdf(current_position).d);
-        t += d;
-        steps++;
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
-
-#if RENDER_MODE == NORMAL
-    if (d <= u_epsilon * t) {
-        vec3 position = ray.position + t * ray.direction;
-        vec3 normal = Normal(position);
-        float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-        float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-        vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-        return color;
-    } else if (t >= u_max_distance){
-        return texture(u_skyboxTexture, ray.direction).rgb;
-    } else {
-        return vec3(1.0, 0.0, 0.0);
-    }
-#elif RENDER_MODE == ITERATION_COUNT
-    return vec3(float(steps) / float(u_max_iteration_count));
-#elif RENDER_MODE == DEPTH
-    return vec3(t / u_max_distance);
-#endif
-}
-
-vec3 relaxed_sphere_tracing(Ray ray) {
-    float next_d;
-    float next_t = 0.0;
-
-    float d = 0.0;
-    float t = 0.0;
-
-    uint steps = 0;
-
-    do {
-        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-        steps++;
-
-        if ((d + next_d) < u_relaxed_step_multiplier * d && next_t > (t + d)) {
-            next_t = t + d;
-        } else {
-            t = next_t;
-            d = next_d;
-
-            next_t = next_t + u_relaxed_step_multiplier * next_d;
-        }
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
- 
-#if RENDER_MODE == NORMAL
-    if (d <= u_epsilon * t) {
-        vec3 position = ray.position + t * ray.direction;
-        vec3 normal = Normal(position);
-        float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-        float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-        vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-        return color;
-    } else if (t >= u_max_distance){
-        return texture(u_skyboxTexture, ray.direction).rgb;
-    } else {
-        return vec3(1.0, 0.0, 0.0);
-    }
-#elif RENDER_MODE == ITERATION_COUNT
-    return vec3(float(steps) / float(u_max_iteration_count));
-#elif RENDER_MODE == DEPTH
-    return vec3(t / u_max_distance);
-#endif
-}
-
-vec3 enhanced_sphere_tracing(Ray ray) {
-    float next_d;
-    float next_t = 0.0;
-
-    float d = 0.0;
-    float t = 0.0;
-
-    float s = 0.0;
-    float next_s = 0.0;
-
-    uint steps = 0;
-
-    do {
-        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-        steps++;
-
-        if ((d + next_d + 0.000001) < next_s && next_t > (t + d)) {
-            next_s = d;
-
-            s = next_s;
-
-            next_t = t + next_s;
-        } else {
-            next_s = next_d + u_enhanced_step_multiplier * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
-            next_s = clamp(next_s, next_d, u_enhanced_max_step_factor * next_d);
-            
-            t = next_t;
-            d = next_d;
-            
-            s = next_s;
-
-            next_t = next_t + next_s;
-        }
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
-
-#if RENDER_MODE == NORMAL
-    if (d <= u_epsilon * t) {
-        vec3 position = ray.position + t * ray.direction;
-        vec3 normal = Normal(position);
-        float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-        float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-        vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-        return color;
-    } else if (t >= u_max_distance){
-        return texture(u_skyboxTexture, ray.direction).rgb;
-    } else {
-        return vec3(1.0, 0.0, 0.0);
-    }
-#elif RENDER_MODE == ITERATION_COUNT
-    return vec3(float(steps) / float(u_max_iteration_count));
-#elif RENDER_MODE == DEPTH
-    return vec3(t / u_max_distance);
-#endif
-}
 
 void main() {
     if (gl_GlobalInvocationID.x >= u_width || gl_GlobalInvocationID.y >= u_height) {
@@ -188,15 +53,7 @@ void main() {
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    vec3 res;
+    vec3 color = Render(Ray(u_position, ray_dir), 0.0, 0.0);
 
-#if SPHERE_TRACING_TYPE == NAIVE
-    res = naive_sphere_tracing(Ray(u_position, ray_dir));
-#elif SPHERE_TRACING_TYPE == RELAXED
-    res = relaxed_sphere_tracing(Ray(u_position, ray_dir));
-#elif SPHERE_TRACING_TYPE == ENHANCED
-    res = enhanced_sphere_tracing(Ray(u_position, ray_dir));
-#endif
-
-    imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(res, 1.0));
+    imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }

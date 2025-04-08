@@ -1,0 +1,35 @@
+#ifndef VALUE_INCLUDE
+#define VALUE_INCLUDE
+
+
+
+struct Value {
+    float d;
+    int id;
+};
+
+float Unite(float a, float b) {
+    return min(a, b);
+}
+
+Value Unite(Value a, Value b) {
+    if (b.d < a.d) {
+        return b;
+    }
+    return a;
+}
+
+Value Unite(Value a, float b_d, int b_id) {
+    if (b_d < a.d) {
+        return Value(b_d, b_id);
+    }
+    return a;
+}
+
+Value Unite(float a_d, Value b, int b_id) {
+    return Unite(Value(a_d, b_id), b);
+}
+
+
+
+#endif

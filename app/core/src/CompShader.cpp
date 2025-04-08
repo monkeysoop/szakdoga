@@ -23,7 +23,7 @@ namespace szakdoga::core {
             SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
         }
 
-        LoadShader(comp_filename, include_filenames);
+        m_shader_source_code = LoadShader(comp_filename, include_filenames);
 
         std::string configured_shader_source_code = ConfigureShader(in_variables);
 
@@ -80,12 +80,12 @@ namespace szakdoga::core {
     }
 
 
-    void CompShader::LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) {
+    std::string CompShader::LoadShader(const std::filesystem::path& filename, const std::vector<std::filesystem::path>& include_filenames) {
         std::string shader_source_code = "";
 
-        std::ifstream shader_file{comp_filename};
+        std::ifstream shader_file{filename};
         if (!shader_file.is_open()) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading shader: %s!", comp_filename.c_str());
+            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading shader: %s!", filename.c_str());
         }
 
         std::string current_line = "";
@@ -103,16 +103,7 @@ namespace szakdoga::core {
 
                 for (const std::filesystem::path& include_filename : include_filenames) {
                     if (include_filename.string() == unquoted_include_filename) {
-                        std::ifstream include_file{include_filename};
-
-                        if (!include_file.is_open()) {
-                            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading included shader: %s!", include_filename.c_str());
-                        }
-
-                        std::string include_source_code{
-                            std::istreambuf_iterator<char>(include_file),
-                            std::istreambuf_iterator<char>()
-                        };
+                        std::string include_source_code = LoadShader(include_filename, include_filenames);
 
                         shader_source_code += include_source_code + "\n"; // the extra "\n" might be unnecesseary but couldn't hurt
 
@@ -130,7 +121,7 @@ namespace szakdoga::core {
             }
         }
 
-        m_shader_source_code = shader_source_code;
+        return shader_source_code;
     }
 
     std::string CompShader::ConfigureShader(const std::map<std::string, std::string>& in_variables) {
@@ -150,18 +141,18 @@ namespace szakdoga::core {
                 std::string::size_type len = in_last - in_first;
 
                 if (len < 2) {
-                    SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, incorrect usage of the %c symbol", IN_TOKEN);
+                    //SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, incorrect usage of the %c symbol", IN_TOKEN);
+                } else {
+                    std::string in_var = current_line.substr((in_first + 1), (len - 1));
+
+                    std::map<std::string, std::string>::const_iterator iter = in_variables.find(in_var);
+
+                    if (iter == in_variables.end()) {
+                        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, couldn't find in variable: %s in the map provided", in_var.c_str());
+                    }
+
+                    current_line.replace(in_first, (len + 1), iter->second);
                 }
-
-                std::string in_var = current_line.substr((in_first + 1), (len - 1));
-                
-                std::map<std::string, std::string>::const_iterator iter = in_variables.find(in_var);
-
-                if (iter == in_variables.end()) {
-                    SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, couldn't find in variable: %s in the map provided", in_var.c_str());
-                }
-
-                current_line.replace(in_first, (len + 1), iter->second);
             }
 
             configured_shader_source_code += current_line + "\n";

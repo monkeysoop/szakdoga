@@ -25,6 +25,12 @@ namespace szakdoga::core {
         NAIVE = 0,
         RELAXED = 1,
         ENHANCED = 2,
+    };
+
+    enum class TracingType : unsigned {
+        NAIVE = 0,
+        RELAXED = 1,
+        ENHANCED = 2,
         CONE = 3,
     };
 
@@ -60,6 +66,7 @@ namespace szakdoga::core {
 
         SDFSceneType m_sdf_scene;
         RenderModeType m_render_mode;
+        TracingType m_tracing_type;
         SphereTracingType m_sphere_tracing_type;
         SphereTracingType m_cone_trace_sphere_tracing_type;
         SphereTracingType m_cone_trace_final_sphere_tracing_type;
