@@ -157,9 +157,7 @@ namespace szakdoga::core {
                 SDFSceneType old_sdf_scene = m_sdf_scene;
                 int sdf_scene = static_cast<int>(m_sdf_scene);
                 ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
-                ImGui::SameLine();
                 ImGui::RadioButton("car", &sdf_scene, static_cast<int>(SDFSceneType::CAR));
-                ImGui::SameLine();
                 ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
                 m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
 
@@ -174,11 +172,8 @@ namespace szakdoga::core {
                 RenderModeType old_render_mode = m_render_mode;
                 int mode = static_cast<int>(m_render_mode);
                 ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
-                ImGui::SameLine();
                 ImGui::RadioButton("debug", &mode, static_cast<int>(RenderModeType::DEBUG));
-                ImGui::SameLine();
                 ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
-                ImGui::SameLine();
                 ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));
                 m_render_mode = static_cast<RenderModeType>(mode);
 
@@ -199,11 +194,8 @@ namespace szakdoga::core {
             if (ImGui::CollapsingHeader("sphere tracing type")) {
                 int type = static_cast<int>(m_tracing_type);
                 ImGui::RadioButton("naive", &type, static_cast<int>(TracingType::NAIVE));
-                ImGui::SameLine();
                 ImGui::RadioButton("relaxed", &type, static_cast<int>(TracingType::RELAXED));
-                ImGui::SameLine();
                 ImGui::RadioButton("enhanced", &type, static_cast<int>(TracingType::ENHANCED));
-                ImGui::SameLine();
                 ImGui::RadioButton("cone", &type, static_cast<int>(TracingType::CONE));
                 m_tracing_type = static_cast<TracingType>(type);
                 if (m_tracing_type != TracingType::CONE) {
@@ -228,7 +220,7 @@ namespace szakdoga::core {
                     ImGui::Text("change cone size");
                     ImGui::SameLine();
                     ImGui::PushItemFlag(ImGuiItemFlags_ButtonRepeat, true);
-                    if (ImGui::ArrowButton("decrease cone size", ImGuiDir_Left) && m_initial_cone_size > 1) {
+                    if (ImGui::ArrowButton("decrease cone size", ImGuiDir_Left) && m_initial_cone_size > 2) {
                         m_initial_cone_size /= 2;
                         m_cone_trace_precomputed_texture.Resize(
                             static_cast<unsigned>((m_width + m_initial_cone_size - 1) / 2), 
