@@ -175,6 +175,8 @@ namespace szakdoga::core {
                 int mode = static_cast<int>(m_render_mode);
                 ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
                 ImGui::SameLine();
+                ImGui::RadioButton("debug", &mode, static_cast<int>(RenderModeType::DEBUG));
+                ImGui::SameLine();
                 ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
                 ImGui::SameLine();
                 ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));

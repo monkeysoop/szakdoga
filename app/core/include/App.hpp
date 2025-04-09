@@ -17,8 +17,9 @@
 namespace szakdoga::core {
     enum class RenderModeType : unsigned {
         NORMAL = 0,
-        ITERATION_COUNT = 1,
-        DEPTH = 2,
+        DEBUG = 1,
+        ITERATION_COUNT = 2,
+        DEPTH = 3,
     };
 
     enum class SphereTracingType : unsigned {

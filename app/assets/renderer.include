@@ -14,6 +14,12 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
 
 #if RENDER_MODE == NORMAL
         if (initial_iteration >= u_max_iteration_count) {
+            return vec3(0.0, 0.0, 0.0);
+        } else {
+            return texture(u_skyboxTexture, ray.direction).rgb;
+        }
+#elif RENDER_MODE == DEBUG
+        if (initial_iteration >= u_max_iteration_count) {
             return vec3(1.0, 0.0, 0.0);
         } else {
             return texture(u_skyboxTexture, ray.direction).rgb;
@@ -29,19 +35,37 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
         TracingResult tracing_result = SphereTracing(ray, initial_t, initial_iteration);
 
 #if RENDER_MODE == NORMAL
-        if (tracing_result.result == TRACING_RESULT_HIT) {
-            vec3 position = ray.position + tracing_result.t * ray.direction;
-            vec3 normal = Normal(position);
-            float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-            float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-            vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-            return color;
-        } else if (tracing_result.result == TRACING_RESULT_MAX_DISTANCE_REACHED) {
-            return texture(u_skyboxTexture, ray.direction).rgb;
-        } else if (tracing_result.result == TRACING_RESULT_MAX_ITERATION_COUNT_REACHED) {
-            return vec3(1.0, 0.0, 0.0);
-        } else {
-            return vec3(0.0, 1.0, 0.0);
+        switch (tracing_result.result) {
+            case TRACING_RESULT_HIT:
+            case TRACING_RESULT_MAX_ITERATION_COUNT_REACHED:
+                vec3 position = ray.position + tracing_result.t * ray.direction;
+                vec3 normal = Normal(position);
+                float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+                float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+                vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+                return color;
+            case TRACING_RESULT_MAX_DISTANCE_REACHED:
+                return texture(u_skyboxTexture, ray.direction).rgb;
+            default:
+                //unreachable
+                return vec3(0.0, 0.0, 0.0);
+        }
+#elif RENDER_MODE == DEBUG
+        switch (tracing_result.result) {
+            case TRACING_RESULT_HIT:
+                vec3 position = ray.position + tracing_result.t * ray.direction;
+                vec3 normal = Normal(position);
+                float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
+                float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
+                vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
+                return color;
+            case TRACING_RESULT_MAX_DISTANCE_REACHED:
+                return texture(u_skyboxTexture, ray.direction).rgb;
+            case TRACING_RESULT_MAX_ITERATION_COUNT_REACHED:
+                return vec3(1.0, 0.0, 0.0);
+            default:
+                //unreachable
+                return vec3(0.0, 0.0, 0.0);
         }
 #elif RENDER_MODE == ITERATION_COUNT
         return vec3(tracing_result.steps / u_max_iteration_count);

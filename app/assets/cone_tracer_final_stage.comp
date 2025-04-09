@@ -28,8 +28,9 @@ uniform bool u_first_pass;
 #define TEMPLE 2
 
 #define NORMAL 0
-#define ITERATION_COUNT 1
-#define DEPTH 2
+#define DEBUG 1
+#define ITERATION_COUNT 2
+#define DEPTH 3
 
 #define NAIVE 0
 #define RELAXED 1
