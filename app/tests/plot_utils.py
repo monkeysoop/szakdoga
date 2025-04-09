@@ -43,7 +43,6 @@ def plot_images(images, row_labels, col_labels, figsize, x_label, y_label, title
     
     cax = ax.imshow(image_grid, aspect="equal")
 
-    ax.axis('off')
     ax.set_xticks(np.arange(w // 2, len(col_labels) * w, w))
     ax.set_xticklabels(col_labels)
     ax.set_yticks(np.arange(h // 2, len(row_labels) * h, h))
