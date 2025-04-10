@@ -20,6 +20,16 @@ uniform float u_relaxed_step_multiplier;
 uniform float u_enhanced_step_multiplier;
 uniform float u_enhanced_max_step_factor;
 
+uniform float u_shadow_penumbra;
+uniform float u_shadow_intensity;
+uniform float u_shadow_max_iteration_count;
+uniform float u_ao_multiplier_attenuation;
+uniform float u_ao_max_iteration_count;
+uniform float u_ambient_strength;
+uniform float u_reflection_attenuation;
+
+uniform uint u_max_number_of_reflections;
+
 uniform bool u_first_pass;
 
 

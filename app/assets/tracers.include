@@ -10,109 +10,152 @@
 
 
 
-TracingResult naive_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
+TracingResult naive_sphere_tracing(
+    Ray ray, 
+    float initial_t, 
+    float initial_iteration, 
+    float epsilon, 
+    float max_distance, 
+    float max_iteration_count
+) {
     float t = initial_t;
     float d;
 
-    float steps = initial_iteration;
-    do {
-        d = abs(sdf(ray.position + t * ray.direction).d);
-        steps += 1.0;
-        t += d;
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
+    uint material_id;
 
-    if (d <= u_epsilon * t) {
-        return TracingResult(TRACING_RESULT_HIT, t, steps);
-    } else if (t >= u_max_distance){
-        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, u_max_distance, steps);
+    float steps = initial_iteration;
+
+    float min_scale = 1.0;
+
+    do {
+        Value v = sdf(ray.position + t * ray.direction);
+        steps += 1.0;
+
+        d = abs(v.d);
+        material_id = v.id;
+
+        min_scale = min(min_scale, (d / t));
+
+        t += d;
+    } while (d > epsilon * t && t < max_distance && steps < max_iteration_count);
+
+    if (d <= epsilon * t) {
+        return TracingResult(TRACING_RESULT_HIT, t, steps, min_scale, material_id);
+    } else if (t >= max_distance){
+        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, max_distance, steps, min_scale, material_id);
     } else {
-        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, u_max_iteration_count);
+        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, max_iteration_count, min_scale, material_id);
     }
 }
 
-TracingResult relaxed_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
+TracingResult relaxed_sphere_tracing(
+    Ray ray, 
+    float initial_t, 
+    float initial_iteration, 
+    float epsilon, 
+    float max_distance, 
+    float max_iteration_count, 
+    float step_multiplier
+) {
     float next_d;
     float next_t = initial_t;
 
     float d = 0.0;
     float t = initial_t;
 
+    uint material_id;
+
     float steps = initial_iteration;
 
-    do {
-        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-        steps++;
+    float min_scale = 1.0;
 
-        if ((d + next_d) < u_relaxed_step_multiplier * d && next_t != (t + d)) {
+    do {
+        Value v = sdf(ray.position + next_t * ray.direction);
+        steps += 1.0;
+
+        next_d = abs(v.d);
+
+        if ((d + next_d) < step_multiplier * d && next_t != (t + d)) {
             next_t = t + d;
         } else {
             t = next_t;
             d = next_d;
+            material_id = v.id;
 
-            next_t = next_t + u_relaxed_step_multiplier * next_d;
+            min_scale = min(min_scale, (d / t));
+
+            next_t = next_t + step_multiplier * next_d;
         }
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
+    } while (d > epsilon * t && t < max_distance && steps < max_iteration_count);
  
-    if (d <= u_epsilon * t) {
-        return TracingResult(TRACING_RESULT_HIT, t, steps);
-    } else if (t >= u_max_distance){
-        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, u_max_distance, steps);
+    if (d <= epsilon * t) {
+        return TracingResult(TRACING_RESULT_HIT, t, steps, min_scale, material_id);
+    } else if (t >= max_distance){
+        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, max_distance, steps, min_scale, material_id);
     } else {
-        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, u_max_iteration_count);
+        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, max_iteration_count, min_scale, material_id);
     }
 }
 
-TracingResult enhanced_sphere_tracing(Ray ray, float initial_t, float initial_iteration) {
+TracingResult enhanced_sphere_tracing(
+    Ray ray, 
+    float initial_t, 
+    float initial_iteration, 
+    float epsilon, 
+    float max_distance, 
+    float max_iteration_count, 
+    float step_multiplier, 
+    float max_step_factor
+) {
     float next_d;
     float next_t = initial_t;
 
     float d = 0.0;
     float t = initial_t;
+
+    uint material_id;
 
     float s = 0.0;
     float next_s = 0.0;
 
     float steps = initial_iteration;
 
+    float min_scale = 1.0;
+
     do {
-        next_d = abs(sdf(ray.position + next_t * ray.direction).d);
-        steps++;
+        Value v = sdf(ray.position + next_t * ray.direction);
+        steps += 1.0;
+
+        next_d = abs(v.d);
 
         if ((d + next_d) < next_s && next_t != (t + d)) {
             next_s = d;
             s = d;
-            
+
             next_t = t + d;
         } else {
-            next_s = next_d + u_enhanced_step_multiplier * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
-            next_s = clamp(next_s, next_d, u_enhanced_max_step_factor * next_d);
-            
+            next_s = next_d + step_multiplier * next_d * ((-1.0 * d + next_d + s) / (d - next_d + s));
+            next_s = clamp(next_s, next_d, max_step_factor * next_d);
+
             t = next_t;
             d = next_d;
-            
+            material_id = v.id;
+
+            min_scale = min(min_scale, (d / t));
+
             s = next_s;
 
             next_t = next_t + next_s;
         }
-    } while (d > u_epsilon * t && t < u_max_distance && steps < u_max_iteration_count);
+    } while (d > epsilon * t && t < max_distance && steps < max_iteration_count);
 
-    if (d <= u_epsilon * t) {
-        return TracingResult(TRACING_RESULT_HIT, t, steps);
-    } else if (t >= u_max_distance){
-        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, u_max_distance, steps);
+    if (d <= epsilon * t) {
+        return TracingResult(TRACING_RESULT_HIT, t, steps, min_scale, material_id);
+    } else if (t >= max_distance){
+        return TracingResult(TRACING_RESULT_MAX_DISTANCE_REACHED, max_distance, steps, min_scale, material_id);
     } else {
-        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, u_max_iteration_count);
+        return TracingResult(TRACING_RESULT_MAX_ITERATION_COUNT_REACHED, t, max_iteration_count, min_scale, material_id);
     }
-}
-
-TracingResult SphereTracing(Ray ray, float initial_t, float initial_iteration) {
-#if SPHERE_TRACING_TYPE == NAIVE
-    return naive_sphere_tracing(ray, initial_t, initial_iteration);
-#elif SPHERE_TRACING_TYPE == RELAXED
-    return relaxed_sphere_tracing(ray, initial_t, initial_iteration);
-#elif SPHERE_TRACING_TYPE == ENHANCED
-    return enhanced_sphere_tracing(ray, initial_t, initial_iteration);
-#endif
 }
 
 

@@ -114,7 +114,15 @@ namespace szakdoga::core {
         m_benchmark_max_iteration_count{100},
         m_benchmark_iteration_count_spacing{10},
         m_benchmark_performance_iteration_count{100},
-        m_benchmark_performance_number_of_runs{10}
+        m_benchmark_performance_number_of_runs{10},
+        m_shadow_penumbra{10.0f},
+        m_shadow_intensity{1.0f},
+        m_shadow_max_iteration_count{30},
+        m_ao_multiplier_attenuation{0.7f},
+        m_ao_max_iteration_count{10},
+        m_ambient_strength{0.1f},
+        m_reflection_attenuation{1.0f},
+        u_max_number_of_reflections{3}
     {
         GLint context_flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
@@ -183,7 +191,7 @@ namespace szakdoga::core {
                 }
             }
 
-            if (ImGui::CollapsingHeader("general settings")) {
+            if (ImGui::CollapsingHeader("general tracing settings")) {
                 ImGui::SliderFloat("epsilon", &m_epsilon, 0.000001f, 0.1f, "%.6f", ImGuiSliderFlags_Logarithmic);
                 ImGui::SliderFloat("max distance", &m_max_distance, 1.0f, 10000.0f, "%.0f", ImGuiSliderFlags_Logarithmic);
                 int iter_count = static_cast<int>(m_max_iteration_count);
@@ -191,7 +199,21 @@ namespace szakdoga::core {
                 m_max_iteration_count = static_cast<unsigned>(iter_count);
             }
 
-            if (ImGui::CollapsingHeader("sphere tracing type")) {
+            if (ImGui::CollapsingHeader("general lighting settings")) {
+                ImGui::SliderFloat("shadow penumbra", &m_shadow_penumbra, 1.0f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("shadow intensity", &m_shadow_intensity, 0.1f, 10.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                int shadow_iter_count = static_cast<int>(m_shadow_max_iteration_count);
+                ImGui::SliderInt("shadow max iteration count", &shadow_iter_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
+                m_shadow_max_iteration_count = static_cast<unsigned>(shadow_iter_count);
+                ImGui::SliderFloat("ao multiplier attenuation", &m_ao_multiplier_attenuation, 0.1f, 1.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                int ao_iter_count = static_cast<int>(m_ao_max_iteration_count);
+                ImGui::SliderInt("ao max iteration count", &ao_iter_count, 1, 100, "%d", ImGuiSliderFlags_Logarithmic);
+                m_ao_max_iteration_count = static_cast<unsigned>(ao_iter_count);
+                ImGui::SliderFloat("ambient strenth", &m_ambient_strength, 0.01f, 10.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("reflection attenuation", &m_reflection_attenuation, 0.01f, 1.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+            }
+
+            if (ImGui::CollapsingHeader("tracing type")) {
                 int type = static_cast<int>(m_tracing_type);
                 ImGui::RadioButton("naive", &type, static_cast<int>(TracingType::NAIVE));
                 ImGui::RadioButton("relaxed", &type, static_cast<int>(TracingType::RELAXED));
@@ -407,6 +429,15 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_enhanced_step_multiplier"), static_cast<GLfloat>(m_enhanced_step_multiplier));
         glUniform1f(m_sphere_trace_shader.ul("u_enhanced_max_step_factor"), static_cast<GLfloat>(m_enhanced_max_step_factor));
 
+        glUniform1f(m_sphere_trace_shader.ul("u_shadow_penumbra"), static_cast<GLfloat>(m_shadow_penumbra));
+        glUniform1f(m_sphere_trace_shader.ul("u_shadow_intensity"), static_cast<GLfloat>(m_shadow_intensity));
+        glUniform1f(m_sphere_trace_shader.ul("u_shadow_max_iteration_count"), static_cast<GLfloat>(m_shadow_max_iteration_count));
+        glUniform1f(m_sphere_trace_shader.ul("u_ao_multiplier_attenuation"), static_cast<GLfloat>(m_ao_multiplier_attenuation));
+        glUniform1f(m_sphere_trace_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
+        glUniform1f(m_sphere_trace_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
+        glUniform1f(m_sphere_trace_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
+        glUniform1ui(m_sphere_trace_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
+
         m_sphere_trace_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
             DivideAndRoundUp(m_height, LOCAL_WORKGROUP_SIZE_Y),
@@ -498,6 +529,15 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_relaxed_step_multiplier"), static_cast<GLfloat>(m_cone_trace_final_relaxed_step_multiplier));
         glUniform1f(m_cone_trace_final_shader.ul("u_enhanced_step_multiplier"), static_cast<GLfloat>(m_cone_trace_final_enhanced_step_multiplier));
         glUniform1f(m_cone_trace_final_shader.ul("u_enhanced_max_step_factor"), static_cast<GLfloat>(m_cone_trace_final_enhanced_max_step_factor));
+
+        glUniform1f(m_cone_trace_final_shader.ul("u_shadow_penumbra"), static_cast<GLfloat>(m_shadow_penumbra));
+        glUniform1f(m_cone_trace_final_shader.ul("u_shadow_intensity"), static_cast<GLfloat>(m_shadow_intensity));
+        glUniform1f(m_cone_trace_final_shader.ul("u_shadow_max_iteration_count"), static_cast<GLfloat>(m_shadow_max_iteration_count));
+        glUniform1f(m_cone_trace_final_shader.ul("u_ao_multiplier_attenuation"), static_cast<GLfloat>(m_ao_multiplier_attenuation));
+        glUniform1f(m_cone_trace_final_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
+        glUniform1f(m_cone_trace_final_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
+        glUniform1f(m_cone_trace_final_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
+        glUniform1ui(m_cone_trace_final_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
 
         m_cone_trace_final_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),

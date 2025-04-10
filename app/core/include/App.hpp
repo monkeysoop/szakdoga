@@ -111,6 +111,16 @@ namespace szakdoga::core {
         unsigned m_benchmark_performance_iteration_count;
         unsigned m_benchmark_performance_number_of_runs;
 
+        float m_shadow_penumbra;
+        float m_shadow_intensity;
+        unsigned m_shadow_max_iteration_count;
+        float m_ao_multiplier_attenuation;
+        unsigned m_ao_max_iteration_count;
+        float m_ambient_strength;
+        float m_reflection_attenuation;
+
+        unsigned u_max_number_of_reflections;
+
     private:
         void SphereTraceRender();
         void ConeTraceRender();

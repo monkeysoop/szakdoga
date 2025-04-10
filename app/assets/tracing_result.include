@@ -11,6 +11,8 @@ struct TracingResult {
     uint result;
     float t;
     float steps;
+    float min_scale;
+    uint material_id;
 };
 
 
