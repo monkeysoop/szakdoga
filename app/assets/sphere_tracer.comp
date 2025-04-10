@@ -2,6 +2,7 @@
 
 layout (local_size_x = 8, local_size_y = 8) in;
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
+layout (rg32f, binding = 1) uniform readonly image2D distancesIterationsTexture;
 
 uniform samplerCube u_skyboxTexture;
 
@@ -28,6 +29,8 @@ uniform float u_ambient_strength;
 uniform float u_reflection_attenuation;
 
 uniform uint u_max_number_of_reflections;
+
+uniform bool u_first_pass;
 
 
 #define NEWTONS_CRADLE 0
@@ -64,7 +67,16 @@ void main() {
     projected_position /= projected_position.w;
     vec3 ray_dir = normalize(projected_position.xyz - u_position);
 
-    vec3 color = Render(Ray(u_position, ray_dir), 0.0, 0.0);
+    float initial_t = 0.0;
+    float initial_iteration = 0.0;
+    if (!u_first_pass) {
+        vec4 initial = imageLoad(distancesIterationsTexture, ivec2(gl_GlobalInvocationID.xy / 2));
+
+        initial_t = initial.r;
+        initial_iteration = initial.g * 0.25;
+    }
+
+    vec3 color = Render(Ray(u_position, ray_dir), initial_t, initial_iteration);
 
     imageStore(outputTexture, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1.0));
 }

@@ -66,7 +66,7 @@ namespace szakdoga::core {
             }
         },
         m_cone_trace_final_shader{
-            std::filesystem::path{"assets"} / "cone_tracer_final_stage.comp", 
+            std::filesystem::path{"assets"} / "sphere_tracer.comp", 
             {
                 std::filesystem::path{"assets"} / "ray.include",
                 std::filesystem::path{"assets"} / "value.include", 
@@ -412,7 +412,7 @@ namespace szakdoga::core {
         m_sphere_trace_shader.Use();
 
         glActiveTexture(GL_TEXTURE0);
-	    glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox.GetTextureID());
         glUniform1i(m_sphere_trace_shader.ul("u_skyboxTexture"), 0);
 
         glUniformMatrix4fv(m_sphere_trace_shader.ul("u_inv_view_proj_mat"), 1, GL_FALSE, glm::value_ptr(glm::inverse(m_camera.GetViewProj())));
@@ -436,7 +436,10 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
         glUniform1f(m_sphere_trace_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_sphere_trace_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
+
         glUniform1ui(m_sphere_trace_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
+
+        glUniform1i(m_sphere_trace_shader.ul("u_first_pass"), static_cast<GLint>(GL_TRUE));
 
         m_sphere_trace_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
@@ -524,8 +527,6 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_max_distance"), static_cast<GLfloat>(m_max_distance));
         glUniform1f(m_cone_trace_final_shader.ul("u_max_iteration_count"), static_cast<GLfloat>(m_max_iteration_count));
 
-        glUniform1i(m_cone_trace_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
-
         glUniform1f(m_cone_trace_final_shader.ul("u_relaxed_step_multiplier"), static_cast<GLfloat>(m_cone_trace_final_relaxed_step_multiplier));
         glUniform1f(m_cone_trace_final_shader.ul("u_enhanced_step_multiplier"), static_cast<GLfloat>(m_cone_trace_final_enhanced_step_multiplier));
         glUniform1f(m_cone_trace_final_shader.ul("u_enhanced_max_step_factor"), static_cast<GLfloat>(m_cone_trace_final_enhanced_max_step_factor));
@@ -537,7 +538,10 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
         glUniform1f(m_cone_trace_final_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_cone_trace_final_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
+
         glUniform1ui(m_cone_trace_final_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
+
+        glUniform1i(m_cone_trace_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
 
         m_cone_trace_final_shader.Dispatch(
             DivideAndRoundUp(m_width, LOCAL_WORKGROUP_SIZE_X),
@@ -546,7 +550,7 @@ namespace szakdoga::core {
         );
 
         m_cone_trace_final_shader.Barrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    
+
         m_framebuffer.UnBind();
         m_framebuffer.Blit();
     }
