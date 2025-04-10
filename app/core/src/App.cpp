@@ -315,17 +315,17 @@ namespace szakdoga::core {
                 int benchmark_performance_iteration_count = static_cast<int>(m_benchmark_performance_iteration_count);
                 int benchmark_performance_number_of_runs = static_cast<int>(m_benchmark_performance_number_of_runs);
                 ImGui::SliderInt("baseline iteration count", &benchmark_baseline_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
-                if (ImGui::SliderInt("min iteration count", &benchmark_min_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic)) {
+                if (ImGui::SliderInt("benchmark min iteration count", &benchmark_min_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic)) {
                     if (benchmark_min_iteration_count > benchmark_max_iteration_count) {
                         benchmark_max_iteration_count = benchmark_min_iteration_count;
                     }
                 }
-                if (ImGui::SliderInt("max iteration count", &benchmark_max_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic)) {
+                if (ImGui::SliderInt("benchmark max iteration count", &benchmark_max_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic)) {
                     if (benchmark_max_iteration_count < benchmark_min_iteration_count) {
                         benchmark_min_iteration_count = benchmark_max_iteration_count;
                     }
                 }
-                ImGui::SliderInt("iteration count spacing", &benchmark_iteration_count_spacing, 1, 1000, "%d", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderInt("benchmark iteration count spacing", &benchmark_iteration_count_spacing, 1, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 ImGui::SliderInt("performance iteration count", &benchmark_performance_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 ImGui::SliderInt("performance number of runs", &benchmark_performance_number_of_runs, 0, 100);
                 m_benchmark_baseline_iteration_count = static_cast<unsigned>(benchmark_baseline_iteration_count);
