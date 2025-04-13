@@ -17,9 +17,11 @@
 namespace szakdoga::core {
     enum class RenderModeType : unsigned {
         NORMAL = 0,
-        DEBUG = 1,
-        ITERATION_COUNT = 2,
-        DEPTH = 3,
+        ITERATION_COUNT = 1,
+        SDF_CALL_COUNT = 2,
+        DEBUG = 3,
+        DEBUG_ITERATION_COUNT = 4,
+        DEBUG_DEPTH = 5,
     };
 
     enum class SphereTracingType : unsigned {
@@ -39,6 +41,7 @@ namespace szakdoga::core {
         NEWTONS_CRADLE = 0,
         CAR = 1,
         TEMPLE = 2,
+        PRIMITIVES = 3,
     };
 
     class App {
@@ -115,6 +118,8 @@ namespace szakdoga::core {
         float m_shadow_intensity;
         unsigned m_shadow_max_iteration_count;
         float m_ao_multiplier_attenuation;
+        float m_ao_step_size;
+        float m_ao_strength;
         unsigned m_ao_max_iteration_count;
         float m_ambient_strength;
         float m_reflection_attenuation;

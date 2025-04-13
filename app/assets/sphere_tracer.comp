@@ -24,6 +24,8 @@ uniform float u_shadow_penumbra;
 uniform float u_shadow_intensity;
 uniform float u_shadow_max_iteration_count;
 uniform float u_ao_multiplier_attenuation;
+uniform float u_ao_step_size;
+uniform float u_ao_strength;
 uniform float u_ao_max_iteration_count;
 uniform float u_ambient_strength;
 uniform float u_reflection_attenuation;
@@ -36,11 +38,14 @@ uniform bool u_first_pass;
 #define NEWTONS_CRADLE 0
 #define CAR 1
 #define TEMPLE 2
+#define PRIMITIVES 3
 
 #define NORMAL 0
-#define DEBUG 1
-#define ITERATION_COUNT 2
-#define DEPTH 3
+#define ITERATION_COUNT 1
+#define SDF_CALL_COUNT 2
+#define DEBUG 3
+#define DEBUG_ITERATION_COUNT 4
+#define DEBUG_DEPTH 5
 
 #define NAIVE 0
 #define RELAXED 1

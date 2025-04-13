@@ -26,6 +26,7 @@ uniform bool u_first_pass;
 #define NEWTONS_CRADLE 0
 #define CAR 1
 #define TEMPLE 2
+#define PRIMITIVES 3
 
 #define NAIVE 0
 #define RELAXED 1

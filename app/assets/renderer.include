@@ -22,7 +22,7 @@ struct AOResult {
 struct BRDFResult {
     vec3 color;
     vec3 refl;
-    float steps;
+    float sdf_call_counts;
 };
 
 struct Material {
@@ -34,6 +34,7 @@ struct Material {
 struct Light {
     vec3 position;
     vec3 color;
+    float intensity;
 };
 
 
@@ -41,7 +42,7 @@ struct Light {
 #define NUM_OF_LIGHTS 3
 
 const Material MATERIALS[NUM_OF_MATERIALS] = Material[](
-    Material(vec3(10.2, 0.0, 0.0), 0.2, 0.02),     // Plastic
+    Material(vec3(1.0, 0.1, 0.05), 0.7, 0.01),     // Plastic
     Material(vec3(0.95, 0.93, 0.88), 0.1, 0.95),   // Silver
     Material(vec3(1.0, 0.71, 0.29), 0.05, 0.9),    // Polished Gold
     Material(vec3(0.8, 0.85, 0.88), 0.5, 0.7),     // Brushed Aluminum
@@ -50,9 +51,9 @@ const Material MATERIALS[NUM_OF_MATERIALS] = Material[](
 );
 
 const Light LIGTHS[NUM_OF_LIGHTS] = Light[](
-    Light(vec3(10.0, 10.0, 0.0), vec3(10.0, 0.0, 0.0)), 
-    Light(vec3(0.0, 10.0, 0.0), vec3(0.0, 10.0, 0.0)), 
-    Light(vec3(0.0, 10.0, 10.0), vec3(0.0, 0.0, 1.0))
+    Light(vec3(10.0, 10.0, 0.0), vec3(1.0, 0.7, 0.7), 100.0), 
+    Light(vec3(0.0, 10.0, 0.0), vec3(0.7, 1.0, 0.7), 100.0), 
+    Light(vec3(0.0, 10.0, 10.0), vec3(0.7, 0.7, 1.0), 100.0)
 );
 
 
@@ -96,6 +97,10 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 TracingResult SphereTracing(Ray ray, float initial_t, float initial_iteration, float max_distance, float max_iteration_count) {
 #if SPHERE_TRACING_TYPE == NAIVE
     return naive_sphere_tracing(ray, initial_t, initial_iteration, u_epsilon, max_distance, max_iteration_count);
@@ -106,36 +111,41 @@ TracingResult SphereTracing(Ray ray, float initial_t, float initial_iteration, f
 #endif
 }
 
-ShadowResult SoftShadow(vec3 position, vec3 light_position, float initial_iteration) {
+ShadowResult SoftShadow(vec3 position, vec3 light_position) {
     TracingResult tracing_result = SphereTracing(
         Ray(position, normalize(light_position - position)), 
         0.0, 
-        initial_iteration, 
+        0.0, 
         min(u_max_distance, length(light_position - position)), 
-        min(u_max_iteration_count, (initial_iteration + u_shadow_max_iteration_count))
+        u_shadow_max_iteration_count
     );
 
     return ShadowResult(pow(clamp(u_shadow_penumbra * tracing_result.min_scale, 0.0, 1.0), u_shadow_intensity), tracing_result.steps);
 }
 
-AOResult AmbienOcclusion(vec3 position, vec3 normal_direction, float initial_iteration) {
+AOResult AmbienOcclusion(vec3 position, vec3 normal_direction) {
     float t = 0.0;
 
     float ao = 0.0;
     float multiplier = 1.0;
 
+    float total_multiplier = 0.0;
+
     float steps;
 
-    for (steps = initial_iteration; steps < min(u_ao_max_iteration_count, u_max_iteration_count); steps += 1.0) {
+    for (steps = 0.0; steps < u_ao_max_iteration_count; steps += 1.0) {
         float d = abs(sdf(position + t * normal_direction).d);
 
-        ao += (t - d) * multiplier;
+        ao += max((t - d) * multiplier, 0.0);
+
+        total_multiplier += multiplier;
+
         multiplier *= u_ao_multiplier_attenuation;
 
-        t += d;
+        t = min(t + u_ao_step_size, u_max_distance);
     }
 
-    return AOResult(clamp(ao, 0.0, 1.0), steps);
+    return AOResult(clamp((ao / total_multiplier), 0.0, 1.0), steps);
 }
 
 // from: https://learnopengl.com/PBR/Lighting
@@ -145,10 +155,9 @@ BRDFResult BRDF(
     vec3 normal_direction, 
     uint material_id, 
     bool with_shadow, 
-    vec3 refl, 
-    float initial_iteration
+    vec3 refl
 ) {
-    vec3 albedo = MATERIALS[material_id].color;
+    vec3 albedo = pow(MATERIALS[material_id].color, vec3(2.2));
     float roughness = MATERIALS[material_id].roughness;
     float metallic = MATERIALS[material_id].metalness;
 
@@ -158,24 +167,25 @@ BRDFResult BRDF(
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
-    float steps = initial_iteration;
+    float steps = 0.0;
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < NUM_OF_LIGHTS; ++i) {
         vec3 light_position = LIGTHS[i].position;
         vec3 light_color = LIGTHS[i].color;
+        float light_intensity = LIGTHS[i].intensity;
         // calculate per-light radiance
         vec3 L = normalize(light_position - hit_position);
         vec3 H = normalize(V + L);
         float dist = length(light_position - hit_position);
         float attenuation = 1.0 / (dist * dist);
-        vec3 radiance = light_color * attenuation;
+        vec3 radiance = light_intensity * light_color * attenuation;
 
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
-        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        vec3 F = fresnelSchlickRoughness(max(dot(H, V), 0.0), F0, roughness);
 
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
@@ -189,7 +199,7 @@ BRDFResult BRDF(
         float NdotL = max(dot(N, L), 0.0);
 
         if (with_shadow) {
-            ShadowResult shadow_result = SoftShadow((hit_position + normal_direction * 0.0001), light_position, steps);
+            ShadowResult shadow_result = SoftShadow((hit_position + normal_direction * 0.0001), light_position);
             steps += shadow_result.steps;
             Lo += (kD * albedo / 3.1415926535897932384626433832795 + specular) * radiance * NdotL * shadow_result.shadow;
         } else {
@@ -198,17 +208,17 @@ BRDFResult BRDF(
 
     }
 
-    vec3 ambient = vec3(0.03) * albedo * u_ambient_strength;// + albedo * emission_strength * max(dot(V, N), 0.0);
-    vec3 color = ambient + Lo;
+    AOResult ao_result = AmbienOcclusion((hit_position + normal_direction * 0.0001), normal_direction);
+    steps += ao_result.steps;
 
-    //AOResult ao_result = AmbienOcclusion(hit_position, normal_direction, steps);
-    //steps = ao_result.steps;
+    vec3 ambient = vec3(0.03) * albedo * u_ambient_strength * clamp((1.0 - u_ao_strength * ao_result.ao), 0.0, 1.0);
+    vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
 
     color *= refl;
-    refl *= fresnelSchlick(max(dot(V, N), 0.0), F0) * u_reflection_attenuation;
+    refl *= fresnelSchlickRoughness(max(dot(V, N), 0.0), F0, roughness) * u_reflection_attenuation;
 
     return BRDFResult(color, refl, steps);
 }
@@ -222,50 +232,59 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
         } else {
             return texture(u_skyboxTexture, ray.direction).rgb;
         }
+#elif RENDER_MODE == ITERATION_COUNT
+        return vec3(initial_iteration / u_max_iteration_count);
+#elif RENDER_MODE == SDF_CALL_COUNT
+        return vec3(initial_iteration / u_max_iteration_count);
 #elif RENDER_MODE == DEBUG
         if (initial_iteration >= u_max_iteration_count) {
             return vec3(1.0, 0.0, 0.0);
         } else {
             return texture(u_skyboxTexture, ray.direction).rgb;
-        }
-#elif RENDER_MODE == ITERATION_COUNT
+        }s
+#elif RENDER_MODE == DEBUG_ITERATION_COUNT
         return vec3(initial_iteration / u_max_iteration_count);
-#elif RENDER_MODE == DEPTH
+#elif RENDER_MODE == DEBUG_DEPTH
         return vec3(initial_t / u_max_distance);
 #endif
     
     } else {
 
-#if RENDER_MODE == NORMAL
-
+#if (RENDER_MODE == NORMAL) || (RENDER_MODE == ITERATION_COUNT) || (RENDER_MODE == SDF_CALL_COUNT)
 
         vec3 color = vec3(0.0);
         vec3 refl = vec3(1.0);
 
         Ray current_ray = ray;
         float steps = initial_iteration;
+        float sdf_call_count = 0.0;
 
         TracingResult tracing_result;
 
-        for (uint i = 0; i < (u_max_number_of_reflections + 1) && steps < u_max_iteration_count; i++) {
+        bool running = true;
+
+        for (uint i = 0; running && i < (u_max_number_of_reflections + 1) && steps < u_max_iteration_count; i++) {
             TracingResult tracing_result = SphereTracing(current_ray, ((i == 0) ? initial_t : 0.0), steps, u_max_distance, u_max_iteration_count);
 
             steps = tracing_result.steps;
 
             switch (tracing_result.result) {
                 case TRACING_RESULT_MAX_ITERATION_COUNT_REACHED:
-                    return color;
+                    running = false;
+                    break;
                 case TRACING_RESULT_HIT:
                     vec3 hit_position = current_ray.position + tracing_result.t * current_ray.direction;
                     vec3 normal = Normal(hit_position);
+                    
+                    sdf_call_count += 6.0; // from normal calculation
+
                     BRDFResult brdf_result = BRDF(
                         current_ray.position,
                         hit_position,
                         normal,
                         tracing_result.material_id,
-                        false,
-                        refl, 
-                        steps
+                        true,
+                        refl
                     );
 
                     current_ray.position = hit_position + 0.001 * normal;
@@ -273,40 +292,33 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
 
                     color += brdf_result.color;
                     refl = brdf_result.refl;
-                    steps = brdf_result.steps;
+                    sdf_call_count += brdf_result.sdf_call_counts;
 
                     break;
                 case TRACING_RESULT_MAX_DISTANCE_REACHED:
                     color += refl * texture(u_skyboxTexture, current_ray.direction).rgb;
-                    return color;
+                    running = false;
+                    break;
                 default:
                     //unreachable
                     return vec3(0.0, 1.0, 0.0);
             }
         }
+
+#if RENDER_MODE == NORMAL
         return color;
+#elif RENDER_MODE == ITERATION_COUNT
+        return vec3(steps / u_max_iteration_count);
+#elif RENDER_MODE == SDF_CALL_COUNT
+        return vec3((steps + sdf_call_count) / (float(u_max_number_of_reflections + 1) * (u_max_iteration_count + 6.0 + NUM_OF_LIGHTS * u_shadow_max_iteration_count + u_ao_max_iteration_count)));
+#endif
 
 
-        tracing_result = SphereTracing(ray, initial_t, initial_iteration, u_max_distance, u_max_iteration_count);
-        switch (tracing_result.result) {
-            case TRACING_RESULT_HIT:
-            case TRACING_RESULT_MAX_ITERATION_COUNT_REACHED:
-                vec3 position = ray.position + tracing_result.t * ray.direction;
-                vec3 normal = Normal(position);
-                float dif = clamp(dot(normal, vec3(0.57703)), 0.0, 1.0);
-                float amb = 0.5 + 0.5 * dot(normal, vec3(0.0, 1.0, 0.0));
-                vec3 color = vec3(0.2, 0.3, 0.4) * amb + vec3(0.8, 0.7, 0.5) * dif;
-                return color;
-            case TRACING_RESULT_MAX_DISTANCE_REACHED:
-                return texture(u_skyboxTexture, ray.direction).rgb;
-            default:
-                //unreachable
-                return vec3(0.0, 0.0, 0.0);
-        }
+#elif (RENDER_MODE == DEBUG) || (RENDER_MODE == DEBUG_ITERATION_COUNT) || (RENDER_MODE == DEBUG_DEPTH)
 
-
-#elif RENDER_MODE == DEBUG
         TracingResult tracing_result = SphereTracing(ray, initial_t, initial_iteration, u_max_distance, u_max_iteration_count);
+
+#if RENDER_MODE == DEBUG
         switch (tracing_result.result) {
             case TRACING_RESULT_HIT:
                 vec3 position = ray.position + tracing_result.t * ray.direction;
@@ -321,14 +333,14 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
                 return vec3(1.0, 0.0, 0.0);
             default:
                 //unreachable
-                return vec3(0.0, 0.0, 0.0);
+                return vec3(0.0, 1.0, 0.0);
         }
-#elif RENDER_MODE == ITERATION_COUNT
-        TracingResult tracing_result = SphereTracing(ray, initial_t, initial_iteration, u_max_distance, u_max_iteration_count);
+#elif RENDER_MODE == DEBUG_ITERATION_COUNT
         return vec3(tracing_result.steps / u_max_iteration_count);
-#elif RENDER_MODE == DEPTH
-        TracingResult tracing_result = SphereTracing(ray, initial_t, initial_iteration, u_max_distance, u_max_iteration_count);
+#elif RENDER_MODE == DEBUG_DEPTH
         return vec3(tracing_result.t / u_max_distance);
+#endif
+
 #endif
 
     }

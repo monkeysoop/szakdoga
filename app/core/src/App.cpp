@@ -40,9 +40,10 @@ namespace szakdoga::core {
                 std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
                 std::filesystem::path{"assets"} / "sdf_car.include", 
                 std::filesystem::path{"assets"} / "sdf_temple.include", 
+                std::filesystem::path{"assets"} / "sdf_primitives.include", 
                 std::filesystem::path{"assets"} / "tracing_result.include",
                 std::filesystem::path{"assets"} / "tracers.include", 
-                std::filesystem::path{"assets"} / "renderer.include"
+                std::filesystem::path{"assets"} / "renderer.include",
             }, 
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
@@ -58,7 +59,8 @@ namespace szakdoga::core {
                 std::filesystem::path{"assets"} / "sdf.include",
                 std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
                 std::filesystem::path{"assets"} / "sdf_car.include", 
-                std::filesystem::path{"assets"} / "sdf_temple.include"
+                std::filesystem::path{"assets"} / "sdf_temple.include",
+                std::filesystem::path{"assets"} / "sdf_primitives.include",
             },
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
@@ -74,9 +76,10 @@ namespace szakdoga::core {
                 std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
                 std::filesystem::path{"assets"} / "sdf_car.include", 
                 std::filesystem::path{"assets"} / "sdf_temple.include", 
+                std::filesystem::path{"assets"} / "sdf_primitives.include", 
                 std::filesystem::path{"assets"} / "tracing_result.include",
                 std::filesystem::path{"assets"} / "tracers.include", 
-                std::filesystem::path{"assets"} / "renderer.include"
+                std::filesystem::path{"assets"} / "renderer.include",
             },
             {
                 {"SDF_SCENE", std::to_string(static_cast<unsigned>(m_sdf_scene))},
@@ -98,7 +101,7 @@ namespace szakdoga::core {
         m_time_in_seconds{0.0f},
         m_epsilon{0.001f},
         m_max_distance{1000.0f},
-        m_max_iteration_count{100},
+        m_max_iteration_count{200},
         m_relaxed_step_multiplier{1.6f},
         m_enhanced_step_multiplier{0.9f},
         m_enhanced_max_step_factor{10.0f},
@@ -119,10 +122,12 @@ namespace szakdoga::core {
         m_shadow_intensity{1.0f},
         m_shadow_max_iteration_count{30},
         m_ao_multiplier_attenuation{0.7f},
-        m_ao_max_iteration_count{10},
-        m_ambient_strength{0.1f},
-        m_reflection_attenuation{1.0f},
-        u_max_number_of_reflections{3}
+        m_ao_step_size{0.07f},
+        m_ao_strength{10.0f},
+        m_ao_max_iteration_count{5},
+        m_ambient_strength{0.5f},
+        m_reflection_attenuation{0.8f},
+        u_max_number_of_reflections{5}
     {
         GLint context_flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
@@ -167,6 +172,7 @@ namespace szakdoga::core {
                 ImGui::RadioButton("newton cradle", &sdf_scene, static_cast<int>(SDFSceneType::NEWTONS_CRADLE));
                 ImGui::RadioButton("car", &sdf_scene, static_cast<int>(SDFSceneType::CAR));
                 ImGui::RadioButton("temple", &sdf_scene, static_cast<int>(SDFSceneType::TEMPLE));
+                ImGui::RadioButton("primitives", &sdf_scene, static_cast<int>(SDFSceneType::PRIMITIVES));
                 m_sdf_scene = static_cast<SDFSceneType>(sdf_scene);
 
                 if (m_sdf_scene != old_sdf_scene) {
@@ -180,9 +186,11 @@ namespace szakdoga::core {
                 RenderModeType old_render_mode = m_render_mode;
                 int mode = static_cast<int>(m_render_mode);
                 ImGui::RadioButton("normal", &mode, static_cast<int>(RenderModeType::NORMAL));
-                ImGui::RadioButton("debug", &mode, static_cast<int>(RenderModeType::DEBUG));
                 ImGui::RadioButton("iteration count", &mode, static_cast<int>(RenderModeType::ITERATION_COUNT));
-                ImGui::RadioButton("depth", &mode, static_cast<int>(RenderModeType::DEPTH));
+                ImGui::RadioButton("sdf call count", &mode, static_cast<int>(RenderModeType::SDF_CALL_COUNT));
+                ImGui::RadioButton("debug", &mode, static_cast<int>(RenderModeType::DEBUG));
+                ImGui::RadioButton("debug iteration count", &mode, static_cast<int>(RenderModeType::DEBUG_ITERATION_COUNT));
+                ImGui::RadioButton("debug depth", &mode, static_cast<int>(RenderModeType::DEBUG_DEPTH));
                 m_render_mode = static_cast<RenderModeType>(mode);
 
                 if (m_render_mode != old_render_mode) {
@@ -197,6 +205,9 @@ namespace szakdoga::core {
                 int iter_count = static_cast<int>(m_max_iteration_count);
                 ImGui::SliderInt("max iteration count", &iter_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 m_max_iteration_count = static_cast<unsigned>(iter_count);
+                int reflection_count = static_cast<int>(u_max_number_of_reflections);
+                ImGui::SliderInt("reflection count", &reflection_count, 0, 10);
+                u_max_number_of_reflections = static_cast<unsigned>(reflection_count);
             }
 
             if (ImGui::CollapsingHeader("general lighting settings")) {
@@ -206,10 +217,12 @@ namespace szakdoga::core {
                 ImGui::SliderInt("shadow max iteration count", &shadow_iter_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 m_shadow_max_iteration_count = static_cast<unsigned>(shadow_iter_count);
                 ImGui::SliderFloat("ao multiplier attenuation", &m_ao_multiplier_attenuation, 0.1f, 1.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("ao step size", &m_ao_step_size, 0.01f, 1.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("ao strength", &m_ao_strength, 0.1f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
                 int ao_iter_count = static_cast<int>(m_ao_max_iteration_count);
                 ImGui::SliderInt("ao max iteration count", &ao_iter_count, 1, 100, "%d", ImGuiSliderFlags_Logarithmic);
                 m_ao_max_iteration_count = static_cast<unsigned>(ao_iter_count);
-                ImGui::SliderFloat("ambient strenth", &m_ambient_strength, 0.01f, 10.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::SliderFloat("ambient strenth", &m_ambient_strength, 0.01f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
                 ImGui::SliderFloat("reflection attenuation", &m_reflection_attenuation, 0.01f, 1.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
             }
 
@@ -433,6 +446,8 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_shadow_intensity"), static_cast<GLfloat>(m_shadow_intensity));
         glUniform1f(m_sphere_trace_shader.ul("u_shadow_max_iteration_count"), static_cast<GLfloat>(m_shadow_max_iteration_count));
         glUniform1f(m_sphere_trace_shader.ul("u_ao_multiplier_attenuation"), static_cast<GLfloat>(m_ao_multiplier_attenuation));
+        glUniform1f(m_sphere_trace_shader.ul("u_ao_step_size"), static_cast<GLfloat>(m_ao_step_size));
+        glUniform1f(m_sphere_trace_shader.ul("u_ao_strength"), static_cast<GLfloat>(m_ao_strength));
         glUniform1f(m_sphere_trace_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
         glUniform1f(m_sphere_trace_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_sphere_trace_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
@@ -535,6 +550,8 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_shadow_intensity"), static_cast<GLfloat>(m_shadow_intensity));
         glUniform1f(m_cone_trace_final_shader.ul("u_shadow_max_iteration_count"), static_cast<GLfloat>(m_shadow_max_iteration_count));
         glUniform1f(m_cone_trace_final_shader.ul("u_ao_multiplier_attenuation"), static_cast<GLfloat>(m_ao_multiplier_attenuation));
+        glUniform1f(m_cone_trace_final_shader.ul("u_ao_step_size"), static_cast<GLfloat>(m_ao_step_size));
+        glUniform1f(m_cone_trace_final_shader.ul("u_ao_strength"), static_cast<GLfloat>(m_ao_strength));
         glUniform1f(m_cone_trace_final_shader.ul("u_ao_max_iteration_count"), static_cast<GLfloat>(m_ao_max_iteration_count));
         glUniform1f(m_cone_trace_final_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_cone_trace_final_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
