@@ -5,6 +5,7 @@ test_inc = include_directories('include')
 test_cases = [
     {'name': 'Texture2D_Test', 'src': 'src/Texture2D_Test.cpp'},
     {'name': 'Skybox_Test', 'src': 'src/Skybox_Test.cpp'},
+    {'name': 'Framebuffer_Test', 'src': 'src/Framebuffer_Test.cpp'},
 ]
 
 test_main = ['gtest_main.cpp']

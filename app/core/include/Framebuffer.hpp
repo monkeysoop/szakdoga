@@ -9,7 +9,6 @@
 
 
 
-
 namespace szakdoga::core {
     class Framebuffer {
     public:

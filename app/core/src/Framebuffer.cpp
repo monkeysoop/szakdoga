@@ -67,6 +67,8 @@ namespace szakdoga::core {
 
 
     void Framebuffer::Init() {
+        glViewport(0, 0, m_width, m_height);
+
         glCreateFramebuffers(1, &m_framebuffer_id);
         glNamedFramebufferTexture(m_framebuffer_id, GL_COLOR_ATTACHMENT0, m_target_texture.GetTextureID(), 0);
         if (glCheckNamedFramebufferStatus(m_framebuffer_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

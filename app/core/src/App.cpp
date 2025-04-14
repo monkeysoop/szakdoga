@@ -377,7 +377,6 @@ namespace szakdoga::core {
         m_width = width;
         m_height = height;
 
-        glViewport(0, 0, width, height);
         m_framebuffer.Resize(width, height);
 
         m_camera.SetAspect(static_cast<float>(width) / static_cast<float>(height));
