@@ -5,7 +5,8 @@
 #include <gtest/gtest.h>
 
 #include <exception>
-	
+
+
 
 namespace szakdoga::test {
     TEST(Texture2D_Test, TestConstructor) {
