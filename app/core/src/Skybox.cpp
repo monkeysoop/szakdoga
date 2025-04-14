@@ -5,6 +5,7 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
+#include <stdexcept>
 
 
 
@@ -30,14 +31,13 @@ namespace szakdoga::core {
             SDL_Surface* loaded_surface = IMG_Load(filename.c_str());
 
             if (loaded_surface == nullptr) {
-                SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while loading texture: %s", filename.c_str());
+                throw std::runtime_error("Error while loading texture: " + filename.string());
             }
 
             SDL_Surface* formatted_surface = SDL_ConvertSurfaceFormat(loaded_surface, SDL_PIXELFORMAT_RGBA32, 0);
             SDL_FreeSurface(loaded_surface);
             if (formatted_surface == nullptr) {
-                SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "[TextureFromFile] Error while processing texture");
-                return;
+                throw std::runtime_error("Error while processing texture (origin filename: " + filename.string() + ")");
             }
 
             surfaces.push_back(formatted_surface);

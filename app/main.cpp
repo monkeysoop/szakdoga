@@ -9,6 +9,8 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 
 
@@ -19,8 +21,7 @@ int main(int argc, char *argv[]) {
     SDL_LogSetPriority(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR);
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "[SDL initialization] Error during the SDL initialization: %s", SDL_GetError());
-        return 1;
+        throw std::runtime_error("Error during the SDL initialization: " + std::string(SDL_GetError()));
     }
 
     std::atexit(SDL_Quit);
@@ -39,20 +40,17 @@ int main(int argc, char *argv[]) {
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
     );
     if (window == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "[Window creation] Error during the SDL initialization: %s", SDL_GetError());
         SDL_Quit();
-        return 1;
+        throw std::runtime_error("Error during the SDL window creation: " + std::string(SDL_GetError()));
     }
 
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     if (gl_context == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "[GL context creation] Error during the creation of the GL context: %s", SDL_GetError());
         SDL_DestroyWindow(window);
         SDL_Quit();
-        return 1;
+        throw std::runtime_error("Error during the creation of the GL context: " + std::string(SDL_GetError()));
     }
-    //printf("version: %s\n", glGetString(GL_VERSION));
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -69,11 +67,10 @@ int main(int argc, char *argv[]) {
     glewExperimental = GL_TRUE;
     GLenum glew_status = glewInit();
     if (glew_status != GLEW_OK) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "[GLEW] Error during the initialization of glew: %s", glewGetErrorString(glew_status));
         SDL_GL_DeleteContext(gl_context);
         SDL_DestroyWindow(window);
         SDL_Quit();
-        return 1;
+        throw std::runtime_error("Error during the initialization of glew: " + std::string(reinterpret_cast<const char*>(glewGetErrorString(glew_status))));
     }
 
     IMGUI_CHECKVERSION();
@@ -90,7 +87,8 @@ int main(int argc, char *argv[]) {
     bool show_imgui = false;
 
     Uint32 start_time = SDL_GetTicks();
-    int nFrames = 0;
+    Uint32 last_time = SDL_GetTicks();
+    unsigned n_frames = 0;
 
     while (running) {
         SDL_Event ev;
@@ -133,19 +131,20 @@ int main(int argc, char *argv[]) {
                     break;
             }
         }
-        nFrames++;
-        if (SDL_GetTicks() - start_time > 1000) {
-            std::cout << "FPS: " << nFrames << "\t\ttime per frame: " << (1000.0 / nFrames) << " ms" << std::endl;
-            nFrames = 0;
-            start_time += 1000.0;
+
+        n_frames++;
+        Uint32 current_time = SDL_GetTicks();
+
+        if ((current_time - start_time) > 1000) {
+            std::cout << "FPS: " << n_frames << "\t\ttime per frame: " << (1000.0 / static_cast<float>(n_frames)) << " ms" << std::endl;
+            n_frames = 0;
+            start_time += 1000;
         }
-        static Uint32 LastTick = SDL_GetTicks();  // statikusan tároljuk, mi volt az előző "tick".
-        Uint32 CurrentTick = SDL_GetTicks();      // Mi az aktuális.
-        app.Update(static_cast<float>(CurrentTick) / 1000.0f, static_cast<float>(CurrentTick - LastTick) / 1000.0f);
-        LastTick = CurrentTick;  // Mentsük el utolsóként az aktuális "tick"-et!
         
-
-
+        app.Update(static_cast<float>(current_time) / 1000.0f, static_cast<float>(current_time - last_time) / 1000.0f);
+        
+        last_time = current_time;
+        
         app.Render();
 
         ImGui_ImplOpenGL3_NewFrame();

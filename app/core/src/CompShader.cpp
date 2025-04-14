@@ -6,6 +6,8 @@
 #include <sstream>
 #include <iomanip>
 #include <iterator>
+#include <stdexcept>
+#include <iostream>
 
 
 
@@ -20,7 +22,7 @@ namespace szakdoga::core {
         m_program_id = glCreateProgram();
 
         if (m_program_id == 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
+            throw std::runtime_error("Error during program creation");
         }
 
         m_shader_source_code = LoadShader(comp_filename, include_filenames);
@@ -55,7 +57,7 @@ namespace szakdoga::core {
         }
 
         if (m_program_id != m_currently_used_id) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Warning getting the location of a uniform of a program that is currently not being used (uniform name: %s)", name);
+            throw std::runtime_error("Warning getting the location of a uniform of a program that is currently not being used (uniform name: " + std::string(name) + ")");
         }
 
         return location;
@@ -71,7 +73,7 @@ namespace szakdoga::core {
         m_program_id = glCreateProgram();
 
         if (m_program_id == 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating program!");
+            throw std::runtime_error("Error during program creation");
         }
 
         std::string configured_shader_source_code = ConfigureShader(in_variables);
@@ -85,7 +87,7 @@ namespace szakdoga::core {
 
         std::ifstream shader_file{filename};
         if (!shader_file.is_open()) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while loading shader: %s!", filename.c_str());
+            throw std::runtime_error("Error while loading shader: " + filename.string());
         }
 
         std::string current_line = "";
@@ -113,7 +115,7 @@ namespace szakdoga::core {
                 }
 
                 if (!any_match) {
-                    SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, included file not found, filename: %s!", unquoted_include_filename.c_str());
+                    throw std::runtime_error("Error, included file not found, filename: " + unquoted_include_filename);
                 }
 
             } else {
@@ -148,7 +150,7 @@ namespace szakdoga::core {
                     std::map<std::string, std::string>::const_iterator iter = in_variables.find(in_var);
 
                     if (iter == in_variables.end()) {
-                        SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error, couldn't find in variable: %s in the map provided", in_var.c_str());
+                        throw std::runtime_error("Error, couldn't find in variable: " + in_var + " in the map provided");
                     }
 
                     current_line.replace(in_first, (len + 1), iter->second);
@@ -165,7 +167,7 @@ namespace szakdoga::core {
         GLuint comp_id = glCreateShader(GL_COMPUTE_SHADER);
 
         if (comp_id == 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error creating shader!");
+            throw std::runtime_error("Error during shader creation");
         }
 
         const GLchar* source_data = static_cast<const GLchar*>(configured_shader_source_code.data());
@@ -186,7 +188,13 @@ namespace szakdoga::core {
 
             glGetShaderInfoLog(comp_id, compile_info_log_length, NULL, error_message.data());
 
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (compile_result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader compile error: %s", error_message.data());
+            std::string message{"Shader compile error: \n" + error_message};
+
+            if (compile_result == GL_FALSE) {
+                throw std::runtime_error(message);
+            } else {
+                std::cerr << message << std::endl;
+            }
         }
 
         glAttachShader(m_program_id, comp_id);
@@ -201,7 +209,14 @@ namespace szakdoga::core {
         if ((link_result == GL_FALSE) || (link_info_log_length != 0)) {
             std::string error_message(link_info_log_length, '\0');
             glGetProgramInfoLog(m_program_id, link_info_log_length, nullptr, error_message.data());
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, (link_result) ? SDL_LOG_PRIORITY_WARN : SDL_LOG_PRIORITY_ERROR, "[glLinkProgram] Shader linking error: %s", error_message.data());
+
+            std::string message{"Shader linking error: \n" + error_message};
+
+            if (compile_result == GL_FALSE) {
+                throw std::runtime_error(message);
+            } else {
+                std::cerr << message << std::endl;
+            }
         }
 
         glDeleteShader(comp_id);

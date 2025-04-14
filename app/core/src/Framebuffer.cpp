@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 
 
 
@@ -49,8 +50,7 @@ namespace szakdoga::core {
     void Framebuffer::Screenshot(const std::filesystem::path& screenshot_path) {
         SDL_Surface* image = SDL_CreateRGBSurfaceWithFormat(0, m_width, m_height, 32, SDL_PIXELFORMAT_RGBA32);
         if (image == nullptr) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while creating sdl surface");
-            return;
+            throw std::runtime_error("Error while creating sdl surface");
         }
 
         glGetTextureImage(m_target_texture.GetTextureID(), 0, GL_RGBA, GL_UNSIGNED_BYTE, 4 * m_width * m_height, image->pixels);
@@ -59,7 +59,7 @@ namespace szakdoga::core {
 
         int result = IMG_SavePNG(image, screenshot_path.c_str());
         if (result != 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Failed to save screenshot");
+            throw std::runtime_error("Error failed to save screenshot path: " + screenshot_path.string());
         }
 
         SDL_FreeSurface(image);
@@ -70,14 +70,14 @@ namespace szakdoga::core {
         glCreateFramebuffers(1, &m_framebuffer_id);
         glNamedFramebufferTexture(m_framebuffer_id, GL_COLOR_ATTACHMENT0, m_target_texture.GetTextureID(), 0);
         if (glCheckNamedFramebufferStatus(m_framebuffer_id, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Error while creating framebuffer");
+            throw std::runtime_error("Error while creating framebuffer");
         }
     }
 
     void Framebuffer::FlipSDLSurface(SDL_Surface* surface) {
         int result = SDL_LockSurface(surface);
         if (result != 0) {
-            SDL_LogMessage(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR, "Failed to create lock");
+            throw std::runtime_error("Error failed to create lock for sdl surface");
         }
 
         uint8_t* pixels = static_cast<uint8_t*>(surface->pixels);
