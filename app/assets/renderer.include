@@ -29,6 +29,8 @@ struct Material {
     vec3 color;              // [0,1/pi]
     float roughness;         // [0,~7]
     float metalness;         // 0.02-0.05 for non-metals, 0.6-0.9 for metals
+    bool transparent;
+    float refractive_index;
 };
 
 struct Light {
@@ -38,16 +40,17 @@ struct Light {
 };
 
 
-#define NUM_OF_MATERIALS 6
+#define NUM_OF_MATERIALS 7
 #define NUM_OF_LIGHTS 3
 
 const Material MATERIALS[NUM_OF_MATERIALS] = Material[](
-    Material(vec3(1.0, 0.1, 0.05), 0.7, 0.01),     // Plastic
-    Material(vec3(0.95, 0.93, 0.88), 0.1, 0.95),   // Silver
-    Material(vec3(1.0, 0.71, 0.29), 0.05, 0.9),    // Polished Gold
-    Material(vec3(0.8, 0.85, 0.88), 0.5, 0.7),     // Brushed Aluminum
-    Material(vec3(0.95, 0.64, 0.54), 0.3, 0.75),   // Copper
-    Material(vec3(0.56, 0.57, 0.58), 1.0, 0.75)    // Rough Iron
+    Material(vec3(1.0, 0.1, 0.05), 0.7, 0.01, false, 0.0),     // Plastic
+    Material(vec3(0.95, 0.93, 0.88), 0.1, 0.95, false, 0.0),   // Silver
+    Material(vec3(1.0, 0.71, 0.29), 0.05, 0.9, false, 0.0),    // Polished Gold
+    Material(vec3(0.8, 0.85, 0.88), 0.5, 0.7, false, 0.0),     // Brushed Aluminum
+    Material(vec3(0.95, 0.64, 0.54), 0.3, 0.75, false, 0.0),   // Copper
+    Material(vec3(0.56, 0.57, 0.58), 1.0, 0.75, false, 0.0),   // Rough Iron
+    Material(vec3(1.0, 0.0, 0.0), 0.0, 0.0, true, 2.0)        // Glass
 );
 
 const Light LIGTHS[NUM_OF_LIGHTS] = Light[](
@@ -241,7 +244,7 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
             return vec3(1.0, 0.0, 0.0);
         } else {
             return texture(u_skyboxTexture, ray.direction).rgb;
-        }s
+        }
 #elif RENDER_MODE == DEBUG_ITERATION_COUNT
         return vec3(initial_iteration / u_max_iteration_count);
 #elif RENDER_MODE == DEBUG_DEPTH
@@ -278,25 +281,54 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
                     
                     sdf_call_count += 6.0; // from normal calculation
 
-                    BRDFResult brdf_result = BRDF(
-                        current_ray.position,
-                        hit_position,
-                        normal,
-                        tracing_result.material_id,
-                        true,
-                        refl
-                    );
+                    bool transparent = MATERIALS[tracing_result.material_id].transparent;
+                    float refractive_index = MATERIALS[tracing_result.material_id].refractive_index;
+                    
+                    float cosine;
+                    vec3 outgoing_normal = normal;
+                    
+                    if (transparent) {
+                        if (dot(current_ray.direction, normal) > 0.0) {
+                            cosine = dot(current_ray.direction, normal);
+                            cosine = sqrt(1.0 - refractive_index * refractive_index * (1.0 - cosine * cosine));
+                            outgoing_normal *= -1.0;
+                        } else {
+                            refractive_index = 1.0 / refractive_index;
+                            cosine = -1.0 * dot(current_ray.direction, normal);
+                        }
 
-                    current_ray.position = hit_position + 0.001 * normal;
-                    current_ray.direction = reflect(current_ray.direction, normal);
+                        vec3 refracted_direction = normalize(refract(current_ray.direction, outgoing_normal, refractive_index));
 
-                    color += brdf_result.color;
-                    refl = brdf_result.refl;
-                    sdf_call_count += brdf_result.sdf_call_counts;
+                        if (refracted_direction != vec3(0.0)) {
+                            current_ray.position = hit_position - u_epsilon * outgoing_normal;
+                            current_ray.direction = refracted_direction;
+                        } else {
+                            // internal reflection
+                            current_ray.position = hit_position - u_epsilon * outgoing_normal;
+                            current_ray.direction = normalize(reflect(current_ray.direction, outgoing_normal));
+                        }
+                    } else {
+                        BRDFResult brdf_result = BRDF(
+                            current_ray.position,
+                            hit_position,
+                            normal,
+                            tracing_result.material_id,
+                            true,
+                            refl
+                        );
+
+                        current_ray.position = hit_position + u_epsilon * normal;
+                        current_ray.direction = reflect(current_ray.direction, normal);
+
+                        color += brdf_result.color;
+                        refl = brdf_result.refl;
+                        sdf_call_count += brdf_result.sdf_call_counts;
+                    }
 
                     break;
                 case TRACING_RESULT_MAX_DISTANCE_REACHED:
                     color += refl * texture(u_skyboxTexture, current_ray.direction).rgb;
+                    refl = vec3(0.0);
                     running = false;
                     break;
                 default:
@@ -306,6 +338,7 @@ vec3 Render(Ray ray, float initial_t, float initial_iteration) {
         }
 
 #if RENDER_MODE == NORMAL
+        color += refl * texture(u_skyboxTexture, current_ray.direction).rgb;
         return color;
 #elif RENDER_MODE == ITERATION_COUNT
         return vec3(steps / u_max_iteration_count);

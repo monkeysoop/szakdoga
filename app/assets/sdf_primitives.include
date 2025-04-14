@@ -306,7 +306,7 @@ vec2 opU(vec2 d1, vec2 d2) {
 //------------------------------------------------------------------
 
 Value map(in vec3 pos) {
-    Value res = Value(pos.y, 0);
+    Value res = Value(pos.y, 6);
 
     // bounding box
     if (sdBox(pos - vec3(-2.0, 0.3, 0.25), vec3(0.3, 0.3, 1.0)) < res.d) {
@@ -355,7 +355,7 @@ Value map(in vec3 pos) {
 
 Value sdf(vec3 p) {
     Value v = map(p);
-    return Value(v.d, int(mod(float(v.id), 6.0)));
+    return Value(v.d, int(mod(float(v.id) + 2.0, 7.0)));
 }
 
 
