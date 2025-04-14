@@ -1,5 +1,4 @@
-assets_dir = 'assets'
-install_subdir(assets_dir, install_dir: meson.current_build_dir())
+install_subdir('assets', install_dir: meson.current_build_dir())
 
 subdir('core')
 

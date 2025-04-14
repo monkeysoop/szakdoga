@@ -26,3 +26,5 @@ core_lib = static_library(
     include_directories: core_inc,
     dependencies: core_deps,
 )
+
+subdir('tests')
