@@ -111,7 +111,6 @@ namespace szakdoga::core {
         unsigned m_benchmark_min_iteration_count;
         unsigned m_benchmark_max_iteration_count;
         unsigned m_benchmark_iteration_count_spacing;
-        unsigned m_benchmark_performance_iteration_count;
         unsigned m_benchmark_performance_number_of_runs;
 
         float m_shadow_penumbra;

@@ -116,7 +116,6 @@ namespace szakdoga::core {
         m_benchmark_min_iteration_count{10},
         m_benchmark_max_iteration_count{100},
         m_benchmark_iteration_count_spacing{10},
-        m_benchmark_performance_iteration_count{100},
         m_benchmark_performance_number_of_runs{10},
         m_shadow_penumbra{10.0f},
         m_shadow_intensity{1.0f},
@@ -325,7 +324,6 @@ namespace szakdoga::core {
                 int benchmark_min_iteration_count = static_cast<int>(m_benchmark_min_iteration_count);
                 int benchmark_max_iteration_count = static_cast<int>(m_benchmark_max_iteration_count);
                 int benchmark_iteration_count_spacing = static_cast<int>(m_benchmark_iteration_count_spacing);
-                int benchmark_performance_iteration_count = static_cast<int>(m_benchmark_performance_iteration_count);
                 int benchmark_performance_number_of_runs = static_cast<int>(m_benchmark_performance_number_of_runs);
                 ImGui::SliderInt("baseline iteration count", &benchmark_baseline_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 if (ImGui::SliderInt("benchmark min iteration count", &benchmark_min_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic)) {
@@ -339,13 +337,11 @@ namespace szakdoga::core {
                     }
                 }
                 ImGui::SliderInt("benchmark iteration count spacing", &benchmark_iteration_count_spacing, 1, 1000, "%d", ImGuiSliderFlags_Logarithmic);
-                ImGui::SliderInt("performance iteration count", &benchmark_performance_iteration_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 ImGui::SliderInt("performance number of runs", &benchmark_performance_number_of_runs, 0, 100);
                 m_benchmark_baseline_iteration_count = static_cast<unsigned>(benchmark_baseline_iteration_count);
                 m_benchmark_min_iteration_count = static_cast<unsigned>(benchmark_min_iteration_count);
                 m_benchmark_max_iteration_count = static_cast<unsigned>(benchmark_max_iteration_count);
                 m_benchmark_iteration_count_spacing = static_cast<unsigned>(benchmark_iteration_count_spacing);
-                m_benchmark_performance_iteration_count = static_cast<unsigned>(benchmark_performance_iteration_count);
                 m_benchmark_performance_number_of_runs = static_cast<unsigned>(benchmark_performance_number_of_runs);
             }
 
@@ -640,41 +636,35 @@ namespace szakdoga::core {
         std::filesystem::create_directory(path);
 
         for (m_max_iteration_count = m_benchmark_min_iteration_count; m_max_iteration_count <= m_benchmark_max_iteration_count; m_max_iteration_count += m_benchmark_iteration_count_spacing) {
-            std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+            GLuint time_query;
+            glGenQueries(1, &time_query);
 
-            SphereTraceRender();
+            std::chrono::high_resolution_clock::time_point time_begin = std::chrono::high_resolution_clock::now();
+            glBeginQuery(GL_TIME_ELAPSED, time_query);
 
-            m_framebuffer.Screenshot(path / filename);
+            for (unsigned i = 0; i < m_benchmark_performance_number_of_runs; i++) {
+                SphereTraceRender();
+            }
+
+            glEndQuery(GL_TIME_ELAPSED);
+
+            glFinish();
+
+            std::chrono::high_resolution_clock::time_point time_end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double, std::milli> time_diff = time_end - time_begin;
+            double ms_taken_chrono = static_cast<double>(time_diff.count()) / static_cast<double>(m_benchmark_performance_number_of_runs);
+
+            GLuint64 ns_taken_gl = 0;
+            glGetQueryObjectui64v(time_query, GL_QUERY_RESULT, &ns_taken_gl);
+            double ms_taken_gl = (static_cast<double>(ns_taken_gl) / 1'000'000.0) / static_cast<double>(m_benchmark_performance_number_of_runs);
+
+            std::string performace_filename{"performance_" + std::to_string(m_max_iteration_count) + ".txt"};
+            std::string visual_filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+
+            WriteTimeTaken(path / performace_filename, ms_taken_chrono, ms_taken_gl);
+            m_framebuffer.Screenshot(path / visual_filename);
         }
-
-        m_max_iteration_count = m_benchmark_performance_iteration_count;
-
-        GLuint time_query;
-        glGenQueries(1, &time_query);
-
-        std::chrono::high_resolution_clock::time_point time_begin = std::chrono::high_resolution_clock::now();
-        glBeginQuery(GL_TIME_ELAPSED, time_query);
-
-        for (unsigned i = 0; i < m_benchmark_performance_number_of_runs; i++) {
-            SphereTraceRender();
-        }
-
-        glEndQuery(GL_TIME_ELAPSED);
-
-        glFinish();
-
-        std::chrono::high_resolution_clock::time_point time_end = std::chrono::high_resolution_clock::now();
-
-        std::chrono::duration<double, std::milli> time_diff = time_end - time_begin;
-        double ms_taken_chrono = static_cast<double>(time_diff.count()) / static_cast<double>(m_benchmark_performance_number_of_runs);
-
-        GLuint64 ns_taken_gl = 0;
-        glGetQueryObjectui64v(time_query, GL_QUERY_RESULT, &ns_taken_gl);
-        double ms_taken_gl = (static_cast<double>(ns_taken_gl) / 1'000'000.0) / static_cast<double>(m_benchmark_performance_number_of_runs);
-
-        std::string filename{"performance_" + std::to_string(m_benchmark_performance_iteration_count) + ".txt"};
-
-        WriteTimeTaken(path / filename, ms_taken_chrono, ms_taken_gl);
     }
 
     void App::BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) {
@@ -703,41 +693,35 @@ namespace szakdoga::core {
         std::filesystem::create_directory(path);
 
         for (m_max_iteration_count = m_benchmark_min_iteration_count; m_max_iteration_count <= m_benchmark_max_iteration_count; m_max_iteration_count += m_benchmark_iteration_count_spacing) {
-            std::string filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+            GLuint time_query;
+            glGenQueries(1, &time_query);
 
-            ConeTraceRender();
+            std::chrono::high_resolution_clock::time_point time_begin = std::chrono::high_resolution_clock::now();
+            glBeginQuery(GL_TIME_ELAPSED, time_query);
 
-            m_framebuffer.Screenshot(path / filename);
+            for (unsigned i = 0; i < m_benchmark_performance_number_of_runs; i++) {
+                ConeTraceRender();
+            }
+
+            glEndQuery(GL_TIME_ELAPSED);
+
+            glFinish();
+
+            std::chrono::high_resolution_clock::time_point time_end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double, std::milli> time_diff = time_end - time_begin;
+            double ms_taken_chrono = static_cast<double>(time_diff.count()) / static_cast<double>(m_benchmark_performance_number_of_runs);
+
+            GLuint64 ns_taken_gl = 0;
+            glGetQueryObjectui64v(time_query, GL_QUERY_RESULT, &ns_taken_gl);
+            double ms_taken_gl = (static_cast<double>(ns_taken_gl) / 1'000'000.0) / static_cast<double>(m_benchmark_performance_number_of_runs);
+
+            std::string performace_filename{"performance_" + std::to_string(m_max_iteration_count) + ".txt"};
+            std::string visual_filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
+            std::cout << m_max_iteration_count << std::endl;
+            WriteTimeTaken(path / performace_filename, ms_taken_chrono, ms_taken_gl);
+            m_framebuffer.Screenshot(path / visual_filename);
         }
-
-        m_max_iteration_count = m_benchmark_performance_iteration_count;
-
-        GLuint time_query;
-        glGenQueries(1, &time_query);
-
-        std::chrono::high_resolution_clock::time_point time_begin = std::chrono::high_resolution_clock::now();
-        glBeginQuery(GL_TIME_ELAPSED, time_query);
-
-        for (unsigned i = 0; i < m_benchmark_performance_number_of_runs; i++) {
-            ConeTraceRender();
-        }
-
-        glEndQuery(GL_TIME_ELAPSED);
-
-        glFinish();
-
-        std::chrono::high_resolution_clock::time_point time_end = std::chrono::high_resolution_clock::now();
-
-        std::chrono::duration<double, std::milli> time_diff = time_end - time_begin;
-        double ms_taken_chrono = static_cast<double>(time_diff.count()) / static_cast<double>(m_benchmark_performance_number_of_runs);
-
-        GLuint64 ns_taken_gl = 0;
-        glGetQueryObjectui64v(time_query, GL_QUERY_RESULT, &ns_taken_gl);
-        double ms_taken_gl = (static_cast<double>(ns_taken_gl) / 1'000'000.0) / static_cast<double>(m_benchmark_performance_number_of_runs);
-
-        std::string filename{"performance_" + std::to_string(m_benchmark_performance_iteration_count) + ".txt"};
-
-        WriteTimeTaken(path / filename, ms_taken_chrono, ms_taken_gl);
     }
 
     void App::WriteTimeTaken(const std::filesystem::path& path, double ms_taken_chrono, double ms_taken_gl) {
