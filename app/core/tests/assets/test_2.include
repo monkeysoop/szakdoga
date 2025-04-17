@@ -1,0 +1,12 @@
+#define GOOD
+
+void main() {
+    ivec2 texCoord = ivec2(gl_GlobalInvocationID.xy);
+
+    float r = texCoord.x / 512.0f;
+    float g = texCoord.y / 512.0f;
+    float b = 0.5f;
+    float a = 1.0f;
+
+    imageStore(outputTexture, texCoord, vec4(r, g, b, a));
+}

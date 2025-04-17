@@ -1,0 +1,3 @@
+#include "assets/test_2.include"
+
+#define VAR_B @VAR_B@

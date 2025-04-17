@@ -4,14 +4,18 @@ layout (local_size_x = 16, local_size_y = 16) in;
 
 layout (rgba32f, binding = 0) uniform writeonly image2D outputTexture;
 
+#define VAR_A @VAR_A@
 
-void main() {
-    ivec2 texCoord = ivec2(gl_GlobalInvocationID.xy);
+#include "assets/test_1.include"
 
-    float r = texCoord.x / 512.0f;
-    float g = texCoord.y / 512.0f;
-    float b = 0.5f;
-    float a = 1.0f;
+#if ((VAR_A != 123) && (VAR_A != 456))
+error
+#endif
 
-    imageStore(outputTexture, texCoord, vec4(r, g, b, a));
-}
+#if ((VAR_B != 111) && (VAR_B != 222))
+error
+#endif
+
+#ifndef GOOD
+error
+#endif
