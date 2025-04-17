@@ -17,7 +17,7 @@
 const unsigned WIDTH = 640;
 const unsigned HEIGHT = 512;
 
-int main(int argc, char *argv[]) {
+int main() {
     SDL_LogSetPriority(SDL_LOG_CATEGORY_ERROR, SDL_LOG_PRIORITY_ERROR);
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

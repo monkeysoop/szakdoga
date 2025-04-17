@@ -105,6 +105,10 @@ namespace szakdoga::core {
 
                 for (const std::filesystem::path& include_filename : include_filenames) {
                     if (include_filename.string() == unquoted_include_filename) {
+                        if (filename.string() == unquoted_include_filename) {
+                            throw std::runtime_error("Error, shader tries to include itself, filename: " + unquoted_include_filename);
+                        }
+
                         std::string include_source_code = LoadShader(include_filename, include_filenames);
 
                         shader_source_code += include_source_code + "\n"; // the extra "\n" might be unnecesseary but couldn't hurt
