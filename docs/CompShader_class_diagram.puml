@@ -1,0 +1,24 @@
+@startuml
+
+
+
+class CompShader {
+	+CompShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames, const std::map<std::string, std::string>& in_variables)
+	+~CompShader()
+	+ul(const GLchar* name) : GLint
+	+GetProgramID() : GLuint
+	-m_program_id : GLuint
+	-{static} m_currently_used_id : static GLuint
+	-ConfigureShader(const std::map<std::string, std::string>& in_variables) : std::string
+	-LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) : std::string
+	-m_shader_source_code : std::string
+	-AttachShader(const std::string& configured_shader_source_code) : void
+	+Barrier(GLbitfield barriers) : void
+	+Dispatch(unsigned x, unsigned y, unsigned z) : void
+	+Recompile(const std::map<std::string, std::string>& in_variables) : void
+	+Use() : void
+}
+
+
+
+@enduml

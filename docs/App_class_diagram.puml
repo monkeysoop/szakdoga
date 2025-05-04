@@ -1,0 +1,119 @@
+@startuml
+
+
+
+class App {
+	+App(unsigned width, unsigned height)
+	+~App()
+	-m_camera : Camera
+	-m_camera_manipulator : CameraManipulator
+	-m_cone_trace_final_shader : CompShader
+	-m_cone_trace_precompute_shader : CompShader
+	-m_cone_trace_shader : CompShader
+	-m_sphere_trace_shader : CompShader
+	-m_framebuffer : Framebuffer
+	-m_render_mode : RenderModeType
+	-m_sdf_scene : SDFSceneType
+	-m_skybox : Skybox
+	-m_cone_trace_final_sphere_tracing_type : SphereTracingType
+	-m_cone_trace_sphere_tracing_type : SphereTracingType
+	-m_sphere_tracing_type : SphereTracingType
+	-m_cone_trace_distance_iteration_texture_1 : Texture2D
+	-m_cone_trace_distance_iteration_texture_2 : Texture2D
+	-m_cone_trace_precomputed_texture : Texture2D
+	-m_tracing_type : TracingType
+	-m_ambient_strength : float
+	-m_ao_multiplier_attenuation : float
+	-m_ao_step_size : float
+	-m_ao_strength : float
+	-m_cone_trace_enhanced_max_step_factor : float
+	-m_cone_trace_enhanced_step_multiplier : float
+	-m_cone_trace_final_enhanced_max_step_factor : float
+	-m_cone_trace_final_enhanced_step_multiplier : float
+	-m_cone_trace_final_relaxed_step_multiplier : float
+	-m_cone_trace_intermediate_epsilon : float
+	-m_cone_trace_relaxed_step_multiplier : float
+	-m_enhanced_max_step_factor : float
+	-m_enhanced_step_multiplier : float
+	-m_epsilon : float
+	-m_max_distance : float
+	-m_reflection_attenuation : float
+	-m_relaxed_step_multiplier : float
+	-m_shadow_intensity : float
+	-m_shadow_penumbra : float
+	-m_time_in_seconds : float
+	-DivideAndRoundUp(unsigned number, unsigned divisor) : unsigned
+	-m_ao_max_iteration_count : unsigned
+	-m_benchmark_baseline_iteration_count : unsigned
+	-m_benchmark_iteration_count_spacing : unsigned
+	-m_benchmark_max_iteration_count : unsigned
+	-m_benchmark_min_iteration_count : unsigned
+	-m_benchmark_performance_number_of_runs : unsigned
+	-m_height : unsigned
+	-m_initial_cone_size : unsigned
+	-m_max_iteration_count : unsigned
+	-m_shadow_max_iteration_count : unsigned
+	-m_width : unsigned
+	-u_max_number_of_reflections : unsigned
+	-Benchmark() : void
+	-BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) : void
+	-BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
+	-ConeTraceRender() : void
+	+KeyboardDown(const SDL_KeyboardEvent& key) : void
+	+KeyboardUp(const SDL_KeyboardEvent& key) : void
+	+MouseMove(const SDL_MouseMotionEvent& mouse) : void
+	+MouseWheel(const SDL_MouseWheelEvent& wheel) : void
+	-PrecomputeCones() : void
+	-RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_final_tracing_type) : void
+	-RecompileConeTracer(SDFSceneType sdf_scene, SphereTracingType cone_tracing_type) : void
+	-RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
+	+Render() : void
+	+RenderImGui() : void
+	+Resize(unsigned width, unsigned height) : void
+	-SphereTraceRender() : void
+	+Update(float elapsed_time_in_seconds, float delta_time_in_seconds) : void
+	-WriteTimeTaken(const std::filesystem::path& path, double ms_taken_chrono, double ms_taken_gl) : void
+}
+
+enum "App::RenderModeType" as RenderModeType {
+	DEBUG
+	DEBUG_DEPTH
+	DEBUG_ITERATION_COUNT
+	ITERATION_COUNT
+	NORMAL
+	SDF_CALL_COUNT
+}
+
+enum App::me {}
+
+enum "App::SDFSceneType" as SDFSceneType {
+	CAR
+	NEWTONS_CRADLE
+	PRIMITIVES
+	TEMPLE
+}
+
+enum "App::SDFSceneType" as SphereTracingType {
+	ENHANCED
+	NAIVE
+	RELAXED
+}
+
+enum "App::SDFSceneType" as TracingType {
+	CONE
+	ENHANCED
+	NAIVE
+	RELAXED
+}
+
+App +-- RenderModeType : <<private enum>>
+
+App +-- SDFSceneType : <<private enum>>
+
+App +-- SphereTracingType : <<private enum>>
+
+App +-- TracingType : <<private enum>>
+
+
+
+@enduml

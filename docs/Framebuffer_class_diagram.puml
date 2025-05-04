@@ -1,0 +1,23 @@
+@startuml
+
+
+
+class Framebuffer {
+	+Framebuffer(unsigned width, unsigned height)
+	+~Framebuffer()
+	-m_framebuffer_id : GLuint
+	-m_target_texture : Texture2D
+	-m_height : unsigned
+	-m_width : unsigned
+	+Bind() : void
+	+Blit() : void
+	-FlipSDLSurface(SDL_Surface* surface) : void
+	-Init() : void
+	+Resize(unsigned width, unsigned height) : void
+	+Screenshot(const std::filesystem::path& screenshot_path) : void
+	+UnBind() : void
+}
+
+
+
+@enduml

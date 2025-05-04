@@ -1,0 +1,14 @@
+@startuml
+
+
+
+class Skybox {
+	+Skybox()
+	+~Skybox()
+	+GetTextureID() : GLuint
+	-m_texture_id : GLuint
+}
+
+
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+
+
+
+class Camera {
+	+Camera()
+	+~Camera()
+	+GetAngle() : float {query}
+	+GetAspect() : float {query}
+	+GetZFar() : float {query}
+	+GetZNear() : float {query}
+	-m_angle : float
+	-m_aspect : float
+	-m_zFar : float
+	-m_zNear : float
+	+GetProj() : glm::mat4 {query}
+	+GetViewMatrix() : glm::mat4 {query}
+	+GetViewProj() : glm::mat4 {query}
+	-m_projMatrix : glm::mat4
+	-m_viewMatrix : glm::mat4
+	+GetAt() : glm::vec3 {query}
+	+GetEye() : glm::vec3 {query}
+	+GetWorldUp() : glm::vec3 {query}
+	-m_at : glm::vec3
+	-m_eye : glm::vec3
+	-m_worldUp : glm::vec3
+	+SetAngle(const float _angle) : void
+	+SetAspect(const float _aspect) : void
+	+SetProj(float _angle, float _aspect, float _zn, float _zf) : void
+	+SetView(glm::vec3 _eye, glm::vec3 _at, glm::vec3 _up) : void
+	+SetZFar(const float _zf) : void
+	+SetZNear(const float _zn) : void
+}
+
+
+
+@enduml

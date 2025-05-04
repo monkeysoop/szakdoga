@@ -1,0 +1,22 @@
+@startuml
+
+
+
+class Texture2D {
+	+Texture2D(unsigned width, unsigned height, GLenum format, unsigned levels)
+	+~Texture2D()
+	-m_format : GLenum
+	+GetTextureID() : GLuint
+	-m_texture_id : GLuint
+	-m_height : unsigned
+	-m_levels : unsigned
+	-m_width : unsigned
+	+Bind(GLuint unit, GLenum access, unsigned level) : void
+	-Init() : void
+	+Resize(unsigned width, unsigned height) : void
+	+Resize(unsigned width, unsigned height, unsigned levels) : void
+}
+
+
+
+@enduml
