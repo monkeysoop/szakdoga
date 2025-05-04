@@ -15,36 +15,37 @@
 
 
 namespace szakdoga::core {
-    enum class RenderModeType : unsigned {
-        NORMAL = 0,
-        ITERATION_COUNT = 1,
-        SDF_CALL_COUNT = 2,
-        DEBUG = 3,
-        DEBUG_ITERATION_COUNT = 4,
-        DEBUG_DEPTH = 5,
-    };
-
-    enum class SphereTracingType : unsigned {
-        NAIVE = 0,
-        RELAXED = 1,
-        ENHANCED = 2,
-    };
-
-    enum class TracingType : unsigned {
-        NAIVE = 0,
-        RELAXED = 1,
-        ENHANCED = 2,
-        CONE = 3,
-    };
-
-    enum class SDFSceneType : unsigned {
-        NEWTONS_CRADLE = 0,
-        CAR = 1,
-        TEMPLE = 2,
-        PRIMITIVES = 3,
-    };
-
     class App {
+    private:
+        enum class RenderModeType : unsigned {
+            NORMAL = 0,
+            ITERATION_COUNT = 1,
+            SDF_CALL_COUNT = 2,
+            DEBUG = 3,
+            DEBUG_ITERATION_COUNT = 4,
+            DEBUG_DEPTH = 5,
+        };
+
+        enum class SphereTracingType : unsigned {
+            NAIVE = 0,
+            RELAXED = 1,
+            ENHANCED = 2,
+        };
+
+        enum class TracingType : unsigned {
+            NAIVE = 0,
+            RELAXED = 1,
+            ENHANCED = 2,
+            CONE = 3,
+        };
+
+        enum class SDFSceneType : unsigned {
+            NEWTONS_CRADLE = 0,
+            CAR = 1,
+            TEMPLE = 2,
+            PRIMITIVES = 3,
+        };
+
     public:
         App(unsigned width, unsigned height);
         ~App();
