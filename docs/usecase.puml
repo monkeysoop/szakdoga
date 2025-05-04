@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+
+
+
+Felhasználó as User
+
+(Kilépés) as (Start)
+
+(Kamera műveletek) as (Camera methods)
+(Kamera mozgatása) as (Camera movement)
+(Kamera nagyítás) as (Camera zoom)
+
+(GUI interakció) as (GUI interaction)
+(GUI megjelenítése) as (GUI show)
+(GUI elrejtése) as (GUI hide)
+
+(Grafikus paraméterek módosítása) as (Configuring graphics settings)
+(Benchmark paraméterek módosítása) as (Configuring benchmark settings)
+(Benchmark indítása) as (Starting benchmark)
+
+User --> (Start)
+
+User --> (Camera methods)
+(Camera methods) ..> (Camera movement) : <<include>>
+(Camera methods) ..> (Camera zoom) : <<include>>
+
+User --> (GUI interaction)
+User --> (GUI show)
+User --> (GUI hide)
+(GUI hide) ..> (GUI show) : <<include>>
+(GUI interaction) ..> (GUI show) : <<include>>
+(GUI interaction) --> (Configuring graphics settings) : <<extend>>
+(GUI interaction) --> (Configuring benchmark settings) : <<extend>>
+(GUI interaction) --> (Starting benchmark) : <<extend>>
+
+
+
+@enduml
