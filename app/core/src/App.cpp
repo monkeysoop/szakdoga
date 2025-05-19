@@ -718,7 +718,7 @@ namespace szakdoga::core {
 
             std::string performace_filename{"performance_" + std::to_string(m_max_iteration_count) + ".txt"};
             std::string visual_filename{"screenshot_" + std::to_string(m_max_iteration_count) + ".png"};
-            std::cout << m_max_iteration_count << std::endl;
+
             WriteTimeTaken(path / performace_filename, ms_taken_chrono, ms_taken_gl);
             m_framebuffer.Screenshot(path / visual_filename);
         }
