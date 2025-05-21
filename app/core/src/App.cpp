@@ -126,7 +126,7 @@ namespace szakdoga::core {
         m_ao_max_iteration_count{5},
         m_ambient_strength{0.5f},
         m_reflection_attenuation{0.8f},
-        u_max_number_of_reflections{5}
+        m_max_number_of_reflections{5}
     {
         GLint context_flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &context_flags);
@@ -204,9 +204,9 @@ namespace szakdoga::core {
                 int iter_count = static_cast<int>(m_max_iteration_count);
                 ImGui::SliderInt("max iteration count", &iter_count, 10, 1000, "%d", ImGuiSliderFlags_Logarithmic);
                 m_max_iteration_count = static_cast<unsigned>(iter_count);
-                int reflection_count = static_cast<int>(u_max_number_of_reflections);
+                int reflection_count = static_cast<int>(m_max_number_of_reflections);
                 ImGui::SliderInt("reflection count", &reflection_count, 0, 10);
-                u_max_number_of_reflections = static_cast<unsigned>(reflection_count);
+                m_max_number_of_reflections = static_cast<unsigned>(reflection_count);
             }
 
             if (ImGui::CollapsingHeader("general lighting settings")) {
@@ -447,7 +447,7 @@ namespace szakdoga::core {
         glUniform1f(m_sphere_trace_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_sphere_trace_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
 
-        glUniform1ui(m_sphere_trace_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
+        glUniform1ui(m_sphere_trace_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(m_max_number_of_reflections));
 
         glUniform1i(m_sphere_trace_shader.ul("u_first_pass"), static_cast<GLint>(GL_TRUE));
 
@@ -551,7 +551,7 @@ namespace szakdoga::core {
         glUniform1f(m_cone_trace_final_shader.ul("u_ambient_strength"), static_cast<GLfloat>(m_ambient_strength));
         glUniform1f(m_cone_trace_final_shader.ul("u_reflection_attenuation"), static_cast<GLfloat>(m_reflection_attenuation));
 
-        glUniform1ui(m_cone_trace_final_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(u_max_number_of_reflections));
+        glUniform1ui(m_cone_trace_final_shader.ul("u_max_number_of_reflections"), static_cast<GLuint>(m_max_number_of_reflections));
 
         glUniform1i(m_cone_trace_final_shader.ul("u_first_pass"), static_cast<GLint>(first_pass));
 

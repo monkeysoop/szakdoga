@@ -54,7 +54,7 @@ class App {
 	-m_max_iteration_count : unsigned
 	-m_shadow_max_iteration_count : unsigned
 	-m_width : unsigned
-	-u_max_number_of_reflections : unsigned
+	-m_max_number_of_reflections : unsigned
 	-Benchmark() : void
 	-BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) : void
 	-BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
@@ -83,8 +83,6 @@ enum "App::RenderModeType" as RenderModeType {
 	NORMAL
 	SDF_CALL_COUNT
 }
-
-enum App::me {}
 
 enum "App::SDFSceneType" as SDFSceneType {
 	CAR

@@ -124,7 +124,7 @@ namespace szakdoga::core {
         float m_ambient_strength;
         float m_reflection_attenuation;
 
-        unsigned u_max_number_of_reflections;
+        unsigned m_max_number_of_reflections;
 
     private:
         void SphereTraceRender();
