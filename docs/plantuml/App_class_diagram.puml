@@ -14,24 +14,6 @@ class App {
     + MouseWheel(const SDL_MouseWheelEvent& wheel) : void
     + Resize(unsigned width, unsigned height) : void
 	-m_width : unsigned
-<<<<<<< Updated upstream
-	-m_max_number_of_reflections : unsigned
-	-Benchmark() : void
-	-BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) : void
-	-BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
-	-ConeTraceRender() : void
-	+KeyboardDown(const SDL_KeyboardEvent& key) : void
-	+KeyboardUp(const SDL_KeyboardEvent& key) : void
-	+MouseMove(const SDL_MouseMotionEvent& mouse) : void
-	+MouseWheel(const SDL_MouseWheelEvent& wheel) : void
-	-PrecomputeCones() : void
-	-RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_final_tracing_type) : void
-	-RecompileConeTracer(SDFSceneType sdf_scene, SphereTracingType cone_tracing_type) : void
-	-RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
-	+Render() : void
-	+RenderImGui() : void
-	+Resize(unsigned width, unsigned height) : void
-=======
     -m_height : unsigned
     -m_camera : Camera
     -m_camera_manipulator : CameraManipulator
@@ -80,7 +62,6 @@ class App {
     -m_ambient_strength : float
     -m_reflection_attenuation : float
     -u_max_number_of_reflections : unsigned
->>>>>>> Stashed changes
 	-SphereTraceRender() : void
     -ConeTraceRender() : void
     -PrecomputeCones() : void
