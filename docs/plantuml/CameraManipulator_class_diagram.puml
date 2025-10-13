@@ -4,30 +4,30 @@
 
 class CameraManipulator {
 	+CameraManipulator()
-	+~CameraManipulator()
-	-m_pCamera : Camera*
-	-m_backward_pressed : bool
-	-m_down_pressed : bool
-	-m_forward_pressed : bool
-	-m_left_pressed : bool
-	-m_right_pressed : bool
-	-m_up_pressed : bool
-	+GetSpeed() : float {query}
-	-m_distance : float
-	-m_goForward : float
-	-m_goRight : float
-	-m_goUp : float
-	-m_speed : float
-	-m_u : float
-	-m_v : float
-	-m_center : glm::vec3
-	+KeyboardDown(const SDL_KeyboardEvent& key) : void
-	+KeyboardUp(const SDL_KeyboardEvent& key) : void
-	+MouseMove(const SDL_MouseMotionEvent& mouse) : void
-	+MouseWheel(const SDL_MouseWheelEvent& wheel) : void
-	+SetCamera(Camera* _pCamera) : void
-	+SetSpeed(float _speed) : void
-	+Update(float _deltaTime) : void
+    +~CameraManipulator()
+    +SetCamera(Camera* _pCamera) : void
+    +Update(float _deltaTime) : void
+    +SetSpeed(float _speed) : void
+    +GetSpeed() : float
+    +KeyboardDown(const SDL_KeyboardEvent& key) : void
+    +KeyboardUp(const SDL_KeyboardEvent& key) : void
+    +MouseMove(const SDL_MouseMotionEvent& mouse) : void
+    +MouseWheel(const SDL_MouseWheelEvent& wheel) : void
+    -m_pCamera : Camera*
+    -m_u : float
+    -m_v : float
+    -m_distance : float
+    -m_center : glm::vec3
+    -m_speed : float
+    -m_goForward : float
+    -m_goRight : float
+    -m_goUp : float
+    -m_forward_pressed : bool
+    -m_backward_pressed : bool
+    -m_left_pressed : bool
+    -m_right_pressed : bool
+    -m_up_pressed : bool
+    -m_down_pressed : bool
 }
 
 

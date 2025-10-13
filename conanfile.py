@@ -11,7 +11,8 @@ class App(ConanFile):
 
     def requirements(self):
         self.requires("opengl/system")
-        self.requires("glew/2.2.0", override=True)
+        #self.requires("glew/2.2.0")
+        self.requires("glew/2.2.0", options={"with_glu" : "system"})
         self.requires("glu/system")
         self.requires("imgui/1.91.2")
         self.requires("sdl/2.28.3")
