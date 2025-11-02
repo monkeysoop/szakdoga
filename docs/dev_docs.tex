@@ -155,13 +155,88 @@ A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (op
 \end{figure}
 
 
+\subsection{A program mappa struktúrája}
+
+A kód nagyrésze az \texttt{app} mappa alatt található, itt helyezkedi el a belépési pont (\texttt{app/main.cpp}) is, az \texttt{app/core} mappában található az összes többi C++ forráskód, \texttt{app/core/src} a \texttt{*.cpp} fájlokat, \texttt{app/core/include} a \texttt{*.hpp} és \texttt{*.h} fájlokat tartalmaz, az \texttt{app/core/tests} az egységtesztekhez szükséges fájlokat. Az \texttt{app/assets} tartalmazza a \texttt{*.comp} és \texttt{*.include} GLSL forrás fájlokat. Az \texttt{app/tests} tartalmazza az összehasonlításhoz tartozó python fájlokat. A \texttt{docs} mappa a szakdolgozathoz felhasznált képeket, uml diagrammokat és geogebra \texttt{*.ggb} fájlokat tartalmazza. A \texttt{scripts} mappa segéd Bash scripteket tartalmaz (program fordításához, csomagok letöltéséhez, teszteléshez). A \texttt{subprojects} egy a meson által használt mappa, amelyben az ImGui SDL2 és OpenGL-el vett kapcsolat létrehozásához vannak fájlok.
+
+\subsection{Futtatási környezet}
+
+A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit python jupiter nootbook segítségével hasonlítom össze. C++ 17 és GLSL 430-as verziókat használom, a program OpenGL API-t használ GLEW keretrendszerrel és SDL2 könyvtárral együtt. A GUI-t ImGui segítségével hoztam létre. Az egység tesztek pedig googletest keretrendszerrel lettek létrehozva. A programot Linux Mint 22 alatt és Visual Studio Code-ban fejlesztettem, a használt csomagok kezeléséről conan (2-es verzió) gondoskodik, a projektet pedig meson segítségével lehet fordítani.
 
 
+\subsection{Meson és conan}
 
+TODO
 
+\subsection{Shaderek}
 
+A shaderek az \texttt{app/assets} mappában találhatóak (a teszteléshez szükségesek az \texttt{app/core/tests/assets} mappában), ugyanitt helyezkednek el a skybox-hoz szükséges képek is.
 
+A \texttt{COMP} „típusú” fájlok (\texttt{*.COMP}) meg az azok által használt \texttt{INCLUDE} (\texttt{*.INCLUDE}), ezek mindketten GLSL szintaxist használnak, viszont az \texttt{INCLUDE} fájlok nem tartalmazzák a \texttt{\#version} tag-et, így technikailag nem GLSL fájlok, míg a \texttt{COMP} fájlok igen.
 
+Mivel az egyedi preprocesszorom a CompShader osztályban a C nyelvben találhatóhoz hasonlóan működik így az \texttt{INCLUDE} fájlok tartalmaznak „include guard”-okat.
 
+\subsection{Kúpok előre történő kiszámolása}
 
+A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre ki vannak számolva és egy textúrában eltárolva a program indításakor majd azt frissíti minden, képernyő átméretezésekor, kúpkövetés kezdeti kúpméretének módosításakor és az egér görgőjével történő nagyításakor. Mivel előre nem lehet tudni a nézeti mátrixot így valójában nem a végleges irány van meghatározva, hanem az inverz projekciós mátrix által beszorzott irány van, így a kúp mérete meghatározható, de a tényleges irányhoz még az inverz nézeti mátrixxal is be kell szorozni, de ez egy relatív gyors művelet.
 
+\subsection{SDF-ek közti váltogatás}
+
+A szakdolgozat célja nem egy jól kidolgozott SDF nézegető program fejlesztése volt, így például nincs mód arra, hogy különböző SDF-eket dinamikusan hozzáadjunk (meglévők között lehet dinamikusan váltogatni). Jelenlegi megoldás szerint az \texttt{sdf.INCLUDE} fájlban egy preprocesszor makró dönti el, hogy melyik SDF legyen kiválasztva, amit dinamikusan (a shader újrafordul) lehet módosítani a grafikus felületen keresztül
+
+\lstset{label=src:cpp4}
+\begin{lstlisting}[language={C++}]
+#if SDF_SCENE == NEWTONS_CRADLE
+    #include "assets/sdf_newtons_cradle.include"
+#elif SDF_SCENE == CAR
+    #include "assets/sdf_car.include"
+#elif SDF_SCENE == TEMPLE
+    #include "assets/sdf_temple.include"
+#elif SDF_SCENE == PRIMITIVES
+    #include "assets/sdf_primitives.include"
+#endif
+\end{lstlisting}
+
+Maguk az SDF függvények külön fájlokban vannak és egy fix szignatúrájú függvényt kell, hogy tartalmazzanak
+
+\lstset{label=src:cpp5}
+\begin{lstlisting}[language={C++}]
+Value sdf(vec3 p) {
+    p.y += 0.2;
+
+    float car = sdCar(p).x * 0.8;
+    vec3 wp = p-vec3(0,0,.14);
+    wp.xz = abs(wp.xz);
+    wp-=vec3(.7383, .365, 1.5);
+    
+    if(p.z>0.) wp.xz *= Rot(.3*sign(p.x));
+    float wheel = sdWheel(wp).x;
+    
+    return Value(min(car, wheel), 4);
+}
+\end{lstlisting}
+
+A preprocesszor makró egyik nagy előnye, hogy sok függvény név ütközést elkerül az SDF függvények között (gyakran azonos néven definiálnak segéd függvényeket, vagy például a $\pi$ konstanst), ez azért fontos, mert így kis módosítás kellett az internetről szerzett SDF függvények integrálásakor.
+
+\subsection{Különböző nézeti módok}
+
+A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva, például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4 es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
+
+\begin{description}
+	\item [Normál] Ez egy BRDF alapon rekurzívan követi a sugarat, majd a kapott színt jeleníti meg, minden ütközésnél fog indítani sugarakat a fényforrás felé a puha árnyékok miatt és egy sugarat a normál mentén az ambiens kitakarás (ambient occlusion) közelítése céljából.
+	\item [Iterációk száma] A Normál mód kiszámítása alatt a sugár mentén tett iterációk száma (vagyis az ahhoz szükséges SDF hívások számai, kivéve az ambiens kitakarás, puha árnyékok és normál vektor kiszámításához szükséges függvényhívásokat). Ez az érték a paraméterül kapott iteráció szám limittel van elosztva, így a kapott „szín” 0 és 1 közé lesz beszorítva. Kúpkövetésnél ez a pixelekre eső átlag lesz.
+	\begin{figure}[H]
+    	\centering
+    	\includegraphics[width=0.6\textwidth,height=100px]{gui/iter_count.png}
+    	\caption{A Newton ingája SDF iteráció számai láthatóak, minnél világosabb annál nagyobb az iteráció szám.}
+    \end{figure}
+    \item [SDF hívások száma] A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
+	\item [Debug] Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
+	\begin{figure}[H]
+    	\centering
+    	\includegraphics[width=0.6\textwidth,height=100px]{gui/debug.png}
+    	\caption{A Newton ingájának SDF-je látható Debug módba.}
+    \end{figure}
+	\item [Debug mód iteráció száma] Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
+    \item [Mélység] Szimplán a mélységet fogja kirajzolni.
+\end{description}
