@@ -1,0 +1,119 @@
+\documentclass[
+	%parspace, % Add vertical space between paragraphs
+	%noindent, % No indentation of first lines in each paragraph
+	%nohyp, % No hyphenation of words
+	%twoside, % Double sided format
+	%draft, % Quicker draft compilation without rendering images
+	%final, % Set final to hide todos
+]{elteikthesis}[2024/04/26]
+
+% The minted package is also supported for source highlighting
+% See elteikthesis_minted.tex for example
+%\usepackage[newfloat]{minted}
+
+% Document's metadata
+\title{Implicit felületek valós idejű megjelenítése kúpkövetési technikákkal} % title
+\date{2025} % year of defense
+
+% Author's metadata
+\author{Istók Endre}
+\degree{programtervező informatikus BSc}
+
+% Superivsor(s)' metadata
+\supervisor{Bálint Csaba} % internal supervisor's name
+\affiliation{Egyetemi tanársegéd} % internal supervisor's affiliation
+%\extsupervisor{Külső Kornél} % external supervisor's name
+%\extaffiliation{informatikai igazgató} % external supervisor's affiliation
+
+% University's metadata
+\university{Eötvös Loránd Tudományegyetem} % university's name
+\faculty{Informatikai Kar} % faculty's name
+\department{goritmusok és Alkalmazásaik\\ Tanszék} % department's name
+\city{Budapest} % city
+\logo{elte_cimer_szines} % logo
+
+% Add bibliography file
+\addbibresource{bibliography.bib}
+
+% The document
+\begin{document}
+
+% Set document language
+\documentlang{hungarian}
+%\documentlang{english}
+
+% List of todos (not in the final document)
+%\listoftodos[\todolabel]
+
+% Title page (mandatory)
+\maketitle
+% Topic declaration page (mandatory) - can also be attached instead
+%\includepdf{temabejelento.pdf}
+
+% Table of contents (mandatory)
+\tableofcontents
+\cleardoublepage
+
+% Main content
+\input{intro.tex}
+\cleardoublepage
+
+\input{user_docs.tex}
+\cleardoublepage
+
+\input{theory.tex}
+\cleardoublepage
+
+\input{dev_docs.tex}
+\cleardoublepage
+
+\input{testing.tex}
+\cleardoublepage
+
+\input{summary.tex}
+\cleardoublepage
+
+% Acknowledgements (optional) - in case your thesis received funding or would like to express special thanks to someone
+\chapter*{\acklabel}
+\addcontentsline{toc}{chapter}{\acklabel}
+Ezúton szeretnék köszönetet mondani témavezetőmnek, Bálint Csabának a segítségéért a kitartó motiválásáért, és program megvalósításához szükséges technikai tudás átadásához.
+
+% Appendices (optional) - useful for detailed information in long tables, many and/or large figures, etc.
+%\appendix
+%\input{samples_hu/sim.tex}
+%\cleardoublepage
+
+% Bibliography (mandatory)
+\phantomsection
+\addcontentsline{toc}{chapter}{\biblabel}
+\printbibliography[title=\biblabel]
+\cleardoublepage
+
+% List of figures (optional) - useful over 3-5 figures
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstfigurelabel}
+\listoffigures
+\cleardoublepage
+
+% List of tables (optional) - useful over 3-5 tables
+\phantomsection
+\addcontentsline{toc}{chapter}{\lsttablelabel}
+\listoftables
+\cleardoublepage
+
+% List of algorithms (optional) - useful over 3-5 algorithms
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstalgorithmlabel}
+\listofalgorithms
+\cleardoublepage
+
+% List of codes (optional) - useful over 3-5 code samples
+\phantomsection
+\addcontentsline{toc}{chapter}{\lstcodelabel}
+\lstlistoflistings
+\cleardoublepage
+
+% List of symbols (optional)
+%\printnomenclature
+
+\end{document}

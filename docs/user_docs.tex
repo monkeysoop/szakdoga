@@ -1,0 +1,138 @@
+\chapter{Felhasználói dokumentáció}
+\label{ch:user_docs}
+
+\section{Rendszer követelmények}
+
+A program futtatásához szükség van egy Linux asztali operációs rendszerre például Linux Mint (ami egy Debian alapú disztribúció), Windows alatt nem lett tesztelve, de a C++ kód platform független módon lett fejlesztve, ezenkívül erősen ajánlott egy relatív modern dedikált videókártya és az ahhoz tartozó driver-ek is. A használt GLSL shader verziója (4.30) miatt a rendszernek legalább OpenGL 4.3 verzió kell, hogy fusson.
+
+\section{Telepítés}
+
+A projekthez előre elkészített binárisok nem tartoznak, így, ahhoz, hogy futtatni tudjuk, előszőr le kell fordítani. A projekt a program csomagjainak kezelésére conan-t használ és magát a projektet meson-keretrendszerrel lehet építeni, ezeket a programokat pip segítségével szerezhetjük be a PyPI-ről (Python Packaga Index). Az alábbi útmutató feltételezi, hogy már telepítve van nekünk python, conan, meson, egy alap profil létre lett hozva conan-hoz, a fordításhoz szükséges környezet létrehozásához a projektben található egy segéd bash szkript: \texttt{scripts/setup.sh} és a fordításához és futtatásához pedig egy \texttt{scripts/run.sh} szkript is.
+
+\lstset{label=src:bash1}
+\begin{lstlisting}[language=bash]
+	mkdir builddir
+	conan install . --output-folder=builddir --build=missing
+\end{lstlisting}
+
+grafikus könyvtárakat  a conan nem mindig tud rendesen telepíteni, vagy csak részlegesen, ezért szükségesek lehetnek a \texttt{-c tools.system.package\_manager:mode=install -c tools.system.package\_manager:sudo=True} opciók is, de bizonyos használt könyvtárakat (opengl, glu, glew) érdemes lehet először a rendszer csomagkezelőjével (Linux Mint esetében \texttt{apt}) telepíteni
+
+\lstset{label=src:bash2}
+\begin{lstlisting}[language=bash]
+conan install . --output-folder=builddir --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+cd builddir
+meson setup --wipe --warnlevel 3 --native-file conan_meson_native.ini .. meson-src
+\end{lstlisting}
+
+program fordítása:
+
+\lstset{label=src:bash3}
+\begin{lstlisting}[language=bash]
+meson compile -C meson-src
+meson install -C meson-src --skip-subprojects --quiet
+\end{lstlisting}
+
+végül az program futtatása
+
+\lstset{label=src:bash4}
+\begin{lstlisting}[language=bash]
+cd meson-src/app
+./main
+\end{lstlisting}
+
+(a könyvtár váltás fontos, \texttt{./meson-src/app/main} nem elég, mert számít az aktuális munkakönyvtár)
+Ha minden jól ment, az alábbi ábrához hasonló a program indítás utáni állapota.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/normal_view.png}
+	\caption{A program indítás utáni állapota. Egy Newton ingája SDF-et láthatunk a képen.}
+\end{figure}
+
+\section{Billentyűzet és egér műveletek}
+
+Billentyű műveletek:
+
+\begin{description}
+	\item [Escape] kilépés, applikáció bezárása
+	\item [i] beállítások ablak megjelenítése, elrejtése
+	\item [w, a, s, d, e, q] rendre a kamera előre, balra, hátra, jobbra, felfele, lefele történő mozgatása
+\end{description}
+
+Ha a bal egér gombot lenyomva tartjuk és mozgatjuk az egeret, akkor az a kamerát fogja mozgatni, ha pedig a jobbat tartjuk lenyomva, akkor pedig a mozgatás hatására nagyítani/kicsinyíteni fogja a képet. A görgő segítségével is (jobb egér gomb + mozgatáson kívül) lehet zoom-olni.
+
+\section{Billentyűzet és egér műveletek}
+
+Az ablak több lenyíló fülre van osztva, amelyekre, ha rákattintunk az egérrel akkor az adott al menü lenyílik, némelyik menü pont további részekre is van osztva.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/gui_1.png}
+	\caption{A beállítások menü megnyitás utáni állapota látható.}
+\end{figure}
+
+A beállítások menü több almenüből áll, ezeket bal egér kattintással tudjuk megnyitni
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/gui_6.png}
+	\caption{A beállítások menü első 4 almenüje látható kibontva.}
+\end{figure}
+
+Ezek közül az első az SDF jelenet kiválasztására ad lehetőséget, például, ha kiválasztjuk a „primitives” opciót, akkor (a menüt elrejtve) valahogy így fog kinézni:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/sdf2_zoomed.png}
+	\caption{Különböző SDF primitívekből álló jelenet látható.}
+\end{figure}
+
+A második opció a különböző nézeti módok között ad választhatósági lehetőséget, lásd: TODO
+
+A harmadik és negyedük fül a különböző módoktól független paramétereket tartalmazza, ezek közül a harmadik a gömb/kúpkövetés paraméterei, míg a negyedik opciói az árnyékok, ambiens kitakarás és a maximum tükröződések állítására szolgálnak.
+
+A következő (5. fül) almenüben a használt módszert kiválasztó rádiógombok és a relaxált valamint a javított módszerhez tartozó gömbkövetési paraméterek (a naiv módszerhez külön nincsenek) találhatóak
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/gui_10.png}
+	\caption{5. almenü részlegesen kibontva látható.}
+\end{figure}
+
+Az 5. almenü még a kúpkövetéshez tartozó paramétereket is tartalmazza, ezekkel a kiindulási kúpméret állítható, a köztes epszilon, köztes (kúpkövetés alatti) gömbkövetési módszer (módosított, hogy működjen a kúpkövetéssel) és az azokhoz tartozó paraméterek, valamint a kúpkövetés befejezte után futó gömbkevetési módszer és az azokhoz tartozó paraméterek is
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/gui_11.png}
+	\caption{5. almenü, a kúpkövetéshez tartozó beállítások láthatóak.}
+\end{figure}
+
+Az utolsó menüpontban pedig a „benchmark”-hoz tartozó paraméterek: a viszonyítási minta iteráció limitje, valamint azok a paraméterek, amelyek meghatározzák, hogy milyen iteráció limitek mellett fusson le és hányszor. Ezen kívül még egy gomb is található, amely elindítja a „benchmark”-ot, itt megjegyzendő, hogy a „benchmark” futása alatt, az ablakot bezárni és rendesen interaktálni vele nem lehet, hiszen szinkronizált módon lett implementálva, így blokkol, amíg be nem fejeződik.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{gui/gui_12.png}
+	\caption{6. almenü, a tesztelés paraméterei láthatóak.}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

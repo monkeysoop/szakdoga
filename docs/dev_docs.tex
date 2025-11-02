@@ -1,0 +1,167 @@
+\chapter{Fejlesztői dokumentáció}
+\label{ch:dev_docs}
+
+\section{Megoldási terv}
+
+A szakdolgozatomban két különböző főbb feladattal foglalkoztam, A különböző távolságfüggvényekhez megjelenítéséhez használt gömbkövetési módszerek implementálásával, és ezek tesztelésével, ami a különböző módszerek teljesítményének és vizuális minőségének a mérésével és összehasonlításával foglalkozik.
+
+Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt, az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
+
+A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iteráció limiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb a megjelenítéséhez és teszteléshez tartozó paramétereket (az egyszerűség és ismételhetőség kedvéért az idő automatikusan 0-ra van állítva a tesztek alatt). Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iteráció számok által alkotott képeket is elmenti. Az elmentett png képeket (azért png, mert SDL2 támogatja és veszteségmentes) és a mért időket majd jupiter notebook-ok segítségével elemzem, erről bővebben lásd: TODO.
+
+A program ezen túl tartalmaz még egység teszteket is.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/usecase.png}
+	\caption{Az ábrán a program használati eset diagramja látható.}
+\end{figure}
+
+\section{A program architektúrája}
+
+Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ könyvtárból és GLSL „compute” shader fájlokból.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/classdiagram.png}
+	\caption{A program osztálydiagramja.}
+\end{figure}
+
+A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) absztrakció egy OpenGL 2 dimenziós textúra köré, hasonlóan a \texttt{Skybox} osztály egy „cubemap”-et absztraktál. A \texttt{Framebuffer} osztály, ahogy a neve is mondja, egy OpenGL „framebuffer”-t absztraktál, de itt helyezkedik el, a képernyő fotó készítő logika is. A \texttt{CompShader} osztály GLSL „compute” shader-t hoz létre. A \texttt{Framebuffer} és \texttt{CompShader} osztály is követi a RAII-t. A \texttt{Camera} és \texttt{CameraManipulátor} osztályok a kamera projekciós és nézeti mátrixok lekérdezését, billentyűzet és egér események általi módosítását végzik. Az \texttt{App} osztály meg ezeket összekötve adja az applikációt.
+
+\subsection{Az \texttt{App} osztály}
+
+Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület túlnyomó részét egyszerű ImGui lebegőpontos és egész típusú csúszkák valamint rádiógombok teszik ki, amik az \texttt{App} osztály privát változóit módosítják, a változók és rövid leírásuk:
+
+\begin{description}
+	\item [\texttt{m\_sdf\_scene}] a kiválasztott távolságfüggvényt adja meg
+	\item [\texttt{m\_render\_mode}] a kiválasztott kirajzolási módszert tárolja
+	\item [\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}] a gömbkövetési módszert (al módszert is) határozzák meg
+	\item [\texttt{m\_initial\_cone\_size}] kezdeti kúpméret pixelben megadva (például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben)
+	\item [\texttt{m\_epsilon}] gömbkövetésnél használt paraméter túl kicsi lépések detektálására
+	\item [\texttt{m\_max\_distance}] távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
+	\item [\texttt{m\_max\_iteration\_count}] limit a gömbkövetés iteráció számaira
+	\item [\texttt{m\_relaxed\_step\_multiplier, m\_cone\_trace\_relaxed\_step\_multiplier, m\_cone\_trace\_final\_relaxed\_step\_multiplier}] a relaxált gömbkövetés lépés mértékét beszorzó skalár
+	\item [\texttt{m\_enhanced\_step\_multiplier, m\_cone\_trace\_ enhanced \_step\_multiplier, m\_cone\_trace\_final\_ enhanced \_step\_multiplier}] a javított gömbkövetés lépés mértékét beszorzó skalár
+	\item [\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}] a javított gömbkövetés lépés mértékét limitáló skalár
+	\item [\texttt{m\_cone\_trace\_intermediate\_epsilon}] m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
+	\item [\texttt{m\_benchmark\_baseline\_iteration\_count}] limit a tesztelésnél használt referencia kép iteráció számaira
+	\item [\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}] rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak (például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél)
+	\item [\texttt{m\_benchmark\_performance\_number\_of\_runs}] a tesztelésnél megadja, hogy egy módszert, egy iteráció limittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
+	\item [\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}] az árnyékok penumbra részét és intenzitását tárolja el
+	\item [\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}] az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása (ahogy iterál), iterálás lépésköze, erősségét szorzó skalár
+	\item [\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}] iteráció limit az árnyékok és ambiens kitakarás kiszámításához
+	\item [\texttt{m\_ambient\_strength}] ambiens fény ereje
+	\item [\texttt{m\_reflection\_attenuation}] a tükröződéseknél használt extra elhalást imitáló skalár
+	\item [\texttt{m\_max\_number\_of\_reflections}] a maximum tükröződések számának limitje
+\end{description}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/App_class_diagram.png}
+	\caption{Az \texttt{App} osztály osztálydiagramja.}
+\end{figure}
+
+\subsection{A \texttt{Camera} osztály}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Camera_class_diagram.png}
+	\caption{A \texttt{Camera} osztály osztálydiagramja.}
+\end{figure}
+
+\subsection{A \texttt{CameraManipulator} osztály}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/CameraManipulator_class_diagram.png}
+	\caption{A \texttt{CameraManipulator} osztály osztálydiagramja.}
+\end{figure}
+
+\subsection{A \texttt{CompShader} osztály működése, a shaderek fordítása}
+
+A \texttt{CompShader} osztály egy szimpla RAII absztrakciónál bonyolultabban működik, mivel a GLSL nyelv önmagába a \texttt{\#include} preprocesszor makrót nem támogatja, nyilvánvaló okok miatt, ezért hosszabb shaderek fejlesztése és karbantartása problémás tud lenni, ezért az osztály a konstruktorába kap egy listát shader fájl útvonalakkal:
+
+\lstset{label=src:cpp1}
+\begin{lstlisting}[language={C++}]
+{
+    std::filesystem::path{"assets"} / "ray.include",
+    std::filesystem::path{"assets"} / "value.include", 
+    std::filesystem::path{"assets"} / "sdf.include",
+    std::filesystem::path{"assets"} / "sdf_newtons_cradle.include", 
+    std::filesystem::path{"assets"} / "sdf_car.include", 
+    std::filesystem::path{"assets"} / "sdf_temple.include", 
+    std::filesystem::path{"assets"} / "sdf_primitives.include", 
+    std::filesystem::path{"assets"} / "tracing_result.include",
+    std::filesystem::path{"assets"} / "tracers.include", 
+    std::filesystem::path{"assets"} / "renderer.include",
+}
+\end{lstlisting}
+
+amikből kiválogatva másolja be a megfelelő fájl tartalmát a
+
+\lstset{label=src:cpp2}
+\begin{lstlisting}[language={C++}]
+#include "assets/ray.include"
+\end{lstlisting}
+
+helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben található fájl konfigurációhoz hasonlóan (\texttt{configure\_file}) van lehetőség statikus paramétereket megadni fordítás során
+
+\lstset{label=src:cpp3}
+\begin{lstlisting}[language={C++}]
+#define SDF_SCENE @SDF_SCENE@
+#define RENDER_MODE @RENDER_MODE@
+#define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
+\end{lstlisting}
+
+Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikusan módosítsuk, amik a kód újra fordításához vezetnek. Eredetileg \texttt{uniform} változókat és \texttt{switch case} -eket használtam nagyobb kódrészek között történő váltogatásra, például kiválasztani, hogy melyik SDF függvény hívódjon meg, ez a módszer viszont problémás volt, egyrészt lassabb lett tőle a program, mintha preprocesszor makrókkal oldottam volna meg (ez kevésbé okozott gondot, mivel az optimalizáló elég jól tudja kezelni az \texttt{uniform} változókat, főleg elágazások terén) a nagyobbik probléma az volt, hogy ez meglehetősen hosszú akadozásokat okozott (egyes esetekben 5-10 másodperc), amikor az \texttt{uniform} értéke megváltozott. A problémán nem segített, ha újrafordítottam a shadert minden egyes alkalommal, hiszen maga a fordítás is meglehetősen lassú volt (ez részben a nagy shaderek problémája). Az okot nem nagyon kutattam, de ha jól tudom a shadereket ha nem is teljesen, de részlegesen újra fordítják/optimalizálják, amikor egy \texttt{uniform} értéke megváltozik, ami kombinálva a lassú fordítási időkkel okozhatta a problémát. A megoldás így az lett, hogy fordítás alatt felparaméterezek \texttt{\#define} makrókat adom oda \texttt{\#if}/\texttt{\#elif}/\texttt{\#endif} makróknak, így a fordító gyorsan eltudja dobni a kód nagyrészét, ezzel elérve a gyors fordítást és az optimális teljesítményt.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/CompShader_class_diagram.png}
+	\caption{A \texttt{CompShader} osztály osztálydiagramja.}
+\end{figure}
+
+Az osztály \texttt{m\_shader\_source\_code} privát változója eltárolja a programhoz tartozó forrás kódot, az \texttt{\#include} preprocesszor makró utáni, de az „in” változók (\texttt{@változó@}) konfigurálása előtti állapotban, a forráskód eltárolása azért hasznos, mert ha a konfigurációt megváltoztatnánk és a programot ezzel újra fordítanánk, akkor így nem kell a fájlt/fájlokat újra beolvasni.
+
+Az osztály \texttt{m\_currently\_used\_id} privát változója azért kiemelendő, mert a fejlesztés alatti hibák kiszűrésénél nagyon hasznos volt számomra, figyelmeztet, ha egy olyan \texttt{uniform} változó helyét kérjük le, ami nem az aktív programhoz (shader) tartozik.
+
+\subsection{A \texttt{Framebuffer} osztály, képernyőkép készítés}
+
+A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük a buffer tartalmát az SDL könyvtár (SDL\_image) segítségével PNG formátumba, mivel OpenGL-ben a (0,0) koordináta bal alul van, míg az SDL a bal föntit használja, így, ha nem tükrözzük a felületet, akkor fejjel lefelé lévő képeket kapnánk, ezért kell megfordítani a képet. Az SDL3 könyvtár erre már beépített függvényt kínál, míg az SDL2 nem (a program írása alatt az SDL3 könyvtár még fejlesztés alatt áll/állt).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Framebuffer_class_diagram.png}
+	\caption{A \texttt{Framebuffer} osztály osztálydiagramja.}
+\end{figure}
+
+\subsection{A \texttt{Skybox} osztály}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Skybox_class_diagram.png}
+	\caption{A \texttt{Skybox} osztály osztálydiagramja.}
+\end{figure}
+
+\subsection{A \texttt{Texture2D} osztály}
+
+A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (opcionális), ha nincs konkrét érték megadva, akkor értéke 1 lesz, azaz egy szimpla 2 dimenziós sík textúra lesz. Többszintű textúrákat a kúpkövetésnél használom a megtett távolságok eltárolására a rétegek között, ahol mindig négyszereződik a szálak száma és azzal együtt az elvárt textúra mérete is.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Texture2D_class_diagram.png}
+	\caption{A \texttt{Texture2D} osztály osztálydiagramja.}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+

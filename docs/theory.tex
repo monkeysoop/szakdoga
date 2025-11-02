@@ -1,0 +1,253 @@
+\chapter{Elmélet}
+\label{ch:theory}
+
+\section{SDF}
+
+A távolságfüggvények (Distance Function) a tér minden pontjához hozzárendeli az implicit felület legközelebbi pontjától vett távolságot. Az előjeles távolságfüggvény (Signed Distance Function) annyiban különbözik, hogy negatív értékeket (-1 szeresét) rendel hozzá a felület belsejében lévő pontokhoz, tehát, ha a pont a felületen kívül van, akkor pozitív a távolság, ha a felületen van, akkor nulla és negatív ha a belsejében van.
+
+\section{Sphere Tracing}
+
+A gömbkövetés (sphere tracing) a sugárkövetések egyik változata, melynek célja a sugár és az előjeles távolságfüggvény felület metszéspontjának megtalálása. Az alap módszer ezt úgy éri el, hogy a sugár kiinduló pontjából a sugár mentén haladva először kiértékeli az SDF-et az adott pontból, majd a kapott távolságnyit lép előre, és ezt ismétli mindaddig, amíg 3 feltétel igaz:
+
+\begin{itemize}
+	\item a lépés mértéke nagyobb, mint egy választott érték epszilon (álltalában kicsi: 0.001) szorozva a megtett úttal
+	\item a kiindulás pontjától vett távolság kisseb mint egy választott limit (pl: 1000)
+	\item az iterációk száma nem lépet át egy megadott határt
+\end{itemize}
+
+A gömbkövetés lényege, hogy a pixel közepéből indulú sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért 2 sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/sphere_tracing/sphere_tracing_0.png}
+	\caption{Az ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért 2 sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem.}
+\end{figure}
+
+\section{Relaxed és Enhanced Sphere Tracing}
+
+A relaxált és javított gömbkövetés úgy próbálja az alap gömbkövetést gyorsítani, hogy ahelyett, hogy az SDF kiértékeléséből származó távolságnyit lépne, helyette annak többszörösét lépi, majd a lépést követő SDF kiértékelés távolságával ellenőrzi, hogy nem lépett-e túl sokat, ha nem, akkor halad tovább, viszont, ha igen, akkor visszamegy ez előző pontra, és csak egyszeresét lépi. Ezzel ugyanazt a távolságot potenciálisan kevesebb iterációval vagy ugyanannyi iterációval nagyobb távolságot megtéve.
+
+A relaxált a lépés méretét szorzó skalárt egy fix konstansból kapja.
+
+A javított gömbkövetés a két megelőző lépés pontja közötti távolság (azaz az előző lépés mértéke) és a két pont SDF távolság felhasználásával becsüli a szorzót. Ezt a szorzót ezen túl még, beszorozza, egy nulla és 1 közötti fix paraméterrel (pl.: 0.9), ezzel csökkentve a visszalépések számát, amiket kicsi numerikus hibák okoznának, majd még beszorítja (clamp) 1 és egy paraméterül megadott konstans közé (pl.:10), ez extrém esetek elkerülése miatt van.
+
+\section{Kúpkövetés}
+
+A cél itt is az alap gömbkövetés gyorsítása, viszont a módszer más, az algoritmus lényege, ahelyett hogy a képernyő minden pixeléből külön sugarat indítana, helyette szomszédos pixeleket egyesítő kúpokat használ, és azok mentén iterál addig, amíg 3 feltétel igaz:
+
+\begin{itemize}
+	\item a lépés mértéke, ami itt nem az adott pont SDF értéke, hanem az mínusz a pontbeli kúp sugara nagyobb, mint egy fix epszilon (az alap módszernél nagyobb pl.:0.02) paraméter
+	\item hasonlóan a többi módszerhez nem lépett át egy max távolság határt és az iterációk száma is egy limit alatt van
+\end{itemize}
+
+\subsection{A kúpok méretének és irányának meghatározása}
+
+A megoldandó probléme: egy térbeli téglalap (az implementációban csakis négyzeteket használok, amik egy vagy több pixelből álló „blokkokat” reprezentálnak) kamera szemszögéből kiinduló gúlájának, megtaláljuk a lehető legkisseb az azt körbe ölelő kúpját.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_0.png}
+	\caption{Az ábrán egy térbeli négyzet (lila), egy kamera és egy gúla (barna) látható.}
+\end{figure}
+
+A kúp megtalálását át lehet fogalmazni, úgy, hogy a téglalap/négyzet sarkait egy gömb felületére vetítjük
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_1.png}
+	\caption{Az ábrán egy piros gömb felületére a kamera szemszögéből vetített négyzet látható.}
+\end{figure}
+
+majd a vetített pontok magába foglaló lehető legkisseb kört (a gömb felületén) keressük (valójában a kör origója érdekes, abból a sugarat könnyedén kiszámolhatjuk), a naiv megoldás az lenne, ami az eredeti téglalap/négyzet közepét vetíti a gömb felületére és használja azt a kör/kúp közepének/irányának.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_2.png}
+	\caption{Az ábrán kék körként látható a naiv megoldás.}
+\end{figure}
+
+Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a vetítés utáni hosszabb átló közepét használja a kör/kúp közepének/irányának, ez nem mindig a legoptimálisabb megoldás mivel az átló és a kamerához közelebbi vetített pont által alkotott háromszög lehet hegyesszögű a kamerához közeli pontnál, de bőven elég jó közelítés.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_3.png}
+	\caption{Az ábrán a kék kör a naiv, míg zöld a szinte optimális megoldás.}
+\end{figure}
+
+A hosszab átlót egyszerűen kitudjuk számolni, abból, hogy a képernyő melyik negyedében vagyunk
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_4.png}
+	\caption{Az ábrán a piros pont a kamera/képernyő közepe, a négyzetek maguk a pixelek és azok az átlók vannak még berajzolva, amelyek a vetítés után hosszabbak lesznek.}
+\end{figure}
+
+Ez a módszer nem mindig vezet optimális irány megtalálásához, de a naiv megoldásnál rosszabb eredményt (kúp méret nem lesz nagyobb) nem fog adni
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth,height=100px]{gui/cone_error_1.png}
+    \vspace{5pt}
+    \includegraphics[width=0.6\textwidth,height=100px]{gui/cone_error_2.png}
+    \caption{Piros pixelek jelölik azokat a pontokat, ahol ez a közelítés nem vezet az optimális eredményhez.}
+\end{figure}
+
+\subsection{Kúpkövetés 2D példa}
+
+Az elkövetkezendő ábrák (ebben az al fejezetben) segítségével próbálom vizualizálni a kúpkövetés működését, jelölések:
+\begin{itemize}
+	\item a piros alakzatok alkotják a távolságfüggvényt
+	\item lila kúp a kamerából kiinduló "gúla", aminek az irányát szaggatott vonal fogja jelölni
+	\item a kék és piros pontok a „pixelek” határait és közepeit jelölik (a példában a képernyő 4 pixelből fog állni)
+    \item a narancssárga pontok az távolságfüggvény kiértékelésének pontjai
+    \item a kék vonalak az aktuális pontbeli (ahonnan a távolságfüggvényt hívtuk) sugarát vizualizálja a kúpnak
+    \item a zöld korong pedig a már megtett távolságot jelöli (tudjuk, hogy ezen belül nem ütköztünk)
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_0.png}
+	\caption{Az ábrán egy leegyszerűsített 2 dimenziós kúpkövetés példa eleje látható (1. SDF hívás), jelenleg egy darab 4 pixeles kúpunk van.}
+\end{figure}
+
+A kúpkövetés során, ha akkorát lépnénk, mint amekkora a távolságfüggvény kiértékeléséből származó távolság, akkor lehet, hogy azt (vagy egy részét) átlépnénk.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_4_1.png}
+    \vspace{5pt}
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_4_2.png}
+	\caption{Az ábrákon kékkel vannak jelölve a kritikus területek, amikben ha lennének például kicsi piros körök, akkor azokat átlépnénk.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_0.png}
+	\caption{Az ábrán az optimális megoldás látható ehhez a példához (lehető legnagyobbat léptük, úgy, hogy a program helyességét megőriztük).}
+\end{figure}
+
+Mivel az optimális megoldást kiszámítása meglehetősen költséges (3D-ben a gúla 4 sarok sugarát kéne egy gömbbel metszeni) és ráadásul problémás lehet a kúpok felbontásánál is, ha nem jól implementáljuk, ezért egy közelítést fogunk alkalmazni, aminek a lényege, hogy a kapott távolságból kivonjuk a kúpunk sugarát (a sugarat abból a pontból vesszük, ahonnan a távolságfüggvényt meghívtuk) és csak akkorát lépünk.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_5.png}
+	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancsárga pont lesz az eredménye ennek az iterációnak.}
+\end{figure}
+
+Az a módszer még elfajult helyzetekben is megőrzi a program helyességét.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_15.png}
+	\caption{Az ábra egy elfajult helyzetet ábrázol, ahol már végtelen távolságot megtettünk és a kúp élei párhuzamosak.}
+\end{figure}
+
+A jelenelgi példában a következő két iteráció hasonlóképpen fog kinézni az előbbihez, semmi különös nem fog történni.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_6.png}
+	\caption{Az ábrán a kúpkövetés 3. iterációja látható.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_7.png}
+	\caption{Az ábrán a kúpkövetés 4. iterációja látható.}
+\end{figure}
+
+Ha a lépés mértéke túl kicsi (kisebb, mint egy epszilon paraméter), akkor a kúpunkat több kisebb kúpra bontjuk fel.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_8_1.png}
+    \vspace{5pt}
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_8_2.png}
+	\caption{Az ábrán a kúpkövetés 5. iterációja látható, ahol a lépés mértéke már túl kicsi, így nincs értelme tovább folytatni.}
+\end{figure}
+
+Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle két kisseb kúpunk és a már megtett távolságtól tudjuk folytatni azokat (innen ered a kúpkövetés előnye), úgy, hogy a program helyességét megőrizzük.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_9.png}
+	\caption{Az ábrán a 2 új kúp látható, amelyek a már biztos távolságtól (zöld) fogják folytatni útjaikat.}
+\end{figure}
+
+Most csak a felsőbb 2 pixeles kúp mentén fogom részletezni tovább az algoritmust (a valóságban ezek egymástól függetlenül akár párhozamosan is tudnak tovább haladni), ami az eddig megtett távolságtól tud továbbhaladni.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_10.png}
+	\caption{Az ábrán a felsőbb 2 pixeles kúpnak az 1. iterációja látható.}
+\end{figure}
+
+Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negítív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_11_1.png}
+    \vspace{5pt}
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_11_2.png}
+	\caption{Az ábrán a felsőbb 2 pixeles kúpnak az 2. iterációja látható, ahol a lépés mértéke megintcsak kissebb lenne mint az epszilon paraméter.}
+\end{figure}
+
+Mivel most már a kúpjain csakis 1-1 „pixeleknek” felelnének meg így nincs értelme tovább alkalmazni a kúpkövetést, ezért majd valamelyik sugárkövető (naiv/relaxált/javított) algoritmussal fogjuk folytatni, jelen példában ez a naiv módszer lesz az egyszerűség kedvéért.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_12.png}
+	\caption{Az ábrán a felsőbb kúpkövetés eredménye látható (zöld) és a két megmaradó sugarunk (szaggatott vonalak).}
+\end{figure}
+
+Az algoritmus utolsó lépése, hogy valamelyik hagyományos gömbkövetési módszert (jelenleg naiv) alkalmazza pixelenként a megtett távolságtól.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_13_1.png}
+    \vspace{5pt}
+	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_13_2.png}
+	\caption{Az ábrán a felsőbb kúp felbomlása utáni sugarak (2) naiv gömbkövetései láthatóak.}
+\end{figure}
+
+\subsection{A kúpkövetés algoritmus párhuzamosítása}
+
+Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, amik az abbahagyott távolságtól folytatják az iterációt. Én úgy implementáltam ezt, hogy mindig negyedelődik a kúpokat alkotó pixelek száma és négyszereződik a kúpok száma, mindaddig, amíg 2x2-es nem lesz, majd utána a korábbi módszerek egyikét (alap/relaxált/javított) alkalmazom pixelenként kiindulva a már kúpkövetés által megtett távolságból.
+
+Kúpkövetéses algoritmus folyamata:
+
+\begin{enumerate}
+	\item\label{step:first} párhuzamosan iterálás a kúpok mentén, amíg a feltételek (max távolság, max iteráció szám, …) igazak
+	\item szinkronizáció
+	\item kúpok felbontása
+	\item ha a kúpok már csak 1-1 pixelnek felelnének meg, akkor vége a kúpkövetésnek és a megtett távolságoktól még pixelenként az alap/relaxált/javított módszer valamelyikét alkalmazza
+	\item az új kúpok beállítják kezdő távolságukat a felbontás előtti kúpjaik megtett távolságára
+	\item szinkronizáció
+	\item folytatás az \ref{step:first}.~lépéstől.
+\end{enumerate}
+
+Példaként legyen egy kitalált képernyő, ami 24*48 pixeles és a kezdeti kúpméret legyen 8*8 (ez paraméterezhető), a kúpkövetés ebben az esetben úgy nézne ki, hogy:
+
+\begin{enumerate}
+	\item 3*6 szálon a 8*8 pixeles kúpokat követjük
+	\item szinkronizáció
+	\item 6*12 szálon 4*4 pixeles kúpok a megfelelő 8*8-as kúp eredményéből indítva
+	\item szinkronizáció
+	\item 12*24 szálon 2*2 pixeles kúpok a 4*4 es eredményeit felhasználva
+	\item szinkronizáció
+	\item alap/relaxált/javított sugárkövetés pixelenként a megfelelő 2*2-es kúpok eredményeit felhasználva
+\end{enumerate}
+
+A gyorsítás itt abból fog adódni, hogy az SDF kiértékelések száma összességében kevesebb lesz (ami általában a domináns faktor a számítási időben), mivel ez a módszer azt használja ki, hogy szomszédos sugarak a kiindulási ponttól vett adott távolságra lévő SDF kiértékeléseikből származó távolságaik nagyban hasonlítanak, így úgymond összevonja őket.
+
+\subsection{A kúpkövetés nagy limitációja}
+
+A probléma az az, hogy az első metszés után a kúpkövetés folytatásának sok értelme nincsen, mivel, ha a sugár tükröződik/megtörik akkor jó eséllyel más irányba fog indulni, mint valamelyik szomszédja így kúpot nem igazán tudnánk definiálni és nem is lenne sok értelme.
+
+\subsection{Relaxált/javított kúpkövetés}
+
+Kis módosítással a relaxált/javított módszert is tudjuk alkalmazni a kúpkövetésre, azaz a lépés mértékét valamilyen értékkel, legyen az konstans/heurisztikus beszorozzuk és ha ez nem jött be akkor csak visszalépünk. Ez meglehetősen jól fog működni, hiszen a kúpok álltalában nagyon keskenyek, mivel a GPU jó kihasználtsága érdekében álltalában nincs értelme 8*8 vagy 16*16 pixeles gúláknál nagyobbakból kiindulni, amik meglehetősen keskeny kúpokat adnak.
+
+
+
+
