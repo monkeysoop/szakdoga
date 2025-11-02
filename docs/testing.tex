@@ -34,7 +34,7 @@ A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/baseline_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/baseline_1920_1080.png}
 	\caption{Az ábrán a Normál mód viszonyítási képe látható.}
 \end{figure}
 
@@ -42,7 +42,7 @@ Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/renders_1920_1080.png}
+    \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/renders_1920_1080.png}
     \caption{Az ábrán a Normál mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
 \end{figure}
 
@@ -50,7 +50,7 @@ A referenciától való eltérés mérésére SSIM (Structured Similarity Index 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_scores_1920_1080.png}
+    \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_scores_1920_1080.png}
     \caption{Az ábrán a Normál mód SSIM értékei láthatóak.}
 \end{figure}
 
@@ -58,7 +58,7 @@ Az SSIM egy értéken túl ad még egy képet is, ami az eltérés mértékét e
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_diff_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_diff_1920_1080.png}
 	\caption{Az ábrán a Normál mód SSIM eltérései láthatóak.}
 \end{figure}
 
@@ -68,13 +68,13 @@ A futási időt 2 különböző módszerrel is mértem, az egyik a C++ standard 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_1920_1080.png}
 	\caption{Az ábrán a Normál mód chrono által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_1920_1080.png}
 	\caption{Az ábrán a Normál mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
@@ -82,13 +82,13 @@ Az iterációk számának (SDF függvények hívásainak a száma, amibe az ambi
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_1920_1080.png}
 	\caption{Az ábrán a Normál mód SDF hívásainak hőtérképe látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_1920_1080.png}
 	\caption{Az ábrán a Normál mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
 \end{figure}
 
@@ -96,7 +96,7 @@ A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelen
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_temple_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_temple_1920_1080.png}
 	\caption{Az ábrán a Normál mód SDF hívásainak egy pixelre jutó átlagai láthatóak egy "templom" nevezetű SDF esetében.}
 \end{figure}
 
@@ -106,49 +106,49 @@ A mérések itt Debug módban lettek lefuttatva.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/baseline_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/baseline_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód viszonyítási képe látható.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/renders_debug_1920_1080.png}
+    \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/renders_debug_1920_1080.png}
     \caption{Az ábrán a Debug mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_scores_debug_1920_1080.png}
+    \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_scores_debug_1920_1080.png}
     \caption{Az ábrán a Debug mód SSIM értékei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_diff_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_diff_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód SSIM eltérései láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód chrono által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak hőtérképe látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
 \end{figure}
 
@@ -160,13 +160,13 @@ A különbség leginkább feltünő, ha „Debug” megjelenítést használunk,
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4*4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_cone_8_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_cone_8_1920_1080.png}
     \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 8*8-es kezdeti kúpmérettel.}
 \end{figure}
 
@@ -174,13 +174,13 @@ A különbség leginkább feltünő, ha „Debug” megjelenítést használunk,
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4*4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8*8-es kezdeti kúpmérettel.}
 \end{figure}
 
@@ -188,13 +188,13 @@ Viszont 3840*2160 (4K) felbontás mellett már nagyobb a különbség.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_3840_2160.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_3840_2160.png}
 	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_cone_8_3840_2160.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_cone_8_3840_2160.png}
     \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
 \end{figure}
 
@@ -202,13 +202,13 @@ Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (m�
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
 	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
 \end{figure}
 

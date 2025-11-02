@@ -13,7 +13,7 @@ A program ezen túl tartalmaz még egység teszteket is.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/usecase.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{plantuml/usecase.png}
 	\caption{Az ábrán a program használati eset diagramja látható.}
 \end{figure}
 
@@ -23,7 +23,7 @@ Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ köny
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/classdiagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/classdiagram.png}
 	\caption{A program osztálydiagramja.}
 \end{figure}
 
@@ -33,32 +33,32 @@ A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) a
 
 Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület túlnyomó részét egyszerű ImGui lebegőpontos és egész típusú csúszkák valamint rádiógombok teszik ki, amik az \texttt{App} osztály privát változóit módosítják, a változók és rövid leírásuk:
 
-\begin{description}
-	\item [\texttt{m\_sdf\_scene}] a kiválasztott távolságfüggvényt adja meg
-	\item [\texttt{m\_render\_mode}] a kiválasztott kirajzolási módszert tárolja
-	\item [\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}] a gömbkövetési módszert (al módszert is) határozzák meg
-	\item [\texttt{m\_initial\_cone\_size}] kezdeti kúpméret pixelben megadva (például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben)
-	\item [\texttt{m\_epsilon}] gömbkövetésnél használt paraméter túl kicsi lépések detektálására
-	\item [\texttt{m\_max\_distance}] távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
-	\item [\texttt{m\_max\_iteration\_count}] limit a gömbkövetés iteráció számaira
-	\item [\texttt{m\_relaxed\_step\_multiplier, m\_cone\_trace\_relaxed\_step\_multiplier, m\_cone\_trace\_final\_relaxed\_step\_multiplier}] a relaxált gömbkövetés lépés mértékét beszorzó skalár
-	\item [\texttt{m\_enhanced\_step\_multiplier, m\_cone\_trace\_ enhanced \_step\_multiplier, m\_cone\_trace\_final\_ enhanced \_step\_multiplier}] a javított gömbkövetés lépés mértékét beszorzó skalár
-	\item [\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}] a javított gömbkövetés lépés mértékét limitáló skalár
-	\item [\texttt{m\_cone\_trace\_intermediate\_epsilon}] m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
-	\item [\texttt{m\_benchmark\_baseline\_iteration\_count}] limit a tesztelésnél használt referencia kép iteráció számaira
-	\item [\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}] rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak (például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél)
-	\item [\texttt{m\_benchmark\_performance\_number\_of\_runs}] a tesztelésnél megadja, hogy egy módszert, egy iteráció limittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
-	\item [\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}] az árnyékok penumbra részét és intenzitását tárolja el
-	\item [\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}] az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása (ahogy iterál), iterálás lépésköze, erősségét szorzó skalár
-	\item [\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}] iteráció limit az árnyékok és ambiens kitakarás kiszámításához
-	\item [\texttt{m\_ambient\_strength}] ambiens fény ereje
-	\item [\texttt{m\_reflection\_attenuation}] a tükröződéseknél használt extra elhalást imitáló skalár
-	\item [\texttt{m\_max\_number\_of\_reflections}] a maximum tükröződések számának limitje
-\end{description}
+\begin{itemize}
+	\item \textbf{\texttt{m\_sdf\_scene}:} a kiválasztott távolságfüggvényt adja meg
+	\item \textbf{\texttt{m\_render\_mode}:} a kiválasztott kirajzolási módszert tárolja
+	\item \textbf{\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}:} a gömbkövetési módszert (al módszert is) határozzák meg
+	\item \textbf{\texttt{m\_initial\_cone\_size}:} kezdeti kúpméret pixelben megadva (például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben)
+	\item \textbf{\texttt{m\_epsilon}:} gömbkövetésnél használt paraméter túl kicsi lépések detektálására
+	\item \textbf{\texttt{m\_max\_distance}:} távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
+	\item \textbf{\texttt{m\_max\_iteration\_count}:} limit a gömbkövetés iteráció számaira
+	\item \textbf{\texttt{m\_relaxed\_step\_multiplier, m\_cone\_trace\_relaxed\_step\_multiplier, m\_cone\_trace\_final\_relaxed\_step\_multiplier}:} a relaxált gömbkövetés lépés mértékét beszorzó skalár
+	\item \textbf{\texttt{m\_enhanced\_step\_multiplier, m\_cone\_trace\_ enhanced \_step\_multiplier, m\_cone\_trace\_final\_ enhanced \_step\_multiplier}:} a javított gömbkövetés lépés mértékét beszorzó skalár
+	\item \textbf{\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}:} a javított gömbkövetés lépés mértékét limitáló skalár
+	\item \textbf{\texttt{m\_cone\_trace\_intermediate\_epsilon}:} m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
+	\item \textbf{\texttt{m\_benchmark\_baseline\_iteration\_count}:} limit a tesztelésnél használt referencia kép iteráció számaira
+	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak (például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél)
+	\item \textbf{\texttt{m\_benchmark\_performance\_number\_of\_runs}:} a tesztelésnél megadja, hogy egy módszert, egy iteráció limittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
+	\item \textbf{\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}:} az árnyékok penumbra részét és intenzitását tárolja el
+	\item \textbf{\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}:} az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása (ahogy iterál), iterálás lépésköze, erősségét szorzó skalár
+	\item \textbf{\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}:} iteráció limit az árnyékok és ambiens kitakarás kiszámításához
+	\item \textbf{\texttt{m\_ambient\_strength}:} ambiens fény ereje
+	\item \textbf{\texttt{m\_reflection\_attenuation}:} a tükröződéseknél használt extra elhalást imitáló skalár
+	\item \textbf{\texttt{m\_max\_number\_of\_reflections}:} a maximum tükröződések számának limitje
+\end{itemize}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/App_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/App_class_diagram.png}
 	\caption{Az \texttt{App} osztály osztálydiagramja.}
 \end{figure}
 
@@ -66,7 +66,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Camera_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Camera_class_diagram.png}
 	\caption{A \texttt{Camera} osztály osztálydiagramja.}
 \end{figure}
 
@@ -74,7 +74,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/CameraManipulator_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/CameraManipulator_class_diagram.png}
 	\caption{A \texttt{CameraManipulator} osztály osztálydiagramja.}
 \end{figure}
 
@@ -118,7 +118,7 @@ Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikus
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/CompShader_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/CompShader_class_diagram.png}
 	\caption{A \texttt{CompShader} osztály osztálydiagramja.}
 \end{figure}
 
@@ -132,7 +132,7 @@ A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Framebuffer_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Framebuffer_class_diagram.png}
 	\caption{A \texttt{Framebuffer} osztály osztálydiagramja.}
 \end{figure}
 
@@ -140,7 +140,7 @@ A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Skybox_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Skybox_class_diagram.png}
 	\caption{A \texttt{Skybox} osztály osztálydiagramja.}
 \end{figure}
 
@@ -150,7 +150,7 @@ A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (op
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{plantuml/Texture2D_class_diagram.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Texture2D_class_diagram.png}
 	\caption{A \texttt{Texture2D} osztály osztálydiagramja.}
 \end{figure}
 
@@ -222,21 +222,21 @@ A preprocesszor makró egyik nagy előnye, hogy sok függvény név ütközést 
 
 A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva, például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4 es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
 
-\begin{description}
-	\item [Normál] Ez egy BRDF alapon rekurzívan követi a sugarat, majd a kapott színt jeleníti meg, minden ütközésnél fog indítani sugarakat a fényforrás felé a puha árnyékok miatt és egy sugarat a normál mentén az ambiens kitakarás (ambient occlusion) közelítése céljából.
-	\item [Iterációk száma] A Normál mód kiszámítása alatt a sugár mentén tett iterációk száma (vagyis az ahhoz szükséges SDF hívások számai, kivéve az ambiens kitakarás, puha árnyékok és normál vektor kiszámításához szükséges függvényhívásokat). Ez az érték a paraméterül kapott iteráció szám limittel van elosztva, így a kapott „szín” 0 és 1 közé lesz beszorítva. Kúpkövetésnél ez a pixelekre eső átlag lesz.
+\begin{itemize}
+	\item \textbf{Normál:} Ez egy BRDF alapon rekurzívan követi a sugarat, majd a kapott színt jeleníti meg, minden ütközésnél fog indítani sugarakat a fényforrás felé a puha árnyékok miatt és egy sugarat a normál mentén az ambiens kitakarás (ambient occlusion) közelítése céljából.
+	\item \textbf{Iterációk száma:} A Normál mód kiszámítása alatt a sugár mentén tett iterációk száma (vagyis az ahhoz szükséges SDF hívások számai, kivéve az ambiens kitakarás, puha árnyékok és normál vektor kiszámításához szükséges függvényhívásokat). Ez az érték a paraméterül kapott iteráció szám limittel van elosztva, így a kapott „szín” 0 és 1 közé lesz beszorítva. Kúpkövetésnél ez a pixelekre eső átlag lesz.
 	\begin{figure}[H]
     	\centering
-    	\includegraphics[width=0.6\textwidth,height=100px]{gui/iter_count.png}
+    	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/iter_count.png}
     	\caption{A Newton ingája SDF iteráció számai láthatóak, minnél világosabb annál nagyobb az iteráció szám.}
     \end{figure}
-    \item [SDF hívások száma] A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
-	\item [Debug] Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
+    \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
+	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
 	\begin{figure}[H]
     	\centering
-    	\includegraphics[width=0.6\textwidth,height=100px]{gui/debug.png}
+    	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/debug.png}
     	\caption{A Newton ingájának SDF-je látható Debug módba.}
     \end{figure}
-	\item [Debug mód iteráció száma] Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
-    \item [Mélység] Szimplán a mélységet fogja kirajzolni.
-\end{description}
+	\item \textbf{Debug mód iteráció száma:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
+    \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.
+\end{itemize}

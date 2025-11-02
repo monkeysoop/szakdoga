@@ -19,7 +19,7 @@ A gömbkövetés lényege, hogy a pixel közepéből indulú sugár mentén kere
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/sphere_tracing/sphere_tracing_0.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/sphere_tracing/sphere_tracing_0.png}
 	\caption{Az ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért 2 sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem.}
 \end{figure}
 
@@ -46,7 +46,7 @@ A megoldandó probléme: egy térbeli téglalap (az implementációban csakis n�
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_0.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing_3D/cone_tracing_3D_0.png}
 	\caption{Az ábrán egy térbeli négyzet (lila), egy kamera és egy gúla (barna) látható.}
 \end{figure}
 
@@ -54,7 +54,7 @@ A kúp megtalálását át lehet fogalmazni, úgy, hogy a téglalap/négyzet sar
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_1.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing_3D/cone_tracing_3D_1.png}
 	\caption{Az ábrán egy piros gömb felületére a kamera szemszögéből vetített négyzet látható.}
 \end{figure}
 
@@ -62,7 +62,7 @@ majd a vetített pontok magába foglaló lehető legkisseb kört (a gömb felül
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_2.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing_3D/cone_tracing_3D_2.png}
 	\caption{Az ábrán kék körként látható a naiv megoldás.}
 \end{figure}
 
@@ -70,7 +70,7 @@ Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a ve
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_3.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing_3D/cone_tracing_3D_3.png}
 	\caption{Az ábrán a kék kör a naiv, míg zöld a szinte optimális megoldás.}
 \end{figure}
 
@@ -78,7 +78,7 @@ A hosszab átlót egyszerűen kitudjuk számolni, abból, hogy a képernyő mely
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing_3D/cone_tracing_3D_4.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio]{geogebra/cone_tracing_3D/cone_tracing_3D_4.png}
 	\caption{Az ábrán a piros pont a kamera/képernyő közepe, a négyzetek maguk a pixelek és azok az átlók vannak még berajzolva, amelyek a vetítés után hosszabbak lesznek.}
 \end{figure}
 
@@ -86,9 +86,9 @@ Ez a módszer nem mindig vezet optimális irány megtalálásához, de a naiv me
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth,height=100px]{gui/cone_error_1.png}
-    \vspace{5pt}
-    \includegraphics[width=0.6\textwidth,height=100px]{gui/cone_error_2.png}
+    \includegraphics[width=0.9\textwidth,keepaspectratio]{gui/cone_error_1.png}
+    \vspace{10pt}
+    \includegraphics[width=0.9\textwidth,keepaspectratio]{gui/cone_error_2.png}
     \caption{Piros pixelek jelölik azokat a pontokat, ahol ez a közelítés nem vezet az optimális eredményhez.}
 \end{figure}
 
@@ -106,7 +106,7 @@ Az elkövetkezendő ábrák (ebben az al fejezetben) segítségével próbálom 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_0.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_0.png}
 	\caption{Az ábrán egy leegyszerűsített 2 dimenziós kúpkövetés példa eleje látható (1. SDF hívás), jelenleg egy darab 4 pixeles kúpunk van.}
 \end{figure}
 
@@ -114,15 +114,14 @@ A kúpkövetés során, ha akkorát lépnénk, mint amekkora a távolságfüggv�
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_4_1.png}
-    \vspace{5pt}
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_4_2.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_4_1.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_4_2.png}
 	\caption{Az ábrákon kékkel vannak jelölve a kritikus területek, amikben ha lennének például kicsi piros körök, akkor azokat átlépnénk.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_0.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_0.png}
 	\caption{Az ábrán az optimális megoldás látható ehhez a példához (lehető legnagyobbat léptük, úgy, hogy a program helyességét megőriztük).}
 \end{figure}
 
@@ -130,7 +129,7 @@ Mivel az optimális megoldást kiszámítása meglehetősen költséges (3D-ben 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_5.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_5.png}
 	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancsárga pont lesz az eredménye ennek az iterációnak.}
 \end{figure}
 
@@ -138,7 +137,7 @@ Az a módszer még elfajult helyzetekben is megőrzi a program helyességét.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_15.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_15.png}
 	\caption{Az ábra egy elfajult helyzetet ábrázol, ahol már végtelen távolságot megtettünk és a kúp élei párhuzamosak.}
 \end{figure}
 
@@ -146,13 +145,13 @@ A jelenelgi példában a következő két iteráció hasonlóképpen fog kinézn
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_6.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_6.png}
 	\caption{Az ábrán a kúpkövetés 3. iterációja látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_7.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_7.png}
 	\caption{Az ábrán a kúpkövetés 4. iterációja látható.}
 \end{figure}
 
@@ -160,9 +159,8 @@ Ha a lépés mértéke túl kicsi (kisebb, mint egy epszilon paraméter), akkor 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_8_1.png}
-    \vspace{5pt}
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_8_2.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_8_1.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_8_2.png}
 	\caption{Az ábrán a kúpkövetés 5. iterációja látható, ahol a lépés mértéke már túl kicsi, így nincs értelme tovább folytatni.}
 \end{figure}
 
@@ -170,7 +168,7 @@ Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle ké
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_9.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_9.png}
 	\caption{Az ábrán a 2 új kúp látható, amelyek a már biztos távolságtól (zöld) fogják folytatni útjaikat.}
 \end{figure}
 
@@ -178,7 +176,7 @@ Most csak a felsőbb 2 pixeles kúp mentén fogom részletezni tovább az algori
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_10.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_10.png}
 	\caption{Az ábrán a felsőbb 2 pixeles kúpnak az 1. iterációja látható.}
 \end{figure}
 
@@ -186,9 +184,8 @@ Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negítív 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_11_1.png}
-    \vspace{5pt}
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_11_2.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_11_1.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_11_2.png}
 	\caption{Az ábrán a felsőbb 2 pixeles kúpnak az 2. iterációja látható, ahol a lépés mértéke megintcsak kissebb lenne mint az epszilon paraméter.}
 \end{figure}
 
@@ -196,7 +193,7 @@ Mivel most már a kúpjain csakis 1-1 „pixeleknek” felelnének meg így ninc
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_12.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_12.png}
 	\caption{Az ábrán a felsőbb kúpkövetés eredménye látható (zöld) és a két megmaradó sugarunk (szaggatott vonalak).}
 \end{figure}
 
@@ -204,9 +201,8 @@ Az algoritmus utolsó lépése, hogy valamelyik hagyományos gömbkövetési mó
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_13_1.png}
-    \vspace{5pt}
-	\includegraphics[width=0.6\textwidth,height=100px]{geogebra/cone_tracing/cone_tracing_13_2.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_13_1.png}
+	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_13_2.png}
 	\caption{Az ábrán a felsőbb kúp felbomlása utáni sugarak (2) naiv gömbkövetései láthatóak.}
 \end{figure}
 
