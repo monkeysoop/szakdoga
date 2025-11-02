@@ -1,0 +1,229 @@
+\chapter{Tesztelés}
+\label{ch:testing}
+
+\section{Feketedoboz tesztelés}
+
+\section{Fehérdoboz tesztelés}
+
+\subsection{Tesztek futtatása}
+
+A teszteket a fordítási környezet létrehozása után lehet futtatni (részletesebb leírásért lásd: TODO), egy bash szkript: \texttt{scripts/test.sh} is létezik a projektben a tesztek automatikus futtatására, manuálisan a teszteket így lehet futtatni:
+
+\lstset{label=src:bash5}
+\begin{lstlisting}[language=bash]
+	cd builddir
+	meson install -C meson-src --skip-subprojects --quiet
+    meson test -C meson-src
+\end{lstlisting}
+
+\section{Teljesítmény és vizuális minőség}
+
+A szakdolgozat célja volt a különböző módszerek vizuális és futási idejüknek a mérése és összehasonlítása, az idők mérését és a vizuális összehasonlításhoz használt képeket automatikusan generálja a „benchmark” nevezetű funkció. A „benchmark”-ot a grafikus felületen keresztül lehet paraméterezni és egy gombbal elindítani, majd az a képeket és szöveges fájlba beleírt időket a bináris létrejövő mappájába fogja elmenteni módszerenként almappákba rendezve, valamint egy referencia képet (naiv módszer magas iteráció limittel) is fog készíteni.
+
+Megjegyzendő, hogy nem csak futási idő kerül mérésre, hanem a pixelenkénti iteráció szám és SDF függvény hívásainak a száma (a kettő közötti különbség részletesebb leírásáért lásd: TODO) is képként lesz elmentve.
+
+A mérések 1920*1080 (Full HD) felbontás mellett, illetve 3840*2160 (4K) felbontással lettek készítve, a kúpkövetéseknél a kúpok kezdeti mérete 4*4 pixel (azaz 4*4 majd 2*2 pixel), valamint 8*8 pixel bizonyos eseteknél.
+
+A méréseket a laptopomon végeztem el (töltőhöz csatlakoztatva), amely egy „ASUS Vivobook Pro 14 M3401 Q”, CPU: „Ryzen 7 5800H” 8 magos, GPU: „NVIDIA Geforce RTX 3050” 4GB dedikált (és 8GB osztott, de mivel az alkalmazás memóriahasználata minimális, ezért nem lényeges) memóriával.
+
+TODO
+
+\subsection{Normál megjelenítés}
+
+A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb} (jupiter notebook) segítségével hasonlítottam össze.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/baseline_1920_1080.png}
+	\caption{Az ábrán a Normál mód viszonyítási képe látható.}
+\end{figure}
+
+Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg az Y tengely használt módszert: relaxált, naiv, javított és a 9 kúpkövető (kúpkövetéseknél pl: „cone relaxed naiv” azt jelenti, hogy a kúpkövetés alatt egy enyhén módosított relaxált gömbkövetést használ, majd miután a kúpkövetés befejeződött pixelenként a naiv módszert alkalmazza)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/renders_1920_1080.png}
+    \caption{Az ábrán a Normál mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
+\end{figure}
+
+A referenciától való eltérés mérésére SSIM (Structured Similarity Index Measure, 0 és 1 között, ahol 1 a legjobb) értékeket használok.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_scores_1920_1080.png}
+    \caption{Az ábrán a Normál mód SSIM értékei láthatóak.}
+\end{figure}
+
+Az SSIM egy értéken túl ad még egy képet is, ami az eltérés mértékét egy hőtérképpel vizualizálja.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_diff_1920_1080.png}
+	\caption{Az ábrán a Normál mód SSIM eltérései láthatóak.}
+\end{figure}
+
+A teljesítményt az \texttt{app/tests/performance\_comparisons.ipynb} program segítségével vizsgálom.
+
+A futási időt 2 különböző módszerrel is mértem, az egyik a C++ standard könyvtárbeli „chrono”-t használja, míg a másik OpenGL lekérdezést (query) alkalmazza. A mért idők több futam átlagaiból keletkeztek, a futamok száma a beállítások menüben állítható.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_1920_1080.png}
+	\caption{Az ábrán a Normál mód chrono által mért futási idejei láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_1920_1080.png}
+	\caption{Az ábrán a Normál mód OpenGL query által mért futási idejei láthatóak.}
+\end{figure}
+
+Az iterációk számának (SDF függvények hívásainak a száma, amibe az ambiens kitakarás, puha árnyékok, normál irány kiszámításához szükségesek kiértékelések nem számítanak bele) a mérése is fontos szerintem, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_1920_1080.png}
+	\caption{Az ábrán a Normál mód SDF hívásainak hőtérképe látható.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_1920_1080.png}
+	\caption{Az ábrán a Normál mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
+\end{figure}
+
+A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelenítünk (mérünk) meg.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_temple_1920_1080.png}
+	\caption{Az ábrán a Normál mód SDF hívásainak egy pixelre jutó átlagai láthatóak egy "templom" nevezetű SDF esetében.}
+\end{figure}
+
+\subsection{Debug megjelenítés}
+
+A mérések itt Debug módban lettek lefuttatva.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/baseline_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód viszonyítási képe látható.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/renders_debug_1920_1080.png}
+    \caption{Az ábrán a Debug mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_scores_debug_1920_1080.png}
+    \caption{Az ábrán a Debug mód SSIM értékei láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/ssim_diff_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód SSIM eltérései láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód chrono által mért futási idejei láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak hőtérképe látható.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
+\end{figure}
+
+\subsection{Kezdeti kúpméret hatása}
+
+Az eddigi mérések mind 4x4 es kúpból indultak ki, de az ideális kezdeti kúpméret változó, a cél, az az, hogy a videókártyát jól kihasználjuk és mivel a szálak száma függ a felbontástól és a kúpmérettől, valamint azt is figyelembe kell venni, hogyha például gyors az iteráció (egyszerű SDF), akkor a memória szinkronizációk „overhead”-je is számottevő (amiből több kell, ha nagyobb a kezdeti kúp).
+
+A különbség leginkább feltünő, ha „Debug” megjelenítést használunk, az alábbi ábrákon az 1920*1080p felbontású „Debug” módszer 4*4 és 8*8-as kúpkövetés futási idejei láthatóak (a felső 3 sor itt nem releváns).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4*4-es kezdeti kúpmérettel.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_cone_8_1920_1080.png}
+    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 8*8-es kezdeti kúpmérettel.}
+\end{figure}
+
+1080p esetében aligha gyorsabb, ez valószínűleg a videókártya rossz kihasználtsága miatt és az extra memória szinkronizáció miatt van, hiszen az SDF hívások száma (pixelenkénti átlag) drasztikusan lecsökkent.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4*4-es kezdeti kúpmérettel.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8*8-es kezdeti kúpmérettel.}
+\end{figure}
+
+Viszont 3840*2160 (4K) felbontás mellett már nagyobb a különbség.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_3840_2160.png}
+	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_cone_8_3840_2160.png}
+    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
+\end{figure}
+
+Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (még) hatékonyabb lett.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth,height=100px]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
+\end{figure}
+
+\subsection{Mérések összegzése, megfigyelések}
+
+Sajnos az SSIM nem a leg ideálisabb apróbb eltérések mérésére, így kicsit nehéz különbséget tenni a naiv és relaxált, valamint a javított között, de egy ~10-20\% normál mód esetén és ~20\% Debug mód esetében a gyorsulás azonos vizuális minőség mellett, ezek a számok inkább érzésre (saját szememre) vannak alapozva, minthogy SSIM értékekre, ha az SDF hívások számát nézzük, az egy hasonló képet ad, ~20\% csökkenés normál módban és ~10-20\% Debug módban.
+
+A javított módszer egyik nagy előnye, hogy lapos felületekkel szinte párhuzamos sugarakat jól tud kezelni, de ilyen a mérésekhez használt SDF függvényben aligha van így nagyjából a relaxált módszerrel van egy szinten, de helyenként még lassabb is, viszont ez a mérés: TODO, az úgynevezett templom SDF függvény meg épphogy a javított módszernek kedvez.
+
+A kúpkövetés különböző változatai között nagy különbségek nincsenek, ~5-10\%, viszont a naiv/relaxált/javított módszerekhez képest igen, normál módban a futási idő ~40\%-kal rövidebb, az SDF hívások számai ~60-70\%-kal kevesebb. Debug módban a futási idő ~70\%-kal, SDF hívások száma ~80-90\%-kal kevesebb. 4K felbontás mellett, a Debug módszer futási idejei ~70-80\%-kal kisebb, míg az átlagos SDF függvényhívások száma ~90\%-kal kevesebb. Tehát, normál módban 1.5-2.0 szoros az FPS (Frames Per Second), míg Debug módban 3-4 szeres. A futási idő és az SDF hívások számainak csökkenése közti különbség arra utal, hogy az implementáció (kúpkövetés) nem tökéletes és a videókártya kihasználtsága se optimális (a globális szinkronizáció a probléma), ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne, azaz a függvényhívások számának csökkenése a futási idő csökkenésével szinte azonos lenne.
+
+A kúpkövetésnél 1080p esetén a 4*4 vagy a 8*8 pixeles kezdeti kúpok ideálisak a mérések szerint (ez függ az SDF függvénytől, hardvertől, …), 4K felbontásnál 8*8 vagy 16*16, ezek a felbontás és kezdeti kúp méret párok 129600 ((1920*1080)/(4*4) == (3840*2160)/(8*8)) és 32400 ((1920*1080)/(8*8) == (3840*2160)/(16*16)) szálat jelentenének, ami nagyjából a limit, amit a laptopom videókártyája tud ténylegesen párhuzamosan futtatni.
+
+Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenni így romlik a hatékonysága.
+
+
+
+
