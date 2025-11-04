@@ -121,7 +121,7 @@ A kúpkövetés során, ha akkorát lépnénk, mint amekkora a távolságfüggv�
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_0.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_2.png}
 	\caption{Az ábrán az optimális megoldás látható ehhez a példához (lehető legnagyobbat léptük, úgy, hogy a program helyességét megőriztük).}
 \end{figure}
 
@@ -222,16 +222,16 @@ Kúpkövetéses algoritmus folyamata:
 	\item folytatás az \ref{step:first}.~lépéstől.
 \end{enumerate}
 
-Példaként legyen egy kitalált képernyő, ami 24*48 pixeles és a kezdeti kúpméret legyen 8*8 (ez paraméterezhető), a kúpkövetés ebben az esetben úgy nézne ki, hogy:
+Példaként legyen egy kitalált képernyő, ami 640*480 pixeles és a kezdeti kúpméret legyen 8*8 (ez paraméterezhető), a kúpkövetés ebben az esetben úgy nézne ki, hogy:
 
 \begin{enumerate}
-	\item 3*6 szálon a 8*8 pixeles kúpokat követjük
+	\item 80*60 szálon a 8*8 pixeles kúpokat követjük
 	\item szinkronizáció
-	\item 6*12 szálon 4*4 pixeles kúpok a megfelelő 8*8-as kúp eredményéből indítva
+	\item 160*120 szálon 4*4 pixeles kúpok a megfelelő 8*8-as kúp eredményéből indítva
 	\item szinkronizáció
-	\item 12*24 szálon 2*2 pixeles kúpok a 4*4 es eredményeit felhasználva
+	\item 320*240 szálon 2*2 pixeles kúpok a 4*4 es eredményeit felhasználva
 	\item szinkronizáció
-	\item alap/relaxált/javított sugárkövetés pixelenként a megfelelő 2*2-es kúpok eredményeit felhasználva
+	\item alap/relaxált/javított sugárkövetés pixelenként (640*480 szálon) a megfelelő 2*2-es kúpok eredményeit felhasználva
 \end{enumerate}
 
 A gyorsítás itt abból fog adódni, hogy az SDF kiértékelések száma összességében kevesebb lesz (ami általában a domináns faktor a számítási időben), mivel ez a módszer azt használja ki, hogy szomszédos sugarak a kiindulási ponttól vett adott távolságra lévő SDF kiértékeléseikből származó távolságaik nagyban hasonlítanak, így úgymond összevonja őket.
