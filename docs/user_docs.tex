@@ -6,13 +6,14 @@
 A program futtatásához szükség van egy Linux asztali operációs rendszerre például Linux Mint (ami egy Debian alapú disztribúció), Windows alatt nem lett tesztelve, de a C++ kód platform független módon lett fejlesztve, ezenkívül erősen ajánlott egy relatív modern dedikált videókártya és az ahhoz tartozó driver-ek is. A használt GLSL shader verziója (4.30) miatt a rendszernek legalább OpenGL 4.3 verzió kell, hogy fusson.
 
 \section{Telepítés}
+\label{se:installation}
 
 A projekthez előre elkészített binárisok nem tartoznak, így, ahhoz, hogy futtatni tudjuk, előszőr le kell fordítani. A projekt a program csomagjainak kezelésére conan-t használ és magát a projektet meson-keretrendszerrel lehet építeni, ezeket a programokat pip segítségével szerezhetjük be a PyPI-ről (Python Packaga Index). Az alábbi útmutató feltételezi, hogy már telepítve van nekünk python, conan, meson, egy alap profil létre lett hozva conan-hoz, a fordításhoz szükséges környezet létrehozásához a projektben található egy segéd bash szkript: \texttt{scripts/setup.sh} és a fordításához és futtatásához pedig egy \texttt{scripts/run.sh} szkript is.
 
 \lstset{label=src:bash1}
 \begin{lstlisting}[language=bash]
-	mkdir builddir
-	conan install . --output-folder=builddir --build=missing
+mkdir builddir
+conan install . --output-folder=builddir --build=missing
 \end{lstlisting}
 
 grafikus könyvtárakat  a conan nem mindig tud rendesen telepíteni, vagy csak részlegesen, ezért szükségesek lehetnek a \texttt{-c tools.system.package\_manager:mode=install -c tools.system.package\_manager:sudo=True} opciók is, de bizonyos használt könyvtárakat (opengl, glu, glew) érdemes lehet először a rendszer csomagkezelőjével (Linux Mint esetében \texttt{apt}) telepíteni
@@ -71,8 +72,6 @@ Az ablak több lenyíló fülre van osztva, amelyekre, ha rákattintunk az egér
 	\caption{A beállítások menü megnyitás utáni állapota látható.}
 \end{figure}
 
-A beállítások menü több almenüből áll, ezeket bal egér kattintással tudjuk megnyitni
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_6.png}
@@ -87,7 +86,7 @@ Ezek közül az első az SDF jelenet kiválasztására ad lehetőséget, példá
 	\caption{Különböző SDF primitívekből álló jelenet látható.}
 \end{figure}
 
-A második opció a különböző nézeti módok között ad választhatósági lehetőséget, lásd: TODO
+A második opció a különböző nézeti módok között ad választhatósági lehetőséget, lásd a(z) \ref{se:rendering_modes}. fejezetet.
 
 A harmadik és negyedük fül a különböző módoktól független paramétereket tartalmazza, ezek közül a harmadik a gömb/kúpkövetés paraméterei, míg a negyedik opciói az árnyékok, ambiens kitakarás és a maximum tükröződések állítására szolgálnak.
 

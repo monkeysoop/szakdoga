@@ -1,32 +1,176 @@
 \chapter{Tesztelés}
 \label{ch:testing}
 
+Az applikációt egy Linux Mint operációs rendszerű laptopon, valamint az otthoni Arch Linux rendszerű asztali számítógépen is teszteltem.
+
+A projekt tartalmaz feketedoboz, valamint fehérdoboz teszteket is, ezek egyeki sem 100\%-os lefedettségű, hiszen a feketedoboz teszteknél rengeteg különböző állítható paraméter van, amiket tesztelni lehetne, míg az egységteszteknél nem minden osztály tesztelésének lenne értelme, így én a főbb funkciókat igyekeztem tesztelni.
+
+A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesítményének és vizuális minőségének a mérése, ezek összehasonlítása és belőlük való következtetések levonása is.
+
 \section{Feketedoboz tesztelés}
+
+\begin{center}
+	\begin{longtable}{ | p{0.2\textwidth} | p{0.23\textwidth} | p{0.47\textwidth} | }
+		\hline
+		\textbf{Akció} & \textbf{Elvárt viselkedés} & \textbf{Megfigyelt viselkedés}
+		\\ \hline
+		\endfirsthead
+		
+		\hline
+		\textbf{Akció} & \textbf{Elvárt viselkedés} & \textbf{Megfigyelt viselkedés}
+		\\ \hline
+		\endhead
+		
+		\hline
+		\hline
+		\multicolumn{3}{|c|}{\textbf{Kamera interakció}}
+		\\ \hline
+
+		Az 'A' billentyű lenyomása
+		& A kamera balra elmozdul
+		& A nézőpontunk balra elmozdul, az SDF látszólag jobbra mozdul el
+		\\ \hline
+		
+		Az 'D' billentyű lenyomása
+		& A kamera jobbra elmozdul
+		& A nézőpontunk jobbra elmozdul, az SDF látszólag balra mozdul el
+		\\ \hline
+
+		Az 'W' billentyű lenyomása
+		& A kamera előre megy
+		& A nézőpontunk közelebb kerül sz SDF jelenethez
+		\\ \hline
+
+		Az 'S' billentyű lenyomása
+		& A kamera hátra megy
+		& A nézőpontunk eltávolodik az SDF jelenettől
+		\\ \hline
+
+		Az 'E' billentyű lenyomása
+		& A kamera felfelé elmozdul
+		& A nézőpontunk elmozdul felfelé, és az SDF látszólag lefelé mozdul el
+		\\ \hline
+
+		Az 'Q' billentyű lenyomása
+		& A kamera lefelé elmozdul
+		& A nézőpontunk elmozdul lefelé, és az SDF látszólag felfelé mozdul el
+		\\ \hline
+
+		Az egérgörgő felfelé görgetése
+		& A kamera belenagyít az SDF jelenetbe
+		& Az SDF jelenet nagyobbodik, közelebbinek érződik
+		\\ \hline
+		
+		Az egérgörgő lefelé görgetése
+		& A kamera eltávolodik az SDF helenettől
+		& Az SDF jelenet kicsinyedik, távolabbinak érződik
+		\\ \hline
+		
+		Az egér mozgatása miközben lenyomva tartjuk a bal egérgombot
+		& A kamerát mozgatni tudjuk
+		& A kamerát ténylegesen tudjuk 360 fokban körbe mozgatni
+		\\ \hline
+
+		Az egér mozgatása miközben lenyomva tartjuk a jobb egérgombot
+		& A kamera nagyít/kicsinyít az SDF jeleneten
+		& Ha balra húzzuk az egeret, akkor közeledünk/növekszik, míg ha jobbra húzzuk az egeret, akkor távolodunk/kicsinyedik
+		\\ \hline
+
+		\hline
+		\hline
+		\multicolumn{3}{|c|}{\textbf{Interakció a grafikus felülettel}}
+		\\ \hline
+
+		Az 'Escape' billentyű lenyomása
+		& Az applikáció bezáródása
+		& Az applikáció bezáródik
+		\\ \hline
+
+		Az 'I' billentyű lenyomása
+		& Beállítások ablak megjelenítése, elrejtése
+		& Első megnyomásra megjelenik, második megnyomásra meg eltünik
+		\\ \hline
+
+		\hline
+		\hline
+		\multicolumn{3}{|c|}{\textbf{Interakció az ImGui beállítás felületével}}
+		\\ \hline
+
+		Az SDF jelenet módosítása
+		& Másféle SDF jelenet rajzolódik ki
+		& Egy másféle SDF jelenet fog megjelenni
+		\\ \hline
+
+		A megjelenítési módszer változtatása
+		& Másféle megjelenítési módszerrel fogja visualizálni az SDF jelenetet
+		& A megjelenítési mód megváltozik
+		\\ \hline
+
+		"Benchmark" gomb megnyomása 
+		& Benchmark elindítása
+		& Az applikáció befagy egy pár másodpercre, majd működik tovább ugyanúgy, eközben megjelenik egy \texttt{benchmarks} nevezetű mappa az aktuális könyvtárunkban
+		\\ \hline
+
+
+	\end{longtable}
+\end{center}
 
 \section{Fehérdoboz tesztelés}
 
+A szakdolgozatom tartalmaz egység teszteket is az úgynevezett \texttt{core} könyvtár fontosabb osztályainak tesztelésére. A teszteket \texttt{googletest} segítségével valósítottam meg, ami szinte tökéletesen integrálódik a meson build rendszerbe. Mivel a \texttt{googletest} nem tökéletes, ezért egy rövid \texttt{main} függvényt is kellet írjak, ami lefuttatja majd a teszteket: 
+
+\lstset{caption={Belépési pont, ami lefuttatja a teszteket.}, label=src:cpp6, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
+\begin{lstlisting}[language={C++}]
+#include <gtest/gtest.h>
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
+\end{lstlisting}
+
+A C++ kód nagyrésze valamilyen formátumban kapcsolódik az OpenGL-hez, ezért az \texttt{app/core/tests/include/Context.hpp} fájl egy primitív OpenGL kontextust hoz létre. A tesztekhez tartoznak shaderek és képek is, amik a \texttt{app/core/tests/assets/} mappában találhatóak.
+
+Maguk a tesztek a \texttt{app/core/tests/src/} mappában találhatóak, a \texttt{CompShader}, \texttt{Framebuffer}, \texttt{Skybox} és a \texttt{Texture2D} osztályok lettek tesztelve.
+
 \subsection{Tesztek futtatása}
 
-A teszteket a fordítási környezet létrehozása után lehet futtatni (részletesebb leírásért lásd: TODO), egy bash szkript: \texttt{scripts/test.sh} is létezik a projektben a tesztek automatikus futtatására, manuálisan a teszteket így lehet futtatni:
+A teszteket a fordítási környezet létrehozása után lehet futtatni (részletesebb leírásért lásd a(z) \ref{se:installation}. fejezetet), egy bash szkript: \texttt{scripts/test.sh} is létezik a projektben a tesztek automatikus futtatására, manuálisan a teszteket így lehet futtatni:
 
-\lstset{label=src:bash5}
+\lstset{caption={}, label=src:bash5}
 \begin{lstlisting}[language=bash]
-	cd builddir
-	meson install -C meson-src --skip-subprojects --quiet
-    meson test -C meson-src
+cd builddir
+meson install -C meson-src --skip-subprojects --quiet
+meson test -C meson-src
+\end{lstlisting}
+
+Egy sikeres teszt ilyen eredményt produkál:
+
+\lstset{caption={}, label=src:bash6}
+\begin{lstlisting}[language=bash]
+1/4 CompShader_Test         OK              0.32s
+2/4 Skybox_Test             OK              0.34s
+3/4 Texture2D_Test          OK              0.44s
+4/4 Framebuffer_Test        OK              0.74s
+
+Ok:                 4   
+Expected Fail:      0   
+Fail:               0   
+Unexpected Pass:    0   
+Skipped:            0   
+Timeout:            0
 \end{lstlisting}
 
 \section{Teljesítmény és vizuális minőség}
+\label{se:performance_visual_testing}
 
 A szakdolgozat célja volt a különböző módszerek vizuális és futási idejüknek a mérése és összehasonlítása, az idők mérését és a vizuális összehasonlításhoz használt képeket automatikusan generálja a „benchmark” nevezetű funkció. A „benchmark”-ot a grafikus felületen keresztül lehet paraméterezni és egy gombbal elindítani, majd az a képeket és szöveges fájlba beleírt időket a bináris létrejövő mappájába fogja elmenteni módszerenként almappákba rendezve, valamint egy referencia képet (naiv módszer magas iteráció limittel) is fog készíteni.
 
-Megjegyzendő, hogy nem csak futási idő kerül mérésre, hanem a pixelenkénti iteráció szám és SDF függvény hívásainak a száma (a kettő közötti különbség részletesebb leírásáért lásd: TODO) is képként lesz elmentve.
+Megjegyzendő, hogy nem csak futási idő kerül mérésre, hanem a pixelenkénti iteráció szám és SDF függvény hívásainak a száma (a kettő közötti különbség részletesebb leírásáért lásd a(z) \ref{se:rendering_modes}. fejezetet) is képként lesz elmentve.
 
 A mérések 1920*1080 (Full HD) felbontás mellett, illetve 3840*2160 (4K) felbontással lettek készítve, a kúpkövetéseknél a kúpok kezdeti mérete 4*4 pixel (azaz 4*4 majd 2*2 pixel), valamint 8*8 pixel bizonyos eseteknél.
 
-A méréseket a laptopomon végeztem el (töltőhöz csatlakoztatva), amely egy „ASUS Vivobook Pro 14 M3401 Q”, CPU: „Ryzen 7 5800H” 8 magos, GPU: „NVIDIA Geforce RTX 3050” 4GB dedikált (és 8GB osztott, de mivel az alkalmazás memóriahasználata minimális, ezért nem lényeges) memóriával.
-
-TODO
+A méréseket a laptopomon végeztem el (töltőhöz csatlakoztatva), amely egy „ASUS Vivobook Pro 14 M3401 Q”, CPU: „Ryzen 7 5800H” 8 magos, 16GB RAM, GPU: „NVIDIA Geforce RTX 3050” 4GB dedikált (és 8GB osztott, de mivel az alkalmazás memóriahasználata minimális, ezért nem lényeges) memóriával.
 
 \subsection{Normál megjelenítés}
 
@@ -98,6 +242,7 @@ A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelen
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_temple_1920_1080.png}
 	\caption{Az ábrán a Normál mód SDF hívásainak egy pixelre jutó átlagai láthatóak egy "templom" nevezetű SDF esetében.}
+	\label{im:temple_sdf_avg}
 \end{figure}
 
 \subsection{Debug megjelenítés}
@@ -216,7 +361,7 @@ Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (m�
 
 Sajnos az SSIM nem a leg ideálisabb apróbb eltérések mérésére, így kicsit nehéz különbséget tenni a naiv és relaxált, valamint a javított között, de egy ~10-20\% normál mód esetén és ~20\% Debug mód esetében a gyorsulás azonos vizuális minőség mellett, ezek a számok inkább érzésre (saját szememre) vannak alapozva, minthogy SSIM értékekre, ha az SDF hívások számát nézzük, az egy hasonló képet ad, ~20\% csökkenés normál módban és ~10-20\% Debug módban.
 
-A javított módszer egyik nagy előnye, hogy lapos felületekkel szinte párhuzamos sugarakat jól tud kezelni, de ilyen a mérésekhez használt SDF függvényben aligha van így nagyjából a relaxált módszerrel van egy szinten, de helyenként még lassabb is, viszont ez a mérés: TODO, az úgynevezett templom SDF függvény meg épphogy a javított módszernek kedvez.
+A javított módszer egyik nagy előnye, hogy lapos felületekkel szinte párhuzamos sugarakat jól tud kezelni, de ilyen a mérésekhez használt SDF függvényben aligha van így nagyjából a relaxált módszerrel van egy szinten, de helyenként még lassabb is, viszont ez a mérés: \ref{im:temple_sdf_avg}, az úgynevezett templom SDF függvény meg épphogy a javított módszernek kedvez.
 
 A kúpkövetés különböző változatai között nagy különbségek nincsenek, ~5-10\%, viszont a naiv/relaxált/javított módszerekhez képest igen, normál módban a futási idő ~40\%-kal rövidebb, az SDF hívások számai ~60-70\%-kal kevesebb. Debug módban a futási idő ~70\%-kal, SDF hívások száma ~80-90\%-kal kevesebb. 4K felbontás mellett, a Debug módszer futási idejei ~70-80\%-kal kisebb, míg az átlagos SDF függvényhívások száma ~90\%-kal kevesebb. Tehát, normál módban 1.5-2.0 szoros az FPS (Frames Per Second), míg Debug módban 3-4 szeres. A futási idő és az SDF hívások számainak csökkenése közti különbség arra utal, hogy az implementáció (kúpkövetés) nem tökéletes és a videókártya kihasználtsága se optimális (a globális szinkronizáció a probléma), ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne, azaz a függvényhívások számának csökkenése a futási idő csökkenésével szinte azonos lenne.
 
