@@ -10,7 +10,7 @@ A távolságfüggvények (Distance Function) a tér minden pontjához hozzárend
 A gömbkövetés (sphere tracing) a sugárkövetések egyik változata, melynek célja a sugár és az előjeles távolságfüggvény felület metszéspontjának megtalálása. Az alap módszer ezt úgy éri el, hogy a sugár kiinduló pontjából a sugár mentén haladva először kiértékeli az SDF-et az adott pontból, majd a kapott távolságnyit lép előre, és ezt ismétli mindaddig, amíg 3 feltétel igaz:
 
 \begin{itemize}
-	\item a lépés mértéke nagyobb, mint egy választott érték epszilon (álltalában kicsi: 0.001) szorozva a megtett úttal
+	\item a lépés mértéke nagyobb, mint egy választott érték: epszilon (álltalában kicsi: 0.001) szorozva a megtett úttal
 	\item a kiindulás pontjától vett távolság kisseb mint egy választott limit (pl: 1000)
 	\item az iterációk száma nem lépet át egy megadott határt
 \end{itemize}
@@ -42,7 +42,7 @@ A cél itt is az alap gömbkövetés gyorsítása, viszont a módszer más, az a
 
 \subsection{A kúpok méretének és irányának meghatározása}
 
-A megoldandó probléme: egy térbeli téglalap (az implementációban csakis négyzeteket használok, amik egy vagy több pixelből álló „blokkokat” reprezentálnak) kamera szemszögéből kiinduló gúlájának, megtaláljuk a lehető legkisseb az azt körbe ölelő kúpját.
+A megoldandó probléma: egy térbeli téglalap (az implementációban csakis négyzeteket használok, amik több pixelből álló „blokkokat” reprezentálnak) kamera szemszögéből kiinduló gúlájának, megtaláljuk a lehető legkisseb az azt körbe ölelő kúpját.
 
 \begin{figure}[H]
 	\centering
@@ -66,7 +66,7 @@ majd a vetített pontok magába foglaló lehető legkisseb kört (a gömb felül
 	\caption{Az ábrán kék körként látható a naiv megoldás.}
 \end{figure}
 
-Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a vetítés utáni hosszabb átló közepét használja a kör/kúp közepének/irányának, ez nem mindig a legoptimálisabb megoldás mivel az átló és a kamerához közelebbi vetített pont által alkotott háromszög lehet hegyesszögű a kamerához közeli pontnál, de bőven elég jó közelítés.
+Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a vetítés utáni hosszabb átló közepét használja a kör/kúp közepének/irányának, ez nem mindig a legoptimálisabb megoldás mivel az átló és a kamerához közelebbi vetített pont által alkotott háromszög lehet hegyesszögű a kamerához közelebbi pontjánál, de bőven elég jó közelítés.
 
 \begin{figure}[H]
 	\centering
@@ -172,7 +172,7 @@ Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle ké
 	\caption{Az ábrán a 2 új kúp látható, amelyek a már biztos távolságtól (zöld) fogják folytatni útjaikat.}
 \end{figure}
 
-Most csak a felsőbb 2 pixeles kúp mentén fogom részletezni tovább az algoritmust (a valóságban ezek egymástól függetlenül akár párhozamosan is tudnak tovább haladni), ami az eddig megtett távolságtól tud továbbhaladni.
+Most csak a felsőbb 2 pixeles kúp mentén fogom részletezni tovább az algoritmust (a valóságban ezek egymástól függetlenül akár párhozamosan is tudnak tovább haladni), ami az eddig megtett távolságtól tud továbbhaladni. A zöld korong innentől kezdve csakis a felsőbb kúpra fog vonatkozni a jelölésekben.
 
 \begin{figure}[H]
 	\centering
@@ -218,7 +218,6 @@ Kúpkövetéses algoritmus folyamata:
 	\item kúpok felbontása
 	\item ha a kúpok már csak 1-1 pixelnek felelnének meg, akkor vége a kúpkövetésnek és a megtett távolságoktól még pixelenként az alap/relaxált/javított módszer valamelyikét alkalmazza
 	\item az új kúpok beállítják kezdő távolságukat a felbontás előtti kúpjaik megtett távolságára
-	\item szinkronizáció
 	\item folytatás az \ref{step:first}.~lépéstől.
 \end{enumerate}
 

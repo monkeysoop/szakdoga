@@ -3,7 +3,7 @@
 
 \section{Megoldási terv}
 
-A szakdolgozatomban két különböző főbb feladattal foglalkoztam, A különböző távolságfüggvényekhez megjelenítéséhez használt gömbkövetési módszerek implementálásával, és ezek tesztelésével, ami a különböző módszerek teljesítményének és vizuális minőségének a mérésével és összehasonlításával foglalkozik.
+A szakdolgozatomban két különböző főbb feladattal foglalkoztam, A különböző távolságfüggvények megjelenítéséhez használt gömbkövetési módszerek implementálásával, és ezek tesztelésével, ami a különböző módszerek teljesítményének és vizuális minőségének a mérésével és összehasonlításával foglalkozik.
 
 Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt, az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
 
@@ -128,7 +128,7 @@ Az osztály \texttt{m\_currently\_used\_id} privát változója azért kiemelend
 
 \subsection{A \texttt{Framebuffer} osztály, képernyőkép készítés}
 
-A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük a buffer tartalmát az SDL könyvtár (SDL\_image) segítségével PNG formátumba, mivel OpenGL-ben a (0,0) koordináta bal alul van, míg az SDL a bal föntit használja, így, ha nem tükrözzük a felületet, akkor fejjel lefelé lévő képeket kapnánk, ezért kell megfordítani a képet. Az SDL3 könyvtár erre már beépített függvényt kínál, míg az SDL2 nem (a program írása alatt az SDL3 könyvtár még fejlesztés alatt áll/állt).
+A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük a buffer tartalmát az SDL könyvtár (SDL\_image) segítségével PNG formátumba, mivel OpenGL-ben a (0,0) koordináta bal alul van, míg az SDL a bal föntit használja, így, ha nem tükrözzük a felületet, akkor fejjel lefelé lévő képeket kapnánk, ezért kell megfordítani a képet. Az SDL3 könyvtár erre már beépített függvényt kínál, míg az SDL2 nem (a program írása alatt az SDL3 könyvtár még fejlesztés alatt állt).
 
 \begin{figure}[H]
 	\centering
