@@ -7,7 +7,7 @@ A szakdolgozatomban két különböző főbb feladattal foglalkoztam, A különb
 
 Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt, az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
 
-A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iteráció limiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb a megjelenítéséhez és teszteléshez tartozó paramétereket (az egyszerűség és ismételhetőség kedvéért az idő automatikusan 0-ra van állítva a tesztek alatt). Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iteráció számok által alkotott képeket is elmenti. Az elmentett png képeket (azért png, mert SDL2 támogatja és veszteségmentes) és a mért időket majd jupiter notebook-ok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet.
+A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iteráció limiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb a megjelenítéséhez és teszteléshez tartozó paramétereket, az egyszerűség és ismételhetőség kedvéért az idő automatikusan 0-ra van állítva a tesztek alatt. Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iteráció számok által alkotott képeket is elmenti. Az elmentett png képeket és a mért időket majd jupiter notebook-ok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet. Azért png formátumban mentem el a képeket, mert az SDL2 könyvtár támogatja és veszteségmentes, ami fontos hiszen nem a veszteséges tömörítés zaját szeretném mérni.
 
 A program ezen túl tartalmaz még egység teszteket is.
 
@@ -37,7 +37,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 	\item \textbf{\texttt{m\_sdf\_scene}:} a kiválasztott távolságfüggvényt adja meg
 	\item \textbf{\texttt{m\_render\_mode}:} a kiválasztott kirajzolási módszert tárolja
 	\item \textbf{\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}:} a gömbkövetési módszert (al módszert is) határozzák meg
-	\item \textbf{\texttt{m\_initial\_cone\_size}:} kezdeti kúpméret pixelben megadva (például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben)
+	\item \textbf{\texttt{m\_initial\_cone\_size}:} kezdeti kúpméret pixelben megadva, például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben
 	\item \textbf{\texttt{m\_epsilon}:} gömbkövetésnél használt paraméter túl kicsi lépések detektálására
 	\item \textbf{\texttt{m\_max\_distance}:} távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
 	\item \textbf{\texttt{m\_max\_iteration\_count}:} limit a gömbkövetés iteráció számaira
@@ -46,10 +46,10 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 	\item \textbf{\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}:} a javított gömbkövetés lépés mértékét limitáló skalár
 	\item \textbf{\texttt{m\_cone\_trace\_intermediate\_epsilon}:} m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
 	\item \textbf{\texttt{m\_benchmark\_baseline\_iteration\_count}:} limit a tesztelésnél használt referencia kép iteráció számaira
-	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak (például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél)
+	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak, például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél
 	\item \textbf{\texttt{m\_benchmark\_performance\_number\_of\_runs}:} a tesztelésnél megadja, hogy egy módszert, egy iteráció limittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
 	\item \textbf{\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}:} az árnyékok penumbra részét és intenzitását tárolja el
-	\item \textbf{\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}:} az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása (ahogy iterál), iterálás lépésköze, erősségét szorzó skalár
+	\item \textbf{\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}:} az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása iterálás alatt, iterálás lépésköze, erősségét szorzó skalár
 	\item \textbf{\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}:} iteráció limit az árnyékok és ambiens kitakarás kiszámításához
 	\item \textbf{\texttt{m\_ambient\_strength}:} ambiens fény ereje
 	\item \textbf{\texttt{m\_reflection\_attenuation}:} a tükröződéseknél használt extra elhalást imitáló skalár
@@ -100,14 +100,14 @@ A \texttt{CompShader} osztály egy szimpla RAII absztrakciónál bonyolultabban 
 
 amikből kiválogatva másolja be a megfelelő fájl tartalmát a
 
-\lstset{caption={Példa az include "makró" használatára.}, label=src:cpp2, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
+\lstset{caption={Példa az include makró használatára.}, label=src:cpp2, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
 #include "assets/ray.include"
 \end{lstlisting}
 
 helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben található fájl konfigurációhoz hasonlóan (\texttt{configure\_file}) van lehetőség statikus paramétereket megadni fordítás során
 
-\lstset{caption={Példa úgynevezett "in" paraméterekre.}, label=src:cpp3, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
+\lstset{caption={Példa úgynevezett „in” paraméterekre.}, label=src:cpp3, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
 #define SDF_SCENE @SDF_SCENE@
 #define RENDER_MODE @RENDER_MODE@
@@ -166,7 +166,7 @@ A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit
 
 \section{Meson és conan}
 
-Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett "imgui bindigs"-okat, ezeket álltalában git submodul-ként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
+Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett „imgui fbindings”-okat, ezeket álltalában git submodul-ként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
 
 \section{Shaderek}
 
@@ -229,7 +229,7 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/iter_count.png}
-    	\caption{A Newton ingája SDF iteráció számai láthatóak, minnél világosabb annál nagyobb az iteráció szám.}
+    	\caption{A Newton ingája SDF iteráció számai láthatóak, minnél világosabb annál nagyobb az iteráció szám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
     \end{figure}
     \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
 	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
