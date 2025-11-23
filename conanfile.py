@@ -15,9 +15,10 @@ class App(ConanFile):
         self.requires("glew/2.2.0", options={"with_glu" : "system"})
         self.requires("glu/system")
         self.requires("imgui/1.91.2")
-        self.requires("sdl/2.28.3")
+        self.requires("sdl/2.28.3", options={"alsa" : "False", "pulse" : "False"})
         self.requires("sdl_image/2.6.3")
         self.requires("gtest/1.15.0")
+        self.requires("glm/1.0.1")
 
     def generate(self):
         imgui = self.dependencies["imgui"]

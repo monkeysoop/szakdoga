@@ -9,6 +9,7 @@ main_deps = [
     dependency('opengl', required: true),
     dependency('glu', required: true),
     dependency('imgui', required: true),
+    dependency('glm', required: true),
     imgui_bindings_dep,
 ]
 

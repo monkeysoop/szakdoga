@@ -5,6 +5,7 @@ core_deps = [
     dependency('opengl', required: true),
     dependency('glu', required: true),
     dependency('imgui', required: true),
+    dependency('glm', required: true),
 ]
 
 core_source_files = [
