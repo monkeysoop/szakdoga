@@ -1,14 +1,14 @@
 \chapter{Összegzés}
 \label{ch:summary}
 
+A munkám során felfedeztem az előjeles távolságfüggvények megjelenítésére használt módszereket, a dolgozatomban bemutattam a naiv, relaxált, javított és adaptív kúpkövető algoritmusokat implicit felületek párhuzamos és hatékony megjelenítésére. Ezt követően ismertettem a program felépítését, belső működését. Majd végül a vizuális minőség és a teljesítmény mérései is bemutatásra, valamint összehasonlításra kerültek. A kúpkövetés algoritmusa elsődleges sugarak esetén jelentős gyorsulást produkált, míg a relaxált és javított módszerek ezt másodlagos sugarak menténi gyorsulással egészítik ki. 
 
 \section{Továbbfejlesztési lehetőségek}
 
-A kúpokat nem négyzetekből, hanem hatszögekből indítani, így átlagban kisebbek lennének a kúpok és az algoritmus pedig hatékonyabb.
+A kúpokat lehetne nem négyzetekből, hanem hatszögekből indítani, így átlagban kisebbek lennének a kúpok és az algoritmus pedig hatékonyabb. Ennek a megközelítésnek nyilván vannak hátrányai: hatszögekkel nem lehet egy gömb felületét lefedni tökéletesen, a hatszögeket felbontásnál legalább 7 felé kéne osztani.
 
-Torzulás kezelése, ami nem egynelő eloszlást okoz a projekció miatt.
+Torzulás kezelése vatített négyzeteknél, ami nem egynelő eloszlást okoz a projekció miatt.
 
 A kúpkövetés dispatch-jei között nem kell teljes szinkronizáció, megoldható, hogy mondjuk csak workgroup-on belül keljen csak.
 
-Az SSIM értékeken túl érdemes lehet, a nem konvergált pixelek számát meghatározni és azt használni a vizuális minőség méréséhez.
-
+Opció új SDF-ek hozzáadására a program futása alatt.

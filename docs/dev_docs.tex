@@ -241,3 +241,10 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\item \textbf{Debug mód iteráció száma:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
     \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.
 \end{itemize}
+
+\section{Puha árnyékok, ambiens kitakarás}
+\label{se:shadows_and_ambient_occlusion}
+
+A Normál módban a puha árnyékok kiszámolását ugyanaz az algoritmus végzi, mint amit kiválasztottunk, kúpkövetésnél ez a naiv, relaxált, javított egyike lesz, míg az ambiens kitakarást kizárólag naiv módszer végzi, ahol az iteráció limit egy paraméterezhető fix érték.
+
+

@@ -168,7 +168,7 @@ A szakdolgozat célja volt a különböző módszerek vizuális és futási idej
 
 Megjegyzendő, hogy nem csak futási idő kerül mérésre, hanem a pixelenkénti iteráció szám és SDF függvény hívásainak a száma (a kettő közötti különbség részletesebb leírásáért lásd a(z) \ref{se:rendering_modes}. fejezetet) is képként lesz elmentve.
 
-A mérések 1920*1080 (Full HD) felbontás mellett, illetve 3840*2160 (4K) felbontással lettek készítve, a kúpkövetéseknél a kúpok kezdeti mérete 4*4 pixel (azaz 4*4 majd 2*2 pixel), valamint 8*8 pixel bizonyos eseteknél.
+A mérések 1920x1080 (Full HD) felbontás mellett, illetve 3840x2160 (4K) felbontással lettek készítve, a kúpkövetéseknél a kúpok kezdeti mérete 4x4 pixel (azaz 4x4 majd 2x2 pixel), valamint 8x8 pixel bizonyos eseteknél.
 
 A méréseket a laptopomon végeztem el (töltőhöz csatlakoztatva), amely egy „ASUS Vivobook Pro 14 M3401 Q”, CPU: „Ryzen 7 5800H” 8 magos, 16GB RAM, GPU: „NVIDIA Geforce RTX 3050” 4GB dedikált (és 8GB osztott, de mivel az alkalmazás memóriahasználata minimális, ezért nem lényeges) memóriával.
 
@@ -273,6 +273,14 @@ A mérések itt Debug módban lettek lefuttatva.
 	\caption{Az ábrán a Debug mód SSIM eltérései láthatóak.}
 \end{figure}
 
+Az SSIM érték nem a legjobb apróbb eltérések mérésére jelen esetben így a Debug módnál azt is megmértem, hogy mennyi a nem konvergált pixelek száma összesen.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/unconverged_pixel_counts_debug_1920_1080.png}
+	\caption{Az ábrán a Debug mód nem konvergált pixelek számai láthatóak.}
+\end{figure}
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_debug_1920_1080.png}
@@ -299,20 +307,20 @@ A mérések itt Debug módban lettek lefuttatva.
 
 \subsection{Kezdeti kúpméret hatása}
 
-Az eddigi mérések mind 4x4 es kúpból indultak ki, de az ideális kezdeti kúpméret változó, a cél, az az, hogy a videókártyát jól kihasználjuk és mivel a szálak száma függ a felbontástól és a kúpmérettől, valamint azt is figyelembe kell venni, hogyha például gyors az iteráció (egyszerű SDF), akkor a memória szinkronizációk „overhead”-je is számottevő (amiből több kell, ha nagyobb a kezdeti kúp).
+Az eddigi mérések mind 4x4-es kúpból indultak ki, de az ideális kezdeti kúpméret változó, a cél, hogy a videókártyát jól kihasználjuk és mivel a szálak száma függ a felbontástól és a kúpmérettől, valamint azt is figyelembe kell venni, hogyha például gyors az iteráció (egyszerű SDF), akkor a memória szinkronizációk „overhead”-je is számottevő (amiből több kell, ha nagyobb a kezdeti kúp).
 
-A különbség leginkább feltünő, ha „Debug” megjelenítést használunk, az alábbi ábrákon az 1920*1080p felbontású „Debug” módszer 4*4 és 8*8-as kúpkövetés futási idejei láthatóak (a felső 3 sor itt nem releváns).
+A különbség leginkább feltünő, ha „Debug” megjelenítést használunk, az alábbi ábrákon az 1920x1080 felbontású „Debug” módszer 4x4 és 8x8-as kúpkövetés futási idejei láthatóak (a felső 3 sor itt nem releváns).
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
-	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4*4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_cone_8_1920_1080.png}
-    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 8*8-es kezdeti kúpmérettel.}
+    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 1080p esetében aligha gyorsabb, ez valószínűleg a videókártya rossz kihasználtsága miatt és az extra memória szinkronizáció miatt van, hiszen az SDF hívások száma (pixelenkénti átlag) drasztikusan lecsökkent.
@@ -320,27 +328,27 @@ A különbség leginkább feltünő, ha „Debug” megjelenítést használunk,
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
-	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4*4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
-	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8*8-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
-Viszont 3840*2160 (4K) felbontás mellett már nagyobb a különbség.
+Viszont 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_3840_2160.png}
-	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_cone_8_3840_2160.png}
-    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
+    \caption{Az ábrán a Debug mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (még) hatékonyabb lett.
@@ -348,27 +356,82 @@ Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (m�
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
-	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4*4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
-	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8*8-es kezdeti kúpmérettel.}
+	\caption{Az ábrán a Debug mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
+\end{figure}
+
+A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_3840_2160.png}
+	\caption{Az ábrán a Debug mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_cone_8_3840_2160.png}
+	\caption{Az ábrán a Debug mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel}
 \end{figure}
 
 \subsection{Mérések összegzése, megfigyelések}
 
-Sajnos az SSIM nem a leg ideálisabb apróbb eltérések mérésére, így kicsit nehéz különbséget tenni a naiv és relaxált, valamint a javított között, de egy ~10-20\% normál mód esetén és ~20\% Debug mód esetében a gyorsulás azonos vizuális minőség mellett, ezek a számok inkább érzésre (saját szememre) vannak alapozva, minthogy SSIM értékekre, ha az SDF hívások számát nézzük, az egy hasonló képet ad, ~20\% csökkenés normál módban és ~10-20\% Debug módban.
+A mérések elkülönülnek 2 nagy kategóriába:
 
-A javított módszer egyik nagy előnye, hogy lapos felületekkel szinte párhuzamos sugarakat jól tud kezelni, de ilyen a mérésekhez használt SDF függvényben aligha van így nagyjából a relaxált módszerrel van egy szinten, de helyenként még lassabb is, viszont ez a mérés: \ref{im:temple_sdf_avg}, az úgynevezett templom SDF függvény meg épphogy a javított módszernek kedvez.
+\begin{itemize}
+	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF alapú árnyalással
+	\item elsődleges sugarak Lambert árnyalással
+\end{itemize}
 
-A kúpkövetés különböző változatai között nagy különbségek nincsenek, ~5-10\%, viszont a naiv/relaxált/javított módszerekhez képest igen, normál módban a futási idő ~40\%-kal rövidebb, az SDF hívások számai ~60-70\%-kal kevesebb. Debug módban a futási idő ~70\%-kal, SDF hívások száma ~80-90\%-kal kevesebb. 4K felbontás mellett, a Debug módszer futási idejei ~70-80\%-kal kisebb, míg az átlagos SDF függvényhívások száma ~90\%-kal kevesebb. Tehát, normál módban 1.5-2.0 szoros az FPS (Frames Per Second), míg Debug módban 3-4 szeres. A futási idő és az SDF hívások számainak csökkenése közti különbség arra utal, hogy az implementáció (kúpkövetés) nem tökéletes és a videókártya kihasználtsága se optimális (a globális szinkronizáció a probléma), ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne, azaz a függvényhívások számának csökkenése a futási idő csökkenésével szinte azonos lenne.
+Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a naiv módszerhez képest:
 
-A kúpkövetésnél 1080p esetén a 4*4 vagy a 8*8 pixeles kezdeti kúpok ideálisak a mérések szerint (ez függ az SDF függvénytől, hardvertől, …), 4K felbontásnál 8*8 vagy 16*16, ezek a felbontás és kezdeti kúp méret párok 129600 ((1920*1080)/(4*4) == (3840*2160)/(8*8)) és 32400 ((1920*1080)/(8*8) == (3840*2160)/(16*16)) szálat jelentenének, ami nagyjából a limit, amit a laptopom videókártyája tud ténylegesen párhuzamosan futtatni.
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.15\textwidth} | m{0.30\textwidth} | m{0.35\textwidth} | }
+		\hline
+		\textbf{módszer} & \textbf{időbeli gyorsulás} & \textbf{SDF hívások számainak csökkenése}\\
+		\hline
+		relaxált & + 10-20\% & - 20-30\% \\
+		\hline
+		javított & + 10-20\% & - 10-30\% \\
+		\hline
+		kúpkövetés & + 70-90\% & - 60-70\%\\
+		\hline
+	\end{tabular}
+\end{table}
+
+Sajnos az SSIM nem a legjobb mértékegysége a vizuális minőségnek jelen esetben, így a fenti táblázatban szereplő értékeket inkább érzésre, saját szememre hagyatkozva adtam meg.
+
+Az alábbi táblázatban az utóbbi kategória összesített eredményei láthatóak:
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.15\textwidth} | m{0.30\textwidth} | m{0.35\textwidth} | }
+		\hline
+		\textbf{módszer} & \textbf{időbeli gyorsulás} & \textbf{SDF hívások számainak csökkenése}\\
+		\hline
+		relaxált & + 10-20\% & - 10-20\% \\
+		\hline
+		javított & + 0-10\% & - 5-10\% \\
+		\hline
+		kúpkövetés & + 200-370\% & - 80-90\%\\
+		\hline
+	\end{tabular}
+\end{table}
+
+Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet ad a vizuális minőségről, mint az SSIM.
+
+A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínüleg a globális szinkronizáció a "flip-flop" textúrákont a probléma, ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
 
 Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenni így romlik a hatékonysága.
 
+A kúpkövetés különböző változatai között nagyobb különbségek nincsenek, nagyjából 5-10\% az eltérés.
 
+A méréseket többnyire a Newton ingája nevezető távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületek hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A "temple" nevezetű SDF függvény például ponthogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
 
-
+A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől, ... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.
