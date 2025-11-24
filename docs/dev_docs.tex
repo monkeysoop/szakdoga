@@ -36,7 +36,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 \begin{itemize}
 	\item \textbf{\texttt{m\_sdf\_scene}:} a kiválasztott távolságfüggvényt adja meg
 	\item \textbf{\texttt{m\_render\_mode}:} a kiválasztott kirajzolási módszert tárolja
-	\item \textbf{\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}:} a gömbkövetési módszert (al módszert is) határozzák meg
+	\item \textbf{\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}:} a gömbkövetési módszert (almódszert is) határozzák meg
 	\item \textbf{\texttt{m\_initial\_cone\_size}:} kezdeti kúpméret pixelben megadva, például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben
 	\item \textbf{\texttt{m\_epsilon}:} gömbkövetésnél használt paraméter túl kicsi lépések detektálására
 	\item \textbf{\texttt{m\_max\_distance}:} távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
@@ -114,7 +114,7 @@ helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben találhat
 #define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
 \end{lstlisting}
 
-Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikusan módosítsuk, amik a kód újra fordításához vezetnek. Eredetileg \texttt{uniform} változókat és \texttt{switch case} -eket használtam nagyobb kódrészek között történő váltogatásra, például kiválasztani, hogy melyik SDF függvény hívódjon meg, ez a módszer viszont problémás volt, egyrészt lassabb lett tőle a program, mintha preprocesszor makrókkal oldottam volna meg (ez kevésbé okozott gondot, mivel az optimalizáló elég jól tudja kezelni az \texttt{uniform} változókat, főleg elágazások terén) a nagyobbik probléma az volt, hogy ez meglehetősen hosszú akadozásokat okozott (egyes esetekben 5-10 másodperc), amikor az \texttt{uniform} értéke megváltozott. A problémán nem segített, ha újrafordítottam a shadert minden egyes alkalommal, hiszen maga a fordítás is meglehetősen lassú volt (ez részben a nagy shaderek problémája). Az okot nem nagyon kutattam, de ha jól tudom a shadereket ha nem is teljesen, de részlegesen újra fordítják/optimalizálják, amikor egy \texttt{uniform} értéke megváltozik, ami kombinálva a lassú fordítási időkkel okozhatta a problémát. A megoldás így az lett, hogy fordítás alatt felparaméterezek \texttt{\#define} makrókat adom oda \texttt{\#if}/\texttt{\#elif}/\texttt{\#endif} makróknak, így a fordító gyorsan eltudja dobni a kód nagyrészét, ezzel elérve a gyors fordítást és az optimális teljesítményt.
+Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikusan módosítsuk, amik a kód újra fordításához vezetnek. Eredetileg \texttt{uniform} változókat és „\texttt{switch case}”-eket használtam nagyobb kódrészek között történő váltogatásra, például kiválasztani, hogy melyik SDF függvény hívódjon meg, ez a módszer viszont problémás volt, egyrészt lassabb lett tőle a program, mintha preprocesszor makrókkal oldottam volna meg (ez kevésbé okozott gondot, mivel az optimalizáló elég jól tudja kezelni az \texttt{uniform} változókat, főleg elágazások terén) a nagyobbik probléma az volt, hogy ez meglehetősen hosszú akadozásokat okozott (egyes esetekben 5-10 másodperc), amikor az \texttt{uniform} értéke megváltozott. A problémán nem segített, ha újrafordítottam a shadert minden egyes alkalommal, hiszen maga a fordítás is meglehetősen lassú volt (ez részben a nagy shaderek problémája). Az okot nem nagyon kutattam, de ha jól tudom a shadereket ha nem is teljesen, de részlegesen újra fordítják/optimalizálják, amikor egy \texttt{uniform} értéke megváltozik, ami kombinálva a lassú fordítási időkkel okozhatta a problémát. A megoldás így az lett, hogy fordítás alatt felparaméterezek \texttt{\#define} makrókat adom oda \texttt{\#if}/\texttt{\#elif}/\texttt{\#endif} makróknak, így a fordító gyorsan eltudja dobni a kód nagyrészét, ezzel elérve a gyors fordítást és az optimális teljesítményt.
 
 \begin{figure}[H]
 	\centering
@@ -166,7 +166,7 @@ A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit
 
 \section{Meson és conan}
 
-Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett „imgui fbindings”-okat, ezeket álltalában git submodul-ként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
+Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett „imgui bindings”-okat, ezeket álltalában git submodul-ként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
 
 \section{Shaderek}
 
@@ -229,7 +229,7 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/iter_count.png}
-    	\caption{A Newton ingája SDF iteráció számai láthatóak, minnél világosabb annál nagyobb az iteráció szám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
+    	\caption{A Newton ingája SDF iteráció számai láthatóak, minél világosabb annál nagyobb az iteráció szám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
     \end{figure}
     \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
 	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.

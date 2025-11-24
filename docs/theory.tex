@@ -15,7 +15,7 @@ A gömbkövetés (sphere tracing) a sugárkövetések egyik változata, melynek 
 	\item az iterációk száma nem lépet át egy megadott határt.
 \end{itemize}
 
-A gömbkövetés lényege, hogy a pixel közepéből indulú sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért kettő sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem
+A gömbkövetés lényege, hogy a pixel közepéből induló sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért kettő sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem
 
 \begin{figure}[H]
 	\centering
@@ -33,7 +33,7 @@ A javított gömbkövetés a két megelőző lépés pontja közötti távolság
 
 \section{Kúpkövetés}
 
-A cél itt is az alap gömbkövetés gyorsítása, viszont a módszer más, az algoritmus lényege, ahelyett hogy a képernyő minden pixeléből külön sugarat indítana, helyette szomszédos pixeleket egyesítő kúpokat használ, és azok mentén iterál addig, amíg 3 feltétel igaz:
+A cél itt is az alap gömbkövetés gyorsítása, viszont a módszer más, az algoritmus lényege, ahelyett, hogy a képernyő minden pixeléből külön sugarat indítana, helyette szomszédos pixeleket egyesítő kúpokat használ, és azok mentén iterál addig, amíg 3 feltétel igaz:
 
 \begin{itemize}
 	\item a lépés mértéke, ami itt nem az adott pont SDF értéke, hanem az mínusz a pontbeli kúp sugara nagyobb, mint egy fix epszilon (az alap módszernél nagyobb pl.:0.02) paraméter
@@ -74,7 +74,7 @@ Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a ve
 	\caption{Az ábrán a kék kör a naiv, míg zöld a szinte optimális megoldás.}
 \end{figure}
 
-A hosszab átlót egyszerűen kitudjuk számolni, abból, hogy a képernyő melyik negyedében vagyunk
+A hosszabb átlót egyszerűen kitudjuk számolni, abból, hogy a képernyő melyik negyedében vagyunk
 
 \begin{figure}[H]
 	\centering
@@ -130,7 +130,7 @@ Mivel az optimális megoldást kiszámítása meglehetősen költséges, ez 3D-b
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_5.png}
-	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancsárga pont lesz az eredménye ennek az iterációnak.}
+	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancssárga pont lesz az eredménye ennek az iterációnak.}
 \end{figure}
 
 Az a módszer még elfajult helyzetekben is megőrzi a program helyességét.
@@ -141,7 +141,7 @@ Az a módszer még elfajult helyzetekben is megőrzi a program helyességét.
 	\caption{Az ábra egy elfajult helyzetet ábrázol, ahol már végtelen távolságot megtettünk és a kúp élei párhuzamosak.}
 \end{figure}
 
-A jelenelgi példában a következő két iteráció hasonlóképpen fog kinézni az előbbihez, semmi különös nem fog történni.
+A jelenlegi példában a következő két iteráció hasonlóképpen fog kinézni az előbbihez, semmi különös nem fog történni.
 
 \begin{figure}[H]
 	\centering
@@ -172,7 +172,7 @@ Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle ké
 	\caption{Az ábrán a két új kúp látható, amelyek a már biztos távolságtól (zöld) fogják folytatni útjaikat.}
 \end{figure}
 
-Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az algoritmust, ami az eddig megtett távolságtól tud továbbhaladni, ezek egymástól függetlenül, párhozamosan is tudnak tovább haladni. A zöld korong innentől kezdve csakis a felsőbb kúpra fog vonatkozni a jelölésekben.
+Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az algoritmust, ami az eddig megtett távolságtól tud tovább haladni, ezek egymástól függetlenül, párhozamosan is tudnak tovább haladni. A zöld korong innentől kezdve csakis a felsőbb kúpra fog vonatkozni a jelölésekben.
 
 \begin{figure}[H]
 	\centering
@@ -180,13 +180,13 @@ Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az alg
 	\caption{Az ábrán a felsőbb két pixeles kúpnak az első iterációja látható.}
 \end{figure}
 
-Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negítív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne
+Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_11_1.png}
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_11_2.png}
-	\caption{Az ábrán a felsőbb két pixeles kúpnak az második iterációja látható, ahol a lépés mértéke megintcsak kissebb lenne mint az epszilon paraméter.}
+	\caption{Az ábrán a felsőbb két pixeles kúpnak az második iterációja látható, ahol a lépés mértéke megint csak kissebb lenne mint, az epszilon paraméter.}
 \end{figure}
 
 Mivel most már a kúpjaink csakis egy-egy „pixeleknek” felelnének meg így nincs értelme tovább alkalmazni a kúpkövetést, ezért majd valamelyik sugárkövető (naiv/relaxált/javított) algoritmussal fogjuk folytatni, jelen példában ez a naiv módszer lesz az egyszerűség kedvéért.

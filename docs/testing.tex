@@ -62,7 +62,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 		\\ \hline
 		
 		Az egérgörgő lefelé görgetése
-		& A kamera eltávolodik az SDF helenettől
+		& A kamera eltávolodik az SDF jelenettől
 		& Az SDF jelenet kicsinyedik, távolabbinak érződik
 		\\ \hline
 		
@@ -73,7 +73,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 
 		Az egér mozgatása miközben lenyomva tartjuk a jobb egérgombot
 		& A kamera nagyít/kicsinyít az SDF jeleneten
-		& Ha balra húzzuk az egeret, akkor közeledünk/növekszik, míg ha jobbra húzzuk az egeret, akkor távolodunk/kicsinyedik
+		& Ha balra húzzuk az egeret, akkor közeledünk/növekszik, míg, ha jobbra húzzuk az egeret, akkor távolodunk/kicsinyedik
 		\\ \hline
 
 		\hline
@@ -88,7 +88,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 
 		Az 'I' billentyű lenyomása
 		& Beállítások ablak megjelenítése, elrejtése
-		& Első megnyomásra megjelenik, második megnyomásra meg eltünik
+		& Első megnyomásra megjelenik, második megnyomásra meg eltűnik
 		\\ \hline
 
 		\hline
@@ -102,7 +102,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 		\\ \hline
 
 		A megjelenítési módszer változtatása
-		& Másféle megjelenítési módszerrel fogja visualizálni az SDF jelenetet
+		& Másféle megjelenítési módszerrel fogja vizualizálni az SDF jelenetet
 		& A megjelenítési mód megváltozik
 		\\ \hline
 
@@ -190,7 +190,7 @@ Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg
     \caption{Az ábrán a Normál mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
 \end{figure}
 
-A referenciától való eltérés mérésére SSIM (Structured Similarity Index Measure), értékeket használok, maguk az értékek 0.0 és 1.0 között vannak, minnél magasabb annál nagyobb az egyezés.
+A referenciától való eltérés mérésére SSIM (Structured Similarity Index Measure), értékeket használok, maguk az értékek 0.0 és 1.0 között vannak, minél magasabb annál nagyobb az egyezés.
 
 \begin{figure}[H]
     \centering
@@ -309,7 +309,7 @@ Az SSIM érték nem a legjobb apróbb eltérések mérésére jelen esetben így
 
 Az eddigi mérések mind 4x4-es kúpból indultak ki, de az ideális kezdeti kúpméret változó, a cél, hogy a videókártyát jól kihasználjuk és mivel a szálak száma függ a felbontástól és a kúpmérettől, valamint azt is figyelembe kell venni, hogyha például gyors az iteráció (egyszerű SDF), akkor a memória szinkronizációk „overhead”-je is számottevő, amiből több kell, ha nagyobb a kezdeti kúp.
 
-A különbség leginkább feltünő, ha „Debug” megjelenítést használunk, az alábbi ábrákon az 1920x1080 felbontású „Debug” módszer 4x4 és 8x8-as kúpkövetés futási idejei láthatóak, a felső 3 sor itt nem releváns az ábrákon.
+A különbség leginkább feltűnő, ha „Debug” megjelenítést használunk, az alábbi ábrákon az 1920x1080 felbontású „Debug” módszer 4x4 és 8x8-as kúpkövetés futási idejei láthatóak, a felső 3 sor itt nem releváns az ábrákon.
 
 \begin{figure}[H]
 	\centering
@@ -426,12 +426,12 @@ Az alábbi táblázatban az utóbbi kategória összesített eredményei láthat
 
 Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet ad a vizuális minőségről, mint az SSIM.
 
-A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínüleg a globális szinkronizáció a „flip-flop” textúrákont a probléma, ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
+A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más, mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínűleg a globális szinkronizáció a „flip-flop” textúrákon a probléma, ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
 
 Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenni így romlik a hatékonysága.
 
 A kúpkövetés különböző változatai között nagyobb különbségek nincsenek, nagyjából 5-10\% az eltérés.
 
-A méréseket többnyire a Newton ingája nevezető távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületek hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például ponthogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
+A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületek hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
 
 A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől, ... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.
