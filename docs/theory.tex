@@ -210,16 +210,40 @@ Az algoritmus utolsó lépése, hogy valamelyik hagyományos gömbkövetési mó
 
 Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, amik az abbahagyott távolságtól folytatják az iterációt. Én úgy implementáltam ezt, hogy mindig negyedelődik a kúpokat alkotó pixelek száma és négyszereződik a kúpok száma, mindaddig, amíg 2x2-es nem lesz, majd utána a korábbi módszerek egyikét (alap/relaxált/javított) alkalmazom pixelenként kiindulva a már kúpkövetés által megtett távolságból.
 
-Kúpkövetéses algoritmus folyamata:
+\begin{algorithm}[H]
+\caption{Az adaptív kúpkövetés pszeudokódja}
+\textbf{\underline{Funct}} Kúpkövetés(paraméterek)
+\begin{algorithmic}[1]
+\State $K$ kúpok inicializálása, irányaik és méreteik meghatározása, megtett távolság 0.0 ra állítása
+\State
+\State $\text{kúpméret} \gets$ kezdeti kúpméret paraméter
+\State
+\While{(\textbf{kúpméret} $\ge 2$)}
+    \State \textbf{parallel for each} kúp $k \in K$
+		\State \quad $k$ kúp irányát beszorozzuk az inverz nézeti mátrixxal
+        \State \quad iterálás a $k$ kúp mentén, amíg a feltételek (max távolság, max iterációszám, \dots) igazak
+    \State \textbf{end parallel for}
+	\State
+    \State szinkronizáció
+	\State
+    \State kúpok felbontása $\,\Rightarrow\,$ új kúpok listája $K_{\text{new}}$
+	\State
+    \State \textbf{parallel for each} kúp $k_{\text{new}} \in K_{\text{new}}$
+		\State \quad $k_{\text{new}}$ beállítja kezdő távolságát a megfelelő $k$ által megtett távolságra
+    \State \textbf{end parallel for}
+	\State
+    \State $K \gets K_{\text{new}}$
+    \State \text{kúpméret} $\gets$ \text{kúpméret} / 2
+\EndWhile
 
-\begin{enumerate}
-	\item\label{step:first} párhuzamosan iterálás a kúpok mentén, amíg a feltételek (max távolság, max iteráció szám, …) igazak
-	\item szinkronizáció
-	\item kúpok felbontása
-	\item ha a kúpok már csak 1-1 pixelnek felelnének meg, akkor vége a kúpkövetésnek és a megtett távolságoktól még pixelenként az alap/relaxált/javított módszer valamelyikét alkalmazza
-	\item az új kúpok beállítják kezdő távolságukat a felbontás előtti kúpjaik megtett távolságára
-	\item folytatás az \ref{step:first}.~lépéstől.
-\end{enumerate}
+\State \Comment{A kúpok már csak 1-1 pixelnek felelnek meg}
+
+\State \textbf{parallel for each} kúp $k \in K$
+    \State \quad a naiv/relaxált/javított módszer alkalmazása
+\State \textbf{end parallel for}
+
+\end{algorithmic}
+\end{algorithm}
 
 Példaként legyen egy kitalált képernyő, ami 640x480 pixeles és a kezdeti kúpméret legyen 8x8, a kúpkövetés ebben az esetben úgy nézne ki, hogy:
 
