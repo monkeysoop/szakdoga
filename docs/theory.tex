@@ -11,11 +11,11 @@ A gömbkövetés (sphere tracing) a sugárkövetések egyik változata, melynek 
 
 \begin{itemize}
 	\item a lépés mértéke nagyobb, mint egy választott érték: epszilon (álltalában kicsi: 0.001) szorozva a megtett úttal
-	\item a kiindulás pontjától vett távolság kisseb mint egy választott limit (pl: 1000)
-	\item az iterációk száma nem lépet át egy megadott határt.
+	\item a kiindulás pontjától vett távolság kisseb mint egy választott limit (pl.: 1000)
+	\item az iterációk száma nem lépett át egy megadott határt
 \end{itemize}
 
-A gömbkövetés lényege, hogy a pixel közepéből induló sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért kettő sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem
+A gömbkövetés lényege, hogy a pixel közepéből induló sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért kettő sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem.
 
 \begin{figure}[H]
 	\centering
@@ -29,20 +29,21 @@ A relaxált és javított gömbkövetés úgy próbálja az alap gömbkövetést
 
 A relaxált a lépés méretét szorzó skalárt egy fix konstansból kapja.
 
-A javított gömbkövetés a két megelőző lépés pontja közötti távolság (azaz az előző lépés mértéke) és a két pont SDF távolság felhasználásával becsüli a szorzót. Ezt a szorzót ezen túl még, beszorozza, egy nulla és 1.0 közötti fix paraméterrel (pl.: 0.9), ezzel csökkentve a visszalépések számát, amiket kicsi numerikus hibák okoznának, majd még beszorítja (clamp) 1.0 és egy paraméterül megadott konstans közé (pl.:10), ez extrém esetek elkerülése miatt van.
+A javított gömbkövetés a két megelőző lépés pontja közötti távolság (azaz az előző lépés mértéke) és a két pont SDF távolság felhasználásával becsüli a szorzót. Ezt a szorzót ezen túl még, beszorozza, egy nulla és 1.0 közötti fix paraméterrel (pl.: 0.9), ezzel csökkentve a visszalépések számát, amiket kicsi numerikus hibák okoznának, majd még beszorítja (clamp) 1.0 és egy paraméterül megadott konstans közé (pl.: 10.0), ez extrém esetek elkerülése miatt van.
 
 \section{Kúpkövetés}
 
 A cél itt is az alap gömbkövetés gyorsítása, viszont a módszer más, az algoritmus lényege, ahelyett, hogy a képernyő minden pixeléből külön sugarat indítana, helyette szomszédos pixeleket egyesítő kúpokat használ, és azok mentén iterál addig, amíg 3 feltétel igaz:
 
 \begin{itemize}
-	\item a lépés mértéke, ami itt nem az adott pont SDF értéke, hanem az mínusz a pontbeli kúp sugara nagyobb, mint egy fix epszilon (az alap módszernél nagyobb pl.:0.02) paraméter
-	\item hasonlóan a többi módszerhez nem lépett át egy max távolság határt és az iterációk száma is egy limit alatt van
+	\item a lépés mértéke, ami itt nem az adott pont SDF értéke, hanem az mínusz a pontbeli kúp sugara nagyobb, mint egy fix epszilon (az alap módszernél nagyobb pl.: 0.02) paraméter
+	\item nem lépett át egy max távolság határt
+	\item az iterációk száma a limit alatt van
 \end{itemize}
 
 \subsection{A kúpok méretének és irányának meghatározása}
 
-A megoldandó probléma: egy térbeli téglalap kamera szemszögéből kiinduló gúlájának, megtaláljuk a lehető legkisseb az azt körbe ölelő kúpját. Az implementációban csakis négyzeteket használok, amik több pixelből álló „blokkokat” reprezentálnak.
+A megoldandó probléma: egy térbeli téglalap kamera szemszögéből kiinduló gúlájának, megtaláljuk a lehető legkissebb az azt körbe ölelő kúpját. Az implementációban csakis négyzeteket használok, amik több pixelből álló „blokkokat” reprezentálnak.
 
 \begin{figure}[H]
 	\centering
@@ -101,7 +102,7 @@ Az elkövetkezendő ábrák segítségével próbálom vizualizálni a kúpköve
 	\item a kék és piros pontok a „pixelek” határait és közepeit jelölik, a példában a képernyő 4 pixelből fog állni
     \item a narancssárga pontok az távolságfüggvény kiértékelésének pontjai
     \item a kék vonalak az aktuális pontbeli sugarát vizualizálja a kúpnak, ott, ahol a távolságfüggvényt kiértékeltük
-    \item a zöld korong pedig a már megtett távolságot jelöli, amiben tudjuk biztosra, hogy nem ütköztünk.
+    \item a zöld korong pedig a már megtett távolságot jelöli, amiben tudjuk biztosra, hogy nem ütköztünk
 \end{itemize}
 
 \begin{figure}[H]

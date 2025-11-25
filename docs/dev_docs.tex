@@ -232,11 +232,11 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
     	\caption{A Newton ingája SDF iteráció számai láthatóak, minél világosabb annál nagyobb az iteráció szám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
     \end{figure}
     \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
-	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy nagyon egyszer módon egy szürke árnyalatot kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
+	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy Lambert árnyalás alapú szürke színt kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/debug.png}
-    	\caption{A Newton ingájának SDF-je látható Debug módba.}
+    	\caption{A Newton ingájának SDF-je látható Debug módban.}
     \end{figure}
 	\item \textbf{Debug mód iteráció száma:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
     \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.

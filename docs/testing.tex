@@ -3,7 +3,7 @@
 
 Az applikációt egy Linux Mint operációs rendszerű laptopon, valamint az otthoni Arch Linux rendszerű asztali számítógépen is teszteltem.
 
-A projekt tartalmaz feketedoboz, valamint fehérdoboz teszteket is, ezek egyeki sem 100\%-os lefedettségű, hiszen a feketedoboz teszteknél rengeteg különböző állítható paraméter van, amiket tesztelni lehetne, míg az egységteszteknél nem minden osztály tesztelésének lenne értelme, így én a főbb funkciókat igyekeztem tesztelni.
+A projekt tartalmaz feketedoboz, valamint fehérdoboz teszteket is, ezek egyike sem 100\%-os lefedettségű, hiszen a feketedoboz teszteknél rengeteg különböző állítható paraméter van, amiket tesztelni lehetne, míg az egységteszteknél nem minden osztály tesztelésének lenne értelme, így én a főbb funkciókat igyekeztem tesztelni.
 
 A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesítményének és vizuális minőségének a mérése, ezek összehasonlítása és belőlük való következtetések levonása is.
 
@@ -117,7 +117,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 
 \section{Fehérdoboz tesztelés}
 
-A szakdolgozatom tartalmaz egység teszteket is az úgynevezett \texttt{core} könyvtár fontosabb osztályainak tesztelésére. A teszteket \texttt{googletest} segítségével valósítottam meg, ami szinte tökéletesen integrálódik a meson build rendszerbe. Mivel a \texttt{googletest} nem tökéletes, ezért egy rövid \texttt{main} függvényt is kellet írjak, ami lefuttatja majd a teszteket: 
+A szakdolgozatom tartalmaz egység teszteket is az úgynevezett \texttt{core} könyvtár fontosabb osztályainak tesztelésére. A teszteket \texttt{googletest} segítségével valósítottam meg, ami szinte tökéletesen integrálódik a meson build rendszerbe. Mivel a \texttt{googletest} nem tökéletes, ezért egy rövid \texttt{main} függvényt is kellett írjak, ami lefuttatja majd a teszteket: 
 
 \lstset{caption={Belépési pont, ami lefuttatja a teszteket.}, label=src:cpp6, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
@@ -182,7 +182,7 @@ A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb
 	\caption{Az ábrán a Normál mód viszonyítási képe látható.}
 \end{figure}
 
-Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg az Y tengely használt módszert: relaxált, naiv, javított és a kilenc kúpkövető. Kúpkövetéseknél pl: „cone relaxed naiv” azt jelenti, hogy a kúpkövetés alatt egy enyhén módosított relaxált gömbkövetést használ, majd miután a kúpkövetés befejeződött pixelenként a naiv módszert alkalmazza.
+Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg az Y tengely használt módszert: relaxált, naiv, javított és a kilenc kúpkövető. Kúpkövetéseknél pl.: „cone relaxed naiv” azt jelenti, hogy a kúpkövetés alatt egy enyhén módosított relaxált gömbkövetést használ, majd miután a kúpkövetés befejeződött pixelenként a naiv módszert alkalmazza.
 
 \begin{figure}[H]
     \centering
@@ -222,7 +222,7 @@ A futási időt kettő különböző módszerrel is mértem, az egyik a C++ stan
 	\caption{Az ábrán a Normál mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
-Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvények hívásainak a száma, kivéve: az ambiens kitakarás, puha árnyékok, normál irány kiszámításához szükségesek kiértékelések számát. Fontos, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
+Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvények hívásainak a száma, kivéve: az ambiens kitakarás, puha árnyékok, normál irány kiszámításához szükséges kiértékelések számát. Fontos, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
 
 \begin{figure}[H]
 	\centering
@@ -428,10 +428,10 @@ Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett ha
 
 A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más, mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínűleg a globális szinkronizáció a „flip-flop” textúrákon a probléma, ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
 
-Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenni így romlik a hatékonysága.
+Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenne, így romlik a hatékonysága.
 
 A kúpkövetés különböző változatai között nagyobb különbségek nincsenek, nagyjából 5-10\% az eltérés.
 
-A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületek hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
+A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületeket hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
 
 A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől, ... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.
