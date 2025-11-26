@@ -66,7 +66,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Camera_class_diagram.png}
+	\includegraphics[width=0.8\textwidth,keepaspectratio]{plantuml/Camera_class_diagram.png}
 	\caption{A \texttt{Camera} osztály osztálydiagramja.}
 \end{figure}
 
@@ -74,7 +74,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/CameraManipulator_class_diagram.png}
+	\includegraphics[width=0.8\textwidth,keepaspectratio]{plantuml/CameraManipulator_class_diagram.png}
 	\caption{A \texttt{CameraManipulator} osztály osztálydiagramja.}
 \end{figure}
 
@@ -140,7 +140,7 @@ A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Skybox_class_diagram.png}
+	\includegraphics[width=0.5\textwidth,keepaspectratio]{plantuml/Skybox_class_diagram.png}
 	\caption{A \texttt{Skybox} osztály osztálydiagramja.}
 \end{figure}
 
@@ -236,15 +236,15 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/debug.png}
-    	\caption{A Newton ingájának SDF-je látható Debug módban.}
+    	\caption{A Newton ingájának SDF-je látható Debug megjelenítési módban.}
     \end{figure}
-	\item \textbf{Debug mód iteráció száma:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
+	\item \textbf{Debug megjelenítési mód iteráció számai:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
     \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.
 \end{itemize}
 
 \section{Puha árnyékok, ambiens kitakarás}
 \label{se:shadows_and_ambient_occlusion}
 
-A Normál módban a puha árnyékok kiszámolását ugyanaz az algoritmus végzi, mint amit kiválasztottunk, kúpkövetésnél ez a naiv, relaxált, javított egyike lesz, míg az ambiens kitakarást kizárólag naiv módszer végzi, ahol az iteráció limit egy paraméterezhető fix érték.
+A Normál megjelenítési módban a puha árnyékok kiszámolását ugyanaz az algoritmus végzi, mint amit kiválasztottunk, kúpkövetésnél ez a naiv, relaxált, javított egyike lesz, míg az ambiens kitakarást kizárólag naiv módszer végzi, ahol az iteráció limit egy paraméterezhető fix érték.
 
 

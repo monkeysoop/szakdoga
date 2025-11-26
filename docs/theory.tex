@@ -225,7 +225,7 @@ Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, a
         \State \quad iterálás a $k$ kúp mentén, amíg a feltételek (max távolság, max iterációszám, \dots) igazak
     \State \textbf{end parallel for}
 	\State
-    \State szinkronizáció
+    \State memória szinkronizáció
 	\State
     \State kúpok felbontása $\,\Rightarrow\,$ új kúpok listája $K_{\text{new}}$
 	\State
@@ -246,16 +246,16 @@ Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, a
 \end{algorithmic}
 \end{algorithm}
 
-Példaként legyen egy kitalált képernyő, ami 640x480 pixeles és a kezdeti kúpméret legyen 8x8, a kúpkövetés ebben az esetben úgy nézne ki, hogy:
+Példaként legyen egy kitalált képernyő, ami 1920x1080 pixeles és a kezdeti kúpméret legyen 8x8, a kúpkövetés ebben az esetben úgy nézne ki, hogy:
 
 \begin{enumerate}
-	\item 80x60 szálon a 8x8 pixeles kúpokat követjük
+	\item 240x135 szálon a 8x8 pixeles kúpokat követjük
 	\item szinkronizáció
-	\item 160x120 szálon 4x4 pixeles kúpok a megfelelő 8x8-as kúp eredményéből indítva
+	\item 480x270 szálon 4x4 pixeles kúpok a megfelelő 8x8-as kúp eredményéből indítva
 	\item szinkronizáció
-	\item 320x240 szálon 2x2 pixeles kúpok a 4x4 es eredményeit felhasználva
+	\item 960x540 szálon 2x2 pixeles kúpok a 4x4 es eredményeit felhasználva
 	\item szinkronizáció
-	\item alap/relaxált/javított sugárkövetés pixelenként (640x480 szálon) a megfelelő 2x2-es kúpok eredményeit felhasználva
+	\item alap/relaxált/javított sugárkövetés pixelenként (1920x1080 szálon) a megfelelő 2x2-es kúpok eredményeit felhasználva
 \end{enumerate}
 
 A gyorsítás itt abból fog adódni, hogy az SDF kiértékelések száma összességében kevesebb lesz, ami általában a domináns faktor a számítási időben. Ez a módszer azt használja ki, hogy szomszédos sugarak a kiindulási ponttól vett adott távolságra lévő SDF kiértékeléseikből származó távolságaik nagyban hasonlítanak, így úgymond összevonja őket.

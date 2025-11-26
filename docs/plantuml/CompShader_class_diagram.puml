@@ -3,7 +3,8 @@
 
 
 class CompShader {
-	+CompShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames, const std::map<std::string, std::string>& in_variables)
+	+CompShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& 
+    include_filenames, const std::map<std::string, std::string>& in_variables)
     +~CompShader()
     +Use() : void
     +Dispatch(unsigned x, unsigned y, unsigned z) : void
@@ -13,8 +14,9 @@ class CompShader {
     +Recompile(const std::map<std::string, std::string>& in_variables) : void
 	-m_program_id : GLuint
     -m_shader_source_code : std::string
-    -{static} m_currently_used_id : static GLuint
-	-LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& include_filenames) : std::string
+    -m_currently_used_id : static GLuint
+	-LoadShader(const std::filesystem::path& comp_filename, const std::vector<std::filesystem::path>& 
+    include_filenames) : std::string
     -ConfigureShader(const std::map<std::string, std::string>& in_variables) : std::string
     -AttachShader(const std::string& configured_shader_source_code) : void
 }

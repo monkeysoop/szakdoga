@@ -67,12 +67,16 @@ class App {
     -PrecomputeCones() : void
     -DivideAndRoundUp(unsigned number, unsigned divisor) : unsigned
     -Benchmark() : void
-    -BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
-    -BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) : void
+    -BenchmarkSingleSphere(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType 
+    render_mode, SphereTracingType sphere_tracing_type) : void
+    -BenchmarkSingleCone(const std::filesystem::path& base_path, SDFSceneType sdf_scene, RenderModeType 
+    render_mode, SphereTracingType cone_tracing_type, SphereTracingType cone_final_tracing_type) : void
     -WriteTimeTaken(const std::filesystem::path& path, double ms_taken_chrono, double ms_taken_gl) : void
-    -RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType sphere_tracing_type) : void
+    -RecompileSphereTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType 
+    sphere_tracing_type) : void
     -RecompileConeTracer(SDFSceneType sdf_scene, SphereTracingType cone_tracing_type) : void
-    -RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType cone_final_tracing_type) : void
+    -RecompileConeFinalTracer(SDFSceneType sdf_scene, RenderModeType render_mode, SphereTracingType 
+    cone_final_tracing_type) : void
 }
 
 enum "App::RenderModeType" as RenderModeType {
