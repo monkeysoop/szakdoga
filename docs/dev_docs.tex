@@ -44,7 +44,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 	\item \textbf{\texttt{m\_relaxed\_step\_multiplier, m\_cone\_trace\_relaxed\_step\_multiplier, m\_cone\_trace\_final\_relaxed\_step\_multiplier}:} a relaxált gömbkövetés lépés mértékét beszorzó skalár
 	\item \textbf{\texttt{m\_enhanced\_step\_multiplier, m\_cone\_trace\_ enhanced \_step\_multiplier, m\_cone\_trace\_final\_ enhanced \_step\_multiplier}:} a javított gömbkövetés lépés mértékét beszorzó skalár
 	\item \textbf{\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}:} a javított gömbkövetés lépés mértékét limitáló skalár
-	\item \textbf{\texttt{m\_cone\_trace\_intermediate\_epsilon}:} m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
+	\item \textbf{\texttt{m\_cone\_trace\_intermediate\_epsilon}:} \texttt{m\_epsilon}-hoz hasonló, de a kúpkövetésnél használt
 	\item \textbf{\texttt{m\_benchmark\_baseline\_iteration\_count}:} limit a tesztelésnél használt referencia kép iterációszámaira
 	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iterációlimitek alsó, felső korlátja, és hogy mekkora közönként vannak, például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iterációlimitekkel fogja lefuttatni a különböző módszereket tesztelésnél
 	\item \textbf{\texttt{m\_benchmark\_performance\_number\_of\_runs}:} a tesztelésnél megadja, hogy egy módszert, egy iterációlimittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
@@ -105,7 +105,7 @@ amikből kiválogatva másolja be a megfelelő fájl tartalmát a
 #include "assets/ray.include"
 \end{lstlisting}
 
-helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben található fájl konfigurációhoz hasonlóan (\texttt{configure\_file}) van lehetőség statikus paramétereket megadni fordítás során
+helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben található fájl konfigurációhoz hasonlóan (\texttt{configure\_file}) van lehetőség statikus paramétereket megadni fordítás során.
 
 \lstset{caption={Példa úgynevezett „in” paraméterekre.}, label=src:cpp3, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
@@ -182,7 +182,7 @@ A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre
 
 \section{SDF-ek közti váltogatás}
 
-A szakdolgozat célja nem egy jól kidolgozott SDF nézegető program fejlesztése volt, így például nincs mód arra, hogy különböző SDF-eket dinamikusan hozzáadjunk (meglévők között lehet dinamikusan váltogatni). Jelenlegi megoldás szerint az \texttt{sdf.INCLUDE} fájlban egy preprocesszor makró dönti el, hogy melyik SDF legyen kiválasztva, amit dinamikusan (a shader újrafordul) lehet módosítani a grafikus felületen keresztül
+A szakdolgozat célja nem egy jól kidolgozott SDF nézegető program fejlesztése volt, így például nincs mód arra, hogy különböző SDF-eket dinamikusan hozzáadjunk (meglévők között lehet dinamikusan váltogatni). Jelenlegi megoldás szerint az \texttt{sdf.INCLUDE} fájlban egy preprocesszor makró dönti el, hogy melyik SDF legyen kiválasztva, amit dinamikusan (a shader újrafordul) lehet módosítani a grafikus felületen keresztül.
 
 \lstset{caption={Ez a preprocesszor elágazás dönt, hogy melyik SDF függvény aktív egy adott pillanatban.}, label=src:cpp4, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
@@ -197,7 +197,7 @@ A szakdolgozat célja nem egy jól kidolgozott SDF nézegető program fejleszté
 #endif
 \end{lstlisting}
 
-Maguk az SDF függvények külön fájlokban vannak és egy fix szignatúrájú függvényt kell, hogy tartalmazzanak
+Maguk az SDF függvények külön fájlokban vannak és egy fix szignatúrájú függvényt kell, hogy tartalmazzanak.
 
 \lstset{caption={Az autó SDF függvénye (részlet).}, label=src:cpp5, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]

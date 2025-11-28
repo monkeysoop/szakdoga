@@ -15,7 +15,7 @@ A gömbkövetés (sphere tracing) a sugárkövetések egyik változata, melynek 
 	\item az iterációk száma nem lépett át egy megadott határt
 \end{itemize}
 
-A gömbkövetés lényege, hogy a pixel közepéből induló sugár mentén keressük a felülettel való metszési pontot, az alábbi ábrán a hagyományos gömbkövetés látható, ahol most az átláthatóság kedvéért kettő sugár van csak berajzolva, az első sugár eltalálja az SDF-et (piros testek), míg a második nem.
+A gömbkövetés lényege, hogy a pixel közepéből induló sugár mentén keressük a felülettel való metszési pontot.
 
 \begin{figure}[H]
 	\centering
@@ -75,7 +75,7 @@ Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a ve
 	\caption{Az ábrán a kék kör a naiv, míg zöld a szinte optimális megoldás.}
 \end{figure}
 
-A hosszabb átlót egyszerűen ki tudjuk számolni, abból, hogy a képernyő melyik negyedében vagyunk
+A hosszabb átlót egyszerűen ki tudjuk számolni, abból, hogy a képernyő melyik negyedében vagyunk.
 
 \begin{figure}[H]
 	\centering
@@ -83,7 +83,7 @@ A hosszabb átlót egyszerűen ki tudjuk számolni, abból, hogy a képernyő me
 	\caption{Az ábrán a piros pont a kamera/képernyő közepe, a négyzetek maguk a pixelek és azok az átlók vannak még berajzolva, amelyek a vetítés után hosszabbak lesznek.}
 \end{figure}
 
-Ez a módszer nem mindig vezet az optimális irány megtalálásához, de a naiv megoldásnál rosszabb eredményt nem fog adni
+Ez a módszer nem mindig vezet az optimális irány megtalálásához, de a naiv megoldásnál rosszabb eredményt nem fog adni.
 
 \begin{figure}[H]
     \centering
@@ -134,7 +134,7 @@ Mivel az optimális megoldást kiszámítása meglehetősen költséges, ez 3D-b
 	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancssárga pont lesz az eredménye ennek az iterációnak.}
 \end{figure}
 
-Az a módszer még elfajult helyzetekben is megőrzi a program helyességét.
+Ez a módszer még elfajult helyzetekben is megőrzi a program helyességét.
 
 \begin{figure}[H]
 	\centering
@@ -181,7 +181,7 @@ Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az alg
 	\caption{Az ábrán a felsőbb két pixeles kúpnak az első iterációja látható.}
 \end{figure}
 
-Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne
+Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne.
 
 \begin{figure}[H]
 	\centering

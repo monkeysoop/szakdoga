@@ -16,7 +16,7 @@ mkdir builddir
 conan install . --output-folder=builddir --build=missing
 \end{lstlisting}
 
-grafikus könyvtárakat  a conan nem mindig tud rendesen telepíteni, vagy csak részlegesen, ezért szükségesek lehetnek a \texttt{-c tools.system.package\_manager:mode=install -c tools.system.package\_manager:sudo=True} opciók is, de bizonyos használt könyvtárakat (opengl, glu, glew) érdemes lehet először a rendszer csomagkezelőjével (Linux Mint esetében \texttt{apt}) telepíteni
+Grafikus könyvtárakat  a conan nem mindig tud rendesen telepíteni, vagy csak részlegesen, ezért szükségesek lehetnek a \texttt{-c tools.system.package\_manager:mode=install -c tools.system.package\_manager:sudo=True} opciók is, de bizonyos használt könyvtárakat (opengl, glu, glew) érdemes lehet először a rendszer csomagkezelőjével (Linux Mint esetében \texttt{apt}) telepíteni.
 
 \lstset{caption={}, label=src:bash2}
 \begin{lstlisting}[language=bash]
@@ -41,7 +41,7 @@ cd meson-src/app
 ./main
 \end{lstlisting}
 
-(a könyvtárváltás fontos, \texttt{./meson-src/app/main} nem elég, mert számít az aktuális munkakönyvtár)
+A könyvtárváltás fontos, \texttt{./meson-src/app/main} nem elég, mert számít az aktuális munkakönyvtár.
 Ha minden jól ment, az alábbi ábrához hasonló a program indítás utáni állapota.
 
 \begin{figure}[H]
@@ -98,7 +98,7 @@ A következő (5. fül) almenüben a használt módszert kiválasztó rádiógom
 	\caption{5. almenü részlegesen kibontva látható.}
 \end{figure}
 
-Az 5. almenü még a kúpkövetéshez tartozó paramétereket is tartalmazza, ezekkel a kiindulási kúpméret állítható, a köztes epszilon, köztes (kúpkövetés alatti) gömbkövetési módszer (módosított, hogy működjön a kúpkövetéssel) és az azokhoz tartozó paraméterek, valamint a kúpkövetés befejezte után futó gömbkövetési módszer és az azokhoz tartozó paraméterek is
+Az 5. almenü még a kúpkövetéshez tartozó paramétereket is tartalmazza, ezekkel a kiindulási kúpméret állítható, a köztes epszilon, köztes (kúpkövetés alatti) gömbkövetési módszer (módosított, hogy működjön a kúpkövetéssel) és az azokhoz tartozó paraméterek, valamint a kúpkövetés befejezte után futó gömbkövetési módszer és az azokhoz tartozó paraméterek is.
 
 \begin{figure}[H]
 	\centering

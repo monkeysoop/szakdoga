@@ -332,7 +332,7 @@ A különbség leginkább feltűnő, ha Debug megjelenítést használunk, az al
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_cone_8_1920_1080.png}
 	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
@@ -360,7 +360,7 @@ Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (m�
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
+	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_cone_8_3840_2160.png}
 	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
@@ -369,13 +369,13 @@ A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel}
+	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_cone_8_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel}
+	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 \subsection{Mérések összegzése, megfigyelések}
@@ -383,8 +383,8 @@ A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
 A mérések elkülönülnek 2 nagy kategóriába:
 
 \begin{itemize}
-	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF alapú árnyalással
-	\item elsődleges sugarak Lambert árnyalással
+	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF alapú árnyalással, vagyis a Normál megjelenítési mód
+	\item elsődleges sugarak Lambert árnyalással, azaz a Debug megjelenítési mód
 \end{itemize}
 
 Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a naiv módszerhez képest:
