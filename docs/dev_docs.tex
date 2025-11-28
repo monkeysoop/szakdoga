@@ -3,11 +3,11 @@
 
 \section{Megoldási terv}
 
-A szakdolgozatomban két különböző főbb feladattal foglalkoztam, A különböző távolságfüggvények megjelenítéséhez használt gömbkövetési módszerek implementálásával, és ezek tesztelésével, ami a különböző módszerek teljesítményének és vizuális minőségének a mérésével és összehasonlításával foglalkozik.
+A szakdolgozatomban két különböző főbb feladattal foglalkoztam, a különböző távolságfüggvények megjelenítéséhez használt gömbkövetési módszerek implementálásával, és ezek tesztelésével, ami a különböző módszerek teljesítményének és vizuális minőségének a mérésével és összehasonlításával foglalkozik.
 
-Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt, az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
+Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
 
-A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iteráció limiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb a megjelenítéséhez és teszteléshez tartozó paramétereket, az egyszerűség és ismételhetőség kedvéért az idő automatikusan 0-ra van állítva a tesztek alatt. Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iteráció számok által alkotott képeket is elmenti. Az elmentett png képeket és a mért időket majd jupiter notebook-ok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet. Azért png formátumban mentem el a képeket, mert az SDL2 könyvtár támogatja és veszteségmentes, ami fontos hiszen nem a veszteséges tömörítés zaját szeretném mérni.
+A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iterációlimiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb, a megjelenítéséhez és teszteléshez tartozó paramétereket, az egyszerűség és ismételhetőség kedvéért az idő automatikusan nullára van állítva a tesztek alatt. Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iterációszámok által alkotott képeket is elmenti. Az elmentett png képeket és a mért időket majd Jupyter notebookok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet. Azért png formátumban mentem el a képeket, mert az SDL2 könyvtár támogatja és veszteségmentes, ami fontos hiszen nem a veszteséges tömörítés zaját szeretném mérni.
 
 A program ezen túl tartalmaz még egység teszteket is.
 
@@ -19,7 +19,7 @@ A program ezen túl tartalmaz még egység teszteket is.
 
 \section{A program architektúrája}
 
-Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ könyvtárból és GLSL „compute” shader fájlokból.
+Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ könyvtárból és GLSL „compute” shaderfájlokból.
 
 \begin{figure}[H]
 	\centering
@@ -27,7 +27,7 @@ Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ köny
 	\caption{A program osztálydiagramja.}
 \end{figure}
 
-A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) absztrakció egy OpenGL 2 dimenziós textúra köré, hasonlóan a \texttt{Skybox} osztály egy „cubemap”-et absztraktál. A \texttt{Framebuffer} osztály, ahogy a neve is mondja, egy OpenGL „framebuffer”-t absztraktál, de itt helyezkedik el, a képernyő fotó készítő logika is. A \texttt{CompShader} osztály GLSL „compute” shader-t hoz létre. A \texttt{Framebuffer} és \texttt{CompShader} osztály is követi a RAII-t. A \texttt{Camera} és \texttt{CameraManipulátor} osztályok a kamera projekciós és nézeti mátrixok lekérdezését, billentyűzet és egér események általi módosítását végzik. Az \texttt{App} osztály meg ezeket összekötve adja az applikációt.
+A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) absztrakció egy OpenGL két dimenziós textúra köré, hasonlóan a \texttt{Skybox} osztály egy „cubemap”-et absztraktál. A \texttt{Framebuffer} osztály, ahogy a neve is mondja, egy OpenGL „framebuffer”-t absztraktál, de itt helyezkedik el a képernyőfotó készítő logika is. A \texttt{CompShader} osztály GLSL „compute” shader-t hoz létre. A \texttt{Framebuffer} és \texttt{CompShader} osztály is követi a RAII-t. A \texttt{Camera} és \texttt{CameraManipulátor} osztályok a kamera projekciós és nézetimátrixok lekérdezését, billentyűzet és egér események általi módosítását végzik. Az \texttt{App} osztály meg ezeket összekötve adja az applikációt.
 
 \subsection{Az \texttt{App} osztály}
 
@@ -39,18 +39,18 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 	\item \textbf{\texttt{m\_tracing\_type, m\_sphere\_tracing\_type, m\_cone\_trace\_sphere\_tracing\_type, m\_cone\_trace\_final\_sphere\_tracing\_type}:} a gömbkövetési módszert (almódszert is) határozzák meg
 	\item \textbf{\texttt{m\_initial\_cone\_size}:} kezdeti kúpméret pixelben megadva, például, ha 8, akkor az azt jelenti, hogy 8x8 pixel a kúpok mérete a kezdetben
 	\item \textbf{\texttt{m\_epsilon}:} gömbkövetésnél használt paraméter túl kicsi lépések detektálására
-	\item \textbf{\texttt{m\_max\_distance}:} távolság, amin túl a program úgy tesz, mintha a sugár a skybox-ot találta volna el
-	\item \textbf{\texttt{m\_max\_iteration\_count}:} limit a gömbkövetés iteráció számaira
+	\item \textbf{\texttt{m\_max\_distance}:} távolság, amin túl a program úgy tesz, mintha a sugár a skyboxot találta volna el
+	\item \textbf{\texttt{m\_max\_iteration\_count}:} limit a gömbkövetés iterációszámaira
 	\item \textbf{\texttt{m\_relaxed\_step\_multiplier, m\_cone\_trace\_relaxed\_step\_multiplier, m\_cone\_trace\_final\_relaxed\_step\_multiplier}:} a relaxált gömbkövetés lépés mértékét beszorzó skalár
 	\item \textbf{\texttt{m\_enhanced\_step\_multiplier, m\_cone\_trace\_ enhanced \_step\_multiplier, m\_cone\_trace\_final\_ enhanced \_step\_multiplier}:} a javított gömbkövetés lépés mértékét beszorzó skalár
 	\item \textbf{\texttt{m\_enhanced\_max\_step\_factor, m\_cone\_trace\_enhanced\_max\_step\_factor, m\_cone\_trace\_final\_enhanced\_max\_step\_factor}:} a javított gömbkövetés lépés mértékét limitáló skalár
 	\item \textbf{\texttt{m\_cone\_trace\_intermediate\_epsilon}:} m\_epsilon-hoz hasonló, de a kúpkövetésnél használt
-	\item \textbf{\texttt{m\_benchmark\_baseline\_iteration\_count}:} limit a tesztelésnél használt referencia kép iteráció számaira
-	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iteráció limitek alsó, felső korlátja, és hogy mekkora közönként vannak, például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iteráció limitekkel fogja lefuttatni a különböző módszereket tesztelésnél
-	\item \textbf{\texttt{m\_benchmark\_performance\_number\_of\_runs}:} a tesztelésnél megadja, hogy egy módszert, egy iteráció limittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
-	\item \textbf{\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}:} az árnyékok penumbra részét és intenzitását tárolja el
+	\item \textbf{\texttt{m\_benchmark\_baseline\_iteration\_count}:} limit a tesztelésnél használt referencia kép iterációszámaira
+	\item \textbf{\texttt{m\_benchmark\_min\_iteration\_count, m\_benchmark\_max\_iteration\_count, m\_benchmark\_iteration\_count\_spacing}:} rendre a tesztelésnél használt iterációlimitek alsó, felső korlátja, és hogy mekkora közönként vannak, például rendre 10, 70, 20 azt jelenti, hogy 10, 30, 50, 70 iterációlimitekkel fogja lefuttatni a különböző módszereket tesztelésnél
+	\item \textbf{\texttt{m\_benchmark\_performance\_number\_of\_runs}:} a tesztelésnél megadja, hogy egy módszert, egy iterációlimittel hányszor fogja lefuttatni egymás után, minél nagyobb, annál pontosabb lesz az átlag
+	\item \textbf{\texttt{m\_shadow\_penumbra, m\_shadow\_intesity}:} az árnyékok penumbrarészét és intenzitását tárolja el
 	\item \textbf{\texttt{m\_ao\_multiplier\_attenuation, m\_ao\_step\_size, m\_ao\_strength}:} az ambiens kitakarás számításánál használt paraméterek, rendre: erősségének elhalása iterálás alatt, iterálás lépésköze, erősségét szorzó skalár
-	\item \textbf{\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}:} iteráció limit az árnyékok és ambiens kitakarás kiszámításához
+	\item \textbf{\texttt{m\_shadow\_max\_iteration\_count, m\_ao\_max\_iteration\_count}:} iterációlimit az árnyékok és ambiens kitakarás kiszámításához
 	\item \textbf{\texttt{m\_ambient\_strength}:} ambiens fény ereje
 	\item \textbf{\texttt{m\_reflection\_attenuation}:} a tükröződéseknél használt extra elhalást imitáló skalár
 	\item \textbf{\texttt{m\_max\_number\_of\_reflections}:} a maximum tükröződések számának limitje
@@ -80,7 +80,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 
 \subsection{A \texttt{CompShader} osztály működése, a shaderek fordítása}
 
-A \texttt{CompShader} osztály egy szimpla RAII absztrakciónál bonyolultabban működik, mivel a GLSL nyelv önmagába a \texttt{\#include} preprocesszor makrót nem támogatja, nyilvánvaló okok miatt, ezért hosszabb shaderek fejlesztése és karbantartása problémás tud lenni, ezért az osztály a konstruktorába kap egy listát shader fájl útvonalakkal:
+A \texttt{CompShader} osztály egy szimpla RAII absztrakciónál bonyolultabban működik, mivel a GLSL nyelv önmagába a \texttt{\#include} preprocesszor makrót nem támogatja, nyilvánvaló okok miatt, ezért hosszabb shaderek fejlesztése és karbantartása problémás tud lenni, ezért az osztály a konstruktorába kap egy listát shaderfájl útvonalakkal:
 
 \lstset{caption={Az egyik használt shader konstruktorának az egyik paramétere, egy \texttt{std::vector<std::filesystem::path>} látható, tele include fájl útvonalakkal.}, label=src:cpp1, linewidth=0.9\linewidth, xleftmargin=0.07\linewidth}
 \begin{lstlisting}[language={C++}]
@@ -114,7 +114,7 @@ helyére hasonlóan a C preprocesszorhoz. Ezenkívül még a cmake-ben találhat
 #define SPHERE_TRACING_TYPE @SPHERE_TRACING_TYPE@
 \end{lstlisting}
 
-Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikusan módosítsuk, amik a kód újra fordításához vezetnek. Eredetileg \texttt{uniform} változókat és „\texttt{switch case}”-eket használtam nagyobb kódrészek között történő váltogatásra, például kiválasztani, hogy melyik SDF függvény hívódjon meg, ez a módszer viszont problémás volt, egyrészt lassabb lett tőle a program, mintha preprocesszor makrókkal oldottam volna meg (ez kevésbé okozott gondot, mivel az optimalizáló elég jól tudja kezelni az \texttt{uniform} változókat, főleg elágazások terén) a nagyobbik probléma az volt, hogy ez meglehetősen hosszú akadozásokat okozott (egyes esetekben 5-10 másodperc), amikor az \texttt{uniform} értéke megváltozott. A problémán nem segített, ha újrafordítottam a shadert minden egyes alkalommal, hiszen maga a fordítás is meglehetősen lassú volt (ez részben a nagy shaderek problémája). Az okot nem nagyon kutattam, de ha jól tudom a shadereket ha nem is teljesen, de részlegesen újra fordítják/optimalizálják, amikor egy \texttt{uniform} értéke megváltozik, ami kombinálva a lassú fordítási időkkel okozhatta a problémát. A megoldás így az lett, hogy fordítás alatt felparaméterezek \texttt{\#define} makrókat adom oda \texttt{\#if}/\texttt{\#elif}/\texttt{\#endif} makróknak, így a fordító gyorsan eltudja dobni a kód nagyrészét, ezzel elérve a gyors fordítást és az optimális teljesítményt.
+Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikusan módosítsuk, amik a kód újrafordításához vezetnek. Eredetileg \texttt{uniform} változókat és „\texttt{switch case}”-eket használtam nagyobb kódrészek között történő váltogatásra, például kiválasztani, hogy melyik SDF függvény hívódjon meg, ez a módszer viszont problémás volt, egyrészt lassabb lett tőle a program, mintha preprocesszor makrókkal oldottam volna meg (ez kevésbé okozott gondot, mivel az optimalizáló elég jól tudja kezelni az \texttt{uniform} változókat, főleg elágazások terén) a nagyobbik probléma az volt, hogy ez meglehetősen hosszú akadozásokat okozott (egyes esetekben 5-10 másodperc), amikor az \texttt{uniform} változó értéke megváltozott. A problémán nem segített, ha újrafordítottam a shadert minden egyes alkalommal, hiszen maga a fordítás is meglehetősen lassú volt (ez részben a nagy shaderek problémája). Az okot nem nagyon kutattam, de ha jól tudom a shadereket ha nem is teljesen, de részlegesen újrafordítják/optimalizálják, amikor egy \texttt{uniform} változó értéke megváltozik, ami kombinálva a lassú fordítási időkkel okozhatta a problémát. A megoldás így az lett, hogy fordítás alatt felparaméterezek \texttt{\#define} makrókat adom oda \texttt{\#if}/\texttt{\#elif}/\texttt{\#endif} makróknak, így a fordító gyorsan el tudja dobni a kód nagy részét, ezzel elérve a gyors fordítást és az optimális teljesítményt.
 
 \begin{figure}[H]
 	\centering
@@ -122,13 +122,13 @@ Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikus
 	\caption{A \texttt{CompShader} osztály osztálydiagramja.}
 \end{figure}
 
-Az osztály \texttt{m\_shader\_source\_code} privát változója eltárolja a programhoz tartozó forrás kódot, az \texttt{\#include} preprocesszor makró utáni, de az „in” változók (\texttt{@változó@}) konfigurálása előtti állapotban, a forráskód eltárolása azért hasznos, mert ha a konfigurációt megváltoztatnánk és a programot ezzel újra fordítanánk, akkor így nem kell a fájlt/fájlokat újra beolvasni.
+Az osztály \texttt{m\_shader\_source\_code} privát változója eltárolja a programhoz tartozó forrás kódot, az \texttt{\#include} preprocesszor makró utáni, de az „in” változók (\texttt{@változó@}) konfigurálása előtti állapotban, a forráskód eltárolása azért hasznos, mert ha a konfigurációt megváltoztatnánk és a programot ezzel újrafordítanánk, akkor így nem kell a fájlt/fájlokat újra beolvasni.
 
 Az osztály \texttt{m\_currently\_used\_id} privát változója azért kiemelendő, mert a fejlesztés alatti hibák kiszűrésénél nagyon hasznos volt számomra, figyelmeztet, ha egy olyan \texttt{uniform} változó helyét kérjük le, ami nem az aktív programhoz (shader) tartozik.
 
 \subsection{A \texttt{Framebuffer} osztály, képernyőkép készítés}
 
-A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük a buffer tartalmát az SDL könyvtár (SDL\_image) segítségével PNG formátumba, mivel OpenGL-ben a (0,0) koordináta bal alul van, míg az SDL a bal föntit használja, így, ha nem tükrözzük a felületet, akkor fejjel lefelé lévő képeket kapnánk, ezért kell megfordítani a képet. Az SDL3 könyvtár erre már beépített függvényt kínál, míg az SDL2 nem (a program írása alatt az SDL3 könyvtár még fejlesztés alatt állt).
+A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük a buffer tartalmát az SDL könyvtár (SDL\_image) segítségével PNG formátumba, mivel OpenGL-ben a (0,0) koordináta bal alul van, míg az SDL a bal felsőt használja, így, ha nem tükrözzük a felületet, akkor fejjel lefelé lévő képeket kapnánk, ezért kell megfordítani a képet. Az SDL3 könyvtár erre már beépített függvényt kínál, míg az SDL2 nem (a program írása alatt az SDL3 könyvtár még fejlesztés alatt állt).
 
 \begin{figure}[H]
 	\centering
@@ -157,20 +157,20 @@ A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (op
 
 \subsection{A program mappa struktúrája}
 
-A kód nagyrésze az \texttt{app} mappa alatt található, itt helyezkedi el a belépési pont (\texttt{app/main.cpp}) is, az \texttt{app/core} mappában található az összes többi C++ forráskód, \texttt{app/core/src} a \texttt{*.cpp} fájlokat, \texttt{app/core/include} a \texttt{*.hpp} és \texttt{*.h} fájlokat tartalmaz, az \texttt{app/core/tests} az egységtesztekhez szükséges fájlokat. Az \texttt{app/assets} tartalmazza a \texttt{*.comp} és \texttt{*.include} GLSL forrás fájlokat. Az \texttt{app/tests} tartalmazza az összehasonlításhoz tartozó python fájlokat. A \texttt{docs} mappa a szakdolgozathoz felhasznált képeket, uml diagrammokat és geogebra \texttt{*.ggb} fájlokat tartalmazza. A \texttt{scripts} mappa segéd Bash scripteket tartalmaz (program fordításához, csomagok letöltéséhez, teszteléshez). A \texttt{subprojects} egy a meson által használt mappa, amelyben az ImGui SDL2 és OpenGL-el vett kapcsolat létrehozásához vannak fájlok.
+A kód nagyrésze az \texttt{app} mappa alatt található, itt helyezkedik el a belépési pont (\texttt{app/main.cpp}) is, az \texttt{app/core} mappában található az összes többi C++ forráskód, \texttt{app/core/src} a \texttt{*.cpp} fájlokat, \texttt{app/core/include} a \texttt{*.hpp} és \texttt{*.h} fájlokat tartalmaz, az \texttt{app/core/tests} az egységtesztekhez szükséges fájlokat. Az \texttt{app/assets} tartalmazza a \texttt{*.comp} és \texttt{*.include} GLSL forrás fájlokat. Az \texttt{app/tests} tartalmazza az összehasonlításhoz tartozó python fájlokat. A \texttt{docs} mappa a szakdolgozathoz felhasznált képeket, UML diagrammokat és GeoGebra \texttt{*.ggb} fájlokat tartalmazza. A \texttt{scripts} mappa segéd Bash scripteket tartalmaz (program fordításához, csomagok letöltéséhez, teszteléshez). A \texttt{subprojects} egy a meson által használt mappa, amelyben az ImGui SDL2 és OpenGL-el vett kapcsolat létrehozásához vannak fájlok.
 
 \section{Futtatási környezet}
 
-A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit python jupiter nootbook segítségével hasonlítom össze. C++ 17 és GLSL 430-as verziókat használom, a program OpenGL API-t használ GLEW keretrendszerrel és SDL2 könyvtárral együtt. A GUI-t ImGui segítségével hoztam létre. Az egység tesztek pedig googletest keretrendszerrel lettek létrehozva. A programot Linux Mint 22 alatt és Visual Studio Code-ban fejlesztettem, a használt csomagok kezeléséről conan (2-es verzió) gondoskodik, a projektet pedig meson segítségével lehet fordítani.
+A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit python Jupyter nootbook segítségével hasonlítom össze. C++ 17 és GLSL 430-as verziókat használom, a program OpenGL API-t használ GLEW keretrendszerrel és SDL2 könyvtárral együtt. A GUI-t ImGui segítségével hoztam létre. Az egységtesztek pedig GoogleTest keretrendszerrel lettek létrehozva. A programot Linux Mint 22 alatt és Visual Studio Code-ban fejlesztettem, a használt csomagok kezeléséről conan (2-es verzió) gondoskodik, a projektet pedig meson segítségével lehet fordítani.
 
 
 \section{Meson és conan}
 
-Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett „imgui bindings”-okat, ezeket álltalában git submodul-ként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
+Megemlítendő, hogy az imgui conan csomag nem tartalmazza az SDL2/OpenGL könyvtárakkal való együttműködéshez szükséges úgynevezett „imgui bindings”-okat, ezeket általában git submodulként szokták pótolni, de én egy másik utat választottam: a conan csomagjában megtalálhatóak a szükséges fájlok, ezeket én kimásolom (conan-nal) és subproject-ként építem meson-nal manuálisan.
 
 \section{Shaderek}
 
-A shaderek az \texttt{app/assets} mappában találhatóak (a teszteléshez szükségesek az \texttt{app/core/tests/assets} mappában), ugyanitt helyezkednek el a skybox-hoz szükséges képek is.
+A shaderek az \texttt{app/assets} mappában találhatóak (a teszteléshez szükségesek az \texttt{app/core/tests/assets} mappában), ugyanitt helyezkednek el a skyboxhoz szükséges képek is.
 
 A \texttt{COMP} „típusú” fájlok (\texttt{*.COMP}) meg az azok által használt \texttt{INCLUDE} (\texttt{*.INCLUDE}), ezek mindketten GLSL szintaxist használnak, viszont az \texttt{INCLUDE} fájlok nem tartalmazzák a \texttt{\#version} tag-et, így technikailag nem GLSL fájlok, míg a \texttt{COMP} fájlok igen.
 
@@ -178,7 +178,7 @@ Mivel az egyedi preprocesszorom a CompShader osztályban a C nyelvben találhat�
 
 \section{Kúpok előre történő kiszámolása}
 
-A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre ki vannak számolva és egy textúrában eltárolva a program indításakor majd azt frissíti minden, képernyő átméretezésekor, kúpkövetés kezdeti kúpméretének módosításakor és az egér görgőjével történő nagyításakor. Mivel előre nem lehet tudni a nézeti mátrixot így valójában nem a végleges irány van meghatározva, hanem az inverz projekciós mátrix által beszorzott irány van, így a kúp mérete meghatározható, de a tényleges irányhoz még az inverz nézeti mátrixxal is be kell szorozni, de ez egy relatív gyors művelet.
+A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre ki vannak számolva és egy textúrában eltárolva a program indításakor majd azt frissíti minden, képernyő átméretezésekor, kúpkövetés kezdeti kúpméretének módosításakor és az egér görgőjével történő nagyításakor. Mivel előre nem lehet tudni a nézetimátrixot így valójában nem a végleges irány van meghatározva, hanem az inverz projekciós mátrix által beszorzott irány van, így a kúp mérete meghatározható, de a tényleges irányhoz még az inverz nézetimátrixxal is be kell szorozni, de ez egy relatív gyors művelet.
 
 \section{SDF-ek közti váltogatás}
 
@@ -221,7 +221,7 @@ A preprocesszor makró egyik nagy előnye, hogy sok függvény név ütközést 
 \section{Különböző nézeti módok}
 \label{se:rendering_modes}
 
-A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva, például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4 es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
+A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva, például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4-es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
 
 \begin{itemize}
 	\item \textbf{Normál:} Ez egy BRDF alapon rekurzívan követi a sugarat, majd a kapott színt jeleníti meg, minden ütközésnél fog indítani sugarakat a fényforrás felé a puha árnyékok miatt és egy sugarat a normál mentén az ambiens kitakarás (ambient occlusion) közelítése céljából.
@@ -229,22 +229,22 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/iter_count.png}
-    	\caption{A Newton ingája SDF iteráció számai láthatóak, minél világosabb annál nagyobb az iteráció szám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
+    	\caption{A Newton ingája SDF iterációszámai láthatóak, minél világosabb annál nagyobb az iterációszám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
     \end{figure}
     \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
-	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iteráció szám, max távolság), ha ütközik, akkor egy Lambert árnyalás alapú szürke színt kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iteráció limitet haladja meg, akkor pedig egy fix piros színt kap.
+	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iterációszám, max távolság), ha ütközik, akkor egy Lambert árnyalás alapú szürke színt kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iterációlimitet haladja meg, akkor pedig egy fix piros színt kap.
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/debug.png}
     	\caption{A Newton ingájának SDF-je látható Debug megjelenítési módban.}
     \end{figure}
-	\item \textbf{Debug megjelenítési mód iteráció számai:} Itt a 0 és 1 közé beszorított pixelenként megtett iteráció számok (az első ütközésig) lesznek.
+	\item \textbf{Debug megjelenítési mód iterációszámai:} Itt a 0 és 1 közé beszorított pixelenként megtett iterációszámok (az első ütközésig) lesznek.
     \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.
 \end{itemize}
 
 \section{Puha árnyékok, ambiens kitakarás}
 \label{se:shadows_and_ambient_occlusion}
 
-A Normál megjelenítési módban a puha árnyékok kiszámolását ugyanaz az algoritmus végzi, mint amit kiválasztottunk, kúpkövetésnél ez a naiv, relaxált, javított egyike lesz, míg az ambiens kitakarást kizárólag naiv módszer végzi, ahol az iteráció limit egy paraméterezhető fix érték.
+A Normál megjelenítési módban a puha árnyékok kiszámolását ugyanaz az algoritmus végzi, mint amit kiválasztottunk, kúpkövetésnél ez a naiv, relaxált, javított egyike lesz, míg az ambiens kitakarást kizárólag a naiv módszer végzi, ahol az iterációlimit egy paraméterezhető fix érték.
 
 

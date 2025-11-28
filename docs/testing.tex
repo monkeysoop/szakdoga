@@ -38,7 +38,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 
 		Az 'W' billentyű lenyomása
 		& A kamera előre megy
-		& A nézőpontunk közelebb kerül sz SDF jelenethez
+		& A nézőpontunk közelebb kerül az SDF jelenethez
 		\\ \hline
 
 		Az 'S' billentyű lenyomása
@@ -110,8 +110,7 @@ A szakdolgozatomban kiemelt szerepet kapott a különböző módszerek teljesít
 		& Benchmark elindítása
 		& Az applikáció befagy egy pár másodpercre, majd működik tovább ugyanúgy, eközben megjelenik egy \texttt{benchmarks} nevezetű mappa az aktuális könyvtárunkban
 		\\ \hline
-
-
+	\caption{Feketedoboz tesztesetek}
 	\end{longtable}
 \end{center}
 
@@ -174,7 +173,7 @@ A méréseket a laptopomon végeztem el, amely egy „ASUS Vivobook Pro 14 M3401
 
 \subsection{Normál megjelenítés}
 
-A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb} (jupiter notebook) segítségével hasonlítottam össze.
+A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb} (Jupyter notebook) segítségével hasonlítottam össze.
 
 \begin{figure}[H]
 	\centering
@@ -403,6 +402,7 @@ Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a na
 		kúpkövetés & + 70-90\% & - 60-70\%\\
 		\hline
 	\end{tabular}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései Normál megjelenítési módban a naiv módszerhez képest.}
 \end{table}
 
 Sajnos az SSIM nem a legjobb mértékegysége a vizuális minőségnek jelen esetben, így a fenti táblázatban szereplő értékeket inkább érzésre, saját szememre hagyatkozva adtam meg.
@@ -422,6 +422,7 @@ Az alábbi táblázatban az utóbbi kategória összesített eredményei láthat
 		kúpkövetés & + 200-370\% & - 80-90\%\\
 		\hline
 	\end{tabular}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései Debug megjelenítési módban a naiv módszerhez képest.}
 \end{table}
 
 Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet ad a vizuális minőségről, mint az SSIM.
@@ -432,6 +433,6 @@ Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként 
 
 A kúpkövetés különböző változatai között nagyobb különbségek nincsenek, nagyjából 5-10\% az eltérés.
 
-A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségéban lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületeket hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
+A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségében lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületeket hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
 
 A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől, ... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.
