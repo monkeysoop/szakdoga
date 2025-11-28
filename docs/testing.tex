@@ -171,14 +171,14 @@ A mérések 1920x1080 (Full HD) felbontás mellett, illetve 3840x2160 (4K) felbo
 
 A méréseket a laptopomon végeztem el, amely egy „ASUS Vivobook Pro 14 M3401 Q”, CPU: „Ryzen 7 5800H” 8 magos, 16GB RAM, GPU: „NVIDIA Geforce RTX 3050” 4GB dedikált memóriával.
 
-\subsection{Normál megjelenítés}
+\subsection{Elsődleges és másodlagos sugarak BRDF árnyalással}
 
 A vizuális minőségeket az \texttt{app/tests/image\_quality\_comparisons.ipynb} (Jupyter notebook) segítségével hasonlítottam össze.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/baseline_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód viszonyítási képe látható.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód viszonyítási képe látható.}
 \end{figure}
 
 Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg az Y tengely használt módszert: relaxált, naiv, javított és a kilenc kúpkövető. Kúpkövetéseknél pl.: „cone relaxed naiv” azt jelenti, hogy a kúpkövetés alatt egy enyhén módosított relaxált gömbkövetést használ, majd miután a kúpkövetés befejeződött pixelenként a naiv módszert alkalmazza.
@@ -186,7 +186,7 @@ Az X tengely az iteráció limiteket határozza meg (10, 20, 30, ..., 100), míg
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/renders_1920_1080.png}
-    \caption{Az ábrán a Normál megjelenítési mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
+    \caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
 \end{figure}
 
 A referenciától való eltérés mérésére SSIM (Structured Similarity Index Measure), értékeket használok, maguk az értékek 0.0 és 1.0 között vannak, minél magasabb annál nagyobb az egyezés.
@@ -194,7 +194,7 @@ A referenciától való eltérés mérésére SSIM (Structured Similarity Index 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_scores_1920_1080.png}
-    \caption{Az ábrán a Normál megjelenítési mód SSIM értékei láthatóak.}
+    \caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód SSIM értékei láthatóak.}
 \end{figure}
 
 Az SSIM egy értéken túl ad még egy képet is, ami az eltérés mértékét egy hőtérképpel vizualizálja.
@@ -202,7 +202,7 @@ Az SSIM egy értéken túl ad még egy képet is, ami az eltérés mértékét e
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_diff_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód SSIM eltérései láthatóak.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód SSIM eltérései láthatóak.}
 \end{figure}
 
 A teljesítményt az \texttt{app/tests/performance\_comparisons.ipynb} program segítségével vizsgálom.
@@ -212,13 +212,13 @@ A futási időt kettő különböző módszerrel is mértem, az egyik a C++ stan
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód chrono által mért futási idejei láthatóak.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód chrono által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód OpenGL query által mért futási idejei láthatóak.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
 Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvények hívásainak a száma, kivéve: az ambiens kitakarás, puha árnyékok, normál irány kiszámításához szükséges kiértékelések számát. Fontos, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
@@ -226,13 +226,13 @@ Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvé
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód SDF hívásainak hőtérképe látható.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód SDF hívásainak hőtérképe látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
 \end{figure}
 
 A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelenítünk (mérünk) meg.
@@ -240,86 +240,86 @@ A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelen
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_temple_1920_1080.png}
-	\caption{Az ábrán a Normál megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak egy „temple” nevezetű SDF esetében.}
+	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak egy „temple” nevezetű SDF esetében.}
 	\label{im:temple_sdf_avg}
 \end{figure}
 
-\subsection{Debug megjelenítés}
+\subsection{Elsődleges sugarak Lambert árnyalással}
 
 A mérések itt Debug megjelenítési módban lettek lefuttatva, a mód részletesebb leírásáért lásd: a(z) \ref{se:rendering_modes}. fejezetet.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/baseline_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód viszonyítási képe látható.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód viszonyítási képe látható.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/renders_debug_1920_1080.png}
-    \caption{Az ábrán a Debug megjelenítési mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
+    \caption{Az ábrán az elsődleges sugarakat megjelenítő mód különböző módszerek és különböző limitek mellett elért képei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_scores_debug_1920_1080.png}
-    \caption{Az ábrán a Debug megjelenítési mód SSIM értékei láthatóak.}
+    \caption{Az ábrán az elsődleges sugarakat megjelenítő mód SSIM értékei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/ssim_diff_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód SSIM eltérései láthatóak.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SSIM eltérései láthatóak.}
 \end{figure}
 
-Az SSIM érték nem a legjobb apróbb eltérések mérésére jelen esetben így a Debug megjelenítési módnál azt is megmértem, hogy mennyi a nem konvergált pixelek száma összesen.
+Az SSIM érték nem a legjobb apróbb eltérések mérésére jelen esetben így az elsődleges sugarakat megjelenítő módnál azt is megmértem, hogy mennyi a nem konvergált pixelek száma összesen.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/unconverged_pixel_counts_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód nem konvergált pixelek számai láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_chrono_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód chrono által mért futási idejei láthatóak.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód chrono által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód OpenGL query által mért futási idejei láthatóak.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak hőtérképe látható.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak hőtérképe látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak.}
 \end{figure}
 
 \subsection{Kezdeti kúpméret hatása}
 
 Az eddigi mérések mind 4x4-es kúpból indultak ki, de az ideális kezdeti kúpméret változó, a cél, hogy a videókártyát jól kihasználjuk és mivel a szálak száma függ a felbontástól és a kúpmérettől, valamint azt is figyelembe kell venni, hogyha például gyors az iteráció (egyszerű SDF), akkor a memória szinkronizációk „overhead”-je is számottevő, amiből több kell, ha nagyobb a kezdeti kúp.
 
-A különbség leginkább feltűnő, ha Debug megjelenítést használunk, az alábbi ábrákon az 1920x1080 felbontású Debug megjelenítési módszer 4x4 és 8x8-as kúpkövetés futási idejei láthatóak, a felső 3 sor itt nem releváns az ábrákon.
+A különbség leginkább feltűnő, ha az elsődleges sugarakat megjelenító módot használjunk, az alábbi ábrákon a módszer 1920x1080 felbontású, 4x4-es és 8x8-as kezdeti méretű kúpkövetéseinek a futási idejei láthatóak, a felső 3 sor itt nem releváns az ábrákon.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód OpenGL query által mért futási idejei láthatóak 4x4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/avg_render_times_gl_query_debug_cone_8_1920_1080.png}
-    \caption{Az ábrán a Debug megjelenítési mód OpenGL query által mért futási idejei láthatóak 8x8-as kezdeti kúpmérettel.}
+    \caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 1080p esetében aligha gyorsabb, ez valószínűleg a videókártya rossz kihasználtsága miatt és az extra memória szinkronizáció miatt van, hiszen az SDF hívások száma (pixelenkénti átlag) drasztikusan lecsökkent.
@@ -327,13 +327,13 @@ A különbség leginkább feltűnő, ha Debug megjelenítést használunk, az al
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4x4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_1920_1080/sdf_calls_avg_debug_cone_8_1920_1080.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8x8-as kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 Viszont 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
@@ -341,13 +341,13 @@ Viszont 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/avg_render_times_gl_query_debug_cone_8_3840_2160.png}
-    \caption{Az ábrán a Debug megjelenítési mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
+    \caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (még) hatékonyabb lett.
@@ -355,13 +355,13 @@ Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (m�
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/sdf_calls_avg_debug_cone_8_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
@@ -369,13 +369,13 @@ A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 4x4-es kezdeti kúpmérettel.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{benchmarks/benchmarks_3840_2160/unconverged_pixel_counts_debug_cone_8_3840_2160.png}
-	\caption{Az ábrán a Debug megjelenítési mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
+	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód nem konvergált pixelek számai láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
 \subsection{Mérések összegzése, megfigyelések}
@@ -383,8 +383,8 @@ A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
 A mérések elkülönülnek 2 nagy kategóriába:
 
 \begin{itemize}
-	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF alapú árnyalással, vagyis a Normál megjelenítési mód
-	\item elsődleges sugarak Lambert árnyalással, azaz a Debug megjelenítési mód
+	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF árnyalású mérései, vagyis a Normál megjelenítési mód mérései
+	\item elsődleges sugarak Lambert árnyalású mérései, azaz a Debug megjelenítési mód mérései
 \end{itemize}
 
 Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a naiv módszerhez képest:
@@ -402,7 +402,7 @@ Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a na
 		kúpkövetés & + 70-90\% & - 60-70\%\\
 		\hline
 	\end{tabular}
-	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései Normál megjelenítési módban a naiv módszerhez képest.}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges és másodlagos sugarakat megjelenítő módban a naiv módszerhez képest.}
 \end{table}
 
 Sajnos az SSIM nem a legjobb mértékegysége a vizuális minőségnek jelen esetben, így a fenti táblázatban szereplő értékeket inkább érzésre, saját szememre hagyatkozva adtam meg.
@@ -422,7 +422,7 @@ Az alábbi táblázatban az utóbbi kategória összesített eredményei láthat
 		kúpkövetés & + 200-370\% & - 80-90\%\\
 		\hline
 	\end{tabular}
-	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései Debug megjelenítési módban a naiv módszerhez képest.}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges sugarakat megjelenítő módban a naiv módszerhez képest.}
 \end{table}
 
 Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet ad a vizuális minőségről, mint az SSIM.
