@@ -47,7 +47,7 @@ Ha minden jól ment, az alábbi ábrához hasonló a program indítás utáni á
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/normal_view.png}
-	\caption{A program indítás utáni állapota. Egy Newton ingája SDF-et láthatunk a képen.}
+	\caption{Az ábrán a program indítás utáni állapotát, egy Newton ingája SDF-et láthatunk a képen.}
 \end{figure}
 
 \section{Billentyűzet és egér műveletek}
@@ -55,9 +55,9 @@ Ha minden jól ment, az alábbi ábrához hasonló a program indítás utáni á
 Billentyű műveletek:
 
 \begin{itemize}
-	\item \textbf{Escape:} kilépés, applikáció bezárása
-	\item \textbf{i:} beállítások ablak megjelenítése, elrejtése
-	\item \textbf{w, a, s, d, e, q:} rendre a kamera előre, balra, hátra, jobbra, felfelé, lefelé történő mozgatása
+	\item \textbf{Escape:} kilépés, applikáció bezárása;
+	\item \textbf{i:} beállítások ablak megjelenítése, elrejtése;
+	\item \textbf{w, a, s, d, e, q:} rendre a kamera előre, balra, hátra, jobbra, felfelé, lefelé történő mozgatása.
 \end{itemize}
 
 Ha a bal egérgombot lenyomva tartjuk és mozgatjuk az egeret, akkor az a kamerát fogja mozgatni, ha pedig a jobbat tartjuk lenyomva, akkor pedig a mozgatás hatására nagyítani/kicsinyíteni fogja a képet. A görgő segítségével is (jobb egér gomb + mozgatáson kívül) lehet zoomolni.
@@ -69,13 +69,13 @@ Az ablak több lenyíló fülre van osztva, amelyekre ha rákattintunk az egérr
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_1.png}
-	\caption{A beállítások menü megnyitás utáni állapota látható.}
+	\caption{Az ábrán a beállítások menü megnyitás utáni állapota látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_6.png}
-	\caption{A beállítások menü első 4 almenüje látható kibontva.}
+	\caption{Az ábrán a beállítások menü első négy almenüje látható kibontva.}
 \end{figure}
 
 Ezek közül az első az SDF jelenet kiválasztására ad lehetőséget, például ha kiválasztjuk a „primitives” opciót, akkor (a menüt elrejtve) valahogy így fog kinézni:
@@ -83,27 +83,27 @@ Ezek közül az első az SDF jelenet kiválasztására ad lehetőséget, példá
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/sdf2_zoomed.png}
-	\caption{Különböző SDF primitívekből álló jelenet látható.}
+	\caption{Az ábrán különböző SDF primitívekből álló jelenet látható.}
 \end{figure}
 
 A második opció a különböző nézeti módok között ad választhatósági lehetőséget, lásd a(z) \ref{se:rendering_modes}. fejezetet.
 
 A harmadik és negyedik fül a különböző módoktól független paramétereket tartalmazza, ezek közül a harmadik a gömb/kúpkövetés paraméterei, míg a negyedik opciói az árnyékok, ambiens kitakarás és a maximum tükröződések állítására szolgálnak.
 
-A következő (5. fül) almenüben a használt módszert kiválasztó rádiógombok és a relaxált valamint a javított módszerhez tartozó gömbkövetési paraméterek (a naiv módszerhez külön nincsenek) találhatóak.
+A következő (ötödik fül) almenüben a használt módszert kiválasztó rádiógombok és a relaxált valamint a javított módszerhez tartozó gömbkövetési paraméterek (a naiv módszerhez külön nincsenek) találhatóak.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_10.png}
-	\caption{5. almenü részlegesen kibontva látható.}
+	\caption{Az ábrán az ötödik almenü részlegesen kibontva látható.}
 \end{figure}
 
-Az 5. almenü még a kúpkövetéshez tartozó paramétereket is tartalmazza, ezekkel a kiindulási kúpméret állítható, a köztes epszilon, köztes (kúpkövetés alatti) gömbkövetési módszer (módosított, hogy működjön a kúpkövetéssel) és az azokhoz tartozó paraméterek, valamint a kúpkövetés befejezte után futó gömbkövetési módszer és az azokhoz tartozó paraméterek is.
+Az ötödik almenü még a kúpkövetéshez tartozó paramétereket is tartalmazza, ezekkel a kiindulási kúpméret állítható, a köztes epszilon, köztes (kúpkövetés alatti) gömbkövetési módszer (módosított, hogy működjön a kúpkövetéssel) és az azokhoz tartozó paraméterek, valamint a kúpkövetés befejezte után futó gömbkövetési módszer és az azokhoz tartozó paraméterek is.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_11.png}
-	\caption{5. almenü, a kúpkövetéshez tartozó beállítások láthatóak.}
+	\caption{az ábrán az ötödik almenü, a kúpkövetéshez tartozó beállítások láthatóak.}
 \end{figure}
 
 Az utolsó menüpontban pedig a „benchmark”-hoz tartozó paraméterek: a viszonyítási minta iteráció limitje, valamint azok a paraméterek, amelyek meghatározzák, hogy milyen iteráció limitek mellett fusson le és hányszor. Ezen kívül még egy gomb is található, amely elindítja a „benchmark”-ot, itt megjegyzendő, hogy a „benchmark” futása alatt, az ablakot bezárni és rendesen interaktálni vele nem lehet, hiszen szinkronizált módon lett implementálva, így blokkol, amíg be nem fejeződik.
@@ -111,7 +111,7 @@ Az utolsó menüpontban pedig a „benchmark”-hoz tartozó paraméterek: a vis
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/gui_12.png}
-	\caption{6. almenü, a tesztelés paraméterei láthatóak.}
+	\caption{Az ábrán a hatodik almenü, a tesztelés paraméterei láthatóak.}
 \end{figure}
 
 

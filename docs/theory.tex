@@ -59,7 +59,7 @@ A kúp megtalálását át lehet fogalmazni, úgy, hogy a téglalap/négyzet sar
 	\caption{Az ábrán egy piros gömb felületére a kamera szemszögéből vetített négyzet látható.}
 \end{figure}
 
-majd a vetített pontok magába foglaló lehető legkiseb kört keressük, valójában a kör origója érdekes, abból a sugarat könnyedén kiszámolhatjuk, a naiv megoldás az lenne, ami az eredeti téglalap/négyzet közepét vetíti a gömb felületére és használja azt a kör/kúp közepének/irányának.
+majd a vetített pontok magába foglaló lehető legkiseb kört keressük. Valójában a kör origója érdekes, abból a sugarat könnyedén kiszámolhatjuk. A naiv megoldás az lenne, ami az eredeti téglalap/négyzet közepét vetíti a gömb felületére és használja azt a kör/kúp közepének/irányának.
 
 \begin{figure}[H]
 	\centering
@@ -67,7 +67,7 @@ majd a vetített pontok magába foglaló lehető legkiseb kört keressük, való
 	\caption{Az ábrán kék körként látható a naiv megoldás.}
 \end{figure}
 
-Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a vetítés utáni hosszabb átló közepét használja a kör/kúp közepének/irányának, ez nem mindig a legoptimálisabb megoldás mivel az átló és a kamerához közelebbi vetített pont által alkotott háromszög lehet hegyesszögű a kamerához közelebbi pontjánál, de bőven elég jó közelítés.
+Egy egyszerű trükkel szinte optimális megoldást kaphatunk, lényegében a vetítés utáni hosszabb átló közepét használja a kör/kúp közepének/irányának. Ez nem mindig vezet az optimális eredményhez, mivel az átló és a kamerához közelebbi vetített pont által alkotott háromszög lehet hegyesszögű a kamerához közelebbi pontjánál, de bőven elég jó közelítés.
 
 \begin{figure}[H]
 	\centering
@@ -90,25 +90,25 @@ Ez a módszer nem mindig vezet az optimális irány megtalálásához, de a naiv
     \includegraphics[width=0.9\textwidth,keepaspectratio]{gui/cone_error_1.png}
     \vspace{10pt}
     \includegraphics[width=0.9\textwidth,keepaspectratio]{gui/cone_error_2.png}
-    \caption{Piros pixelek jelölik azokat a pontokat, ahol ez a közelítés nem vezet az optimális eredményhez.}
+    \caption{Az ábrán piros pixelek jelölik azokat a pontokat, ahol ez a közelítés nem vezetett az optimális eredményhez, vagyis a háromszög kamerához közelebbi csúcsai hegyesszögűek.}
 \end{figure}
 
 \subsection{Kúpkövetés 2D példa}
 
-Az elkövetkezendő ábrák segítségével próbálom vizualizálni a kúpkövetés működését ebben az alfejezetben, jelölések:
+Az elkövetkezendő ábrák segítségével vizualizálom a kúpkövetés működését ebben az alfejezetben.
 \begin{itemize}
-	\item a piros alakzatok alkotják a távolságfüggvényt
-	\item lila kúp a kamerából kiinduló „gúla”, aminek az irányát szaggatott vonal fogja jelölni
-	\item a kék és piros pontok a „pixelek” határait és közepeit jelölik, a példában a képernyő 4 pixelből fog állni
-    \item a narancssárga pontok a távolságfüggvény kiértékelésének pontjai
-    \item a kék vonalak az aktuális pontbeli sugarát vizualizálják a kúpnak, ott, ahol a távolságfüggvényt kiértékeltük
-    \item a zöld korong pedig a már megtett távolságot jelöli, amiben tudjuk biztosra, hogy nem ütköztünk
+	\item A piros alakzatok alkotják a távolságfüggvényt.
+	\item Lila kúp a kamerából kiinduló „gúla”, aminek az irányát szaggatott vonal fogja jelölni.
+	\item A kék és piros pontok a „pixelek” határait és közepeit jelölik, a példában a képernyő 4 pixelből fog állni.
+    \item A narancssárga pontok a távolságfüggvény kiértékelésének pontjai.
+    \item A kék vonalak az aktuális pontbeli sugarát vizualizálják a kúpnak, ott, ahol a távolságfüggvényt kiértékeltük.
+    \item A zöld korong pedig a már megtett távolságot jelöli, amiben tudjuk biztosra, hogy nem ütköztünk.
 \end{itemize}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_0.png}
-	\caption{Az ábrán egy leegyszerűsített 2 dimenziós kúpkövetés példa eleje látható (1. SDF hívás), jelenleg egy darab 4 pixeles kúpunk van.}
+	\caption{Az ábrán egy leegyszerűsített kétdimenziós kúpkövetés példa eleje látható (első SDF hívás), jelenleg egy darab négy pixeles kúpunk van.}
 \end{figure}
 
 A kúpkövetés során, ha akkorát lépnénk, mint amekkora a távolságfüggvény kiértékeléséből származó távolság, akkor lehet, hogy azt vagy egy részét átlépnénk.
@@ -126,12 +126,12 @@ A kúpkövetés során, ha akkorát lépnénk, mint amekkora a távolságfüggv�
 	\caption{Az ábrán az optimális megoldás látható ehhez a példához (lehető legnagyobbat léptük, úgy, hogy a program helyességét megőriztük).}
 \end{figure}
 
-Mivel az optimális megoldást kiszámítása meglehetősen költséges, ez 3D-ben a gúla négy sarok sugarát kéne egy gömbbel metszeni és ráadásul problémás lehet a kúpok felbontásánál is, ha nem jól implementáljuk, ezért egy közelítést fogunk alkalmazni, aminek a lényege, hogy a kapott távolságból kivonjuk a kúpunk sugarát és csak akkorát lépünk.
+Mivel az optimális megoldást kiszámítása meglehetősen költséges, ez 3D-ben a gúla négy sarok sugarát kéne egy gömbbel metszeni és ráadásul problémás lehet a kúpok felbontásánál is, ha nem jól implementáljuk. Ezért egy közelítést fogunk alkalmazni, aminek a lényege, hogy a kapott távolságból kivonjuk a kúpunk sugarát és csak akkorát lépünk.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_5.png}
-	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancssárga pont lesz az eredménye ennek az iterációnak.}
+	\caption{Az ábrán a baloldali narancssárga pontból hívtuk meg a távolság függvényt, a kék vonal jelöli a kúpunk sugarát, a jobb oldali narancssárga pont lesz az eredménye ennek az iterációnak.}
 \end{figure}
 
 Ez a módszer még elfajult helyzetekben is megőrzi a program helyességét.
@@ -139,7 +139,7 @@ Ez a módszer még elfajult helyzetekben is megőrzi a program helyességét.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_15.png}
-	\caption{Az ábra egy elfajult helyzetet ábrázol, ahol már végtelen távolságot megtettünk és a kúp élei párhuzamosak.}
+	\caption{Az ábra egy elfajult helyzetet ábrázol, ahol már szinte végtelen távolságnyira vagyunk a kamerától és a kúp élei majdnem párhuzamosak.}
 \end{figure}
 
 A jelenlegi példában a következő két iteráció hasonlóképpen fog kinézni az előbbihez, semmi különös nem fog történni.
@@ -147,13 +147,13 @@ A jelenlegi példában a következő két iteráció hasonlóképpen fog kinézn
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_6.png}
-	\caption{Az ábrán a kúpkövetés 3. iterációja látható.}
+	\caption{Az ábrán a kúpkövetés harmadik iterációja látható.}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_7.png}
-	\caption{Az ábrán a kúpkövetés 4. iterációja látható.}
+	\caption{Az ábrán a kúpkövetés negyedik iterációja látható.}
 \end{figure}
 
 Ha a lépés mértéke túl kicsi, azaz kisebb, mint egy epszilon paraméter, akkor a kúpunkat több kisebb kúpra bontjuk fel.
@@ -162,10 +162,10 @@ Ha a lépés mértéke túl kicsi, azaz kisebb, mint egy epszilon paraméter, ak
 	\centering
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_8_1.png}
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_8_2.png}
-	\caption{Az ábrán a kúpkövetés 5. iterációja látható, ahol a lépés mértéke már túl kicsi, így nincs értelme tovább folytatni.}
+	\caption{Az ábrán a kúpkövetés ötödik iterációja látható, ahol a lépés mértéke már túl kicsi, így nincs nem szükséges tovább folytatni.}
 \end{figure}
 
-Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle két kisebb kúpunk és a már megtett távolságtól tudjuk folytatni azokat, úgy, hogy a program helyességét megőrizzük.
+Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle két kisebb kúpunk és a már megtett távolságtól tudjuk folytatni azokat, úgy, hogy a program helyességét megőrizzük. Ezek az új kúpok egymástól függetlenül, párhuzamosan is tudnak tovább haladni.
 
 \begin{figure}[H]
 	\centering
@@ -173,7 +173,7 @@ Jelen esetben ezt az egy nagy kúpunkat fogjuk megfelezni, így lesz belőle ké
 	\caption{Az ábrán a két új kúp látható, amelyek a már biztos távolságtól (zöld) fogják folytatni útjaikat.}
 \end{figure}
 
-Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az algoritmust, ami az eddig megtett távolságtól tud tovább haladni, ezek egymástól függetlenül, párhuzamosan is tudnak tovább haladni. A zöld korong innentől kezdve csakis a felsőbb kúpra fog vonatkozni a jelölésekben.
+Most csak a felsőbb kétpixeles kúp mentén fogom részletezni tovább az algoritmust. A zöld korong innentől kezdve csakis a felsőbb kúpra fog vonatkozni a jelölésekben.
 
 \begin{figure}[H]
 	\centering
@@ -181,7 +181,7 @@ Most csak a felsőbb két pixeles kúp mentén fogom részletezni tovább az alg
 	\caption{Az ábrán a felsőbb két pixeles kúpnak az első iterációja látható.}
 \end{figure}
 
-Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív lesz a lépés mértéke, de mivel annak semmi értelme nincsen, hogy visszafelé lépjünk, így csak szimplán felbomlik anélkül, hogy lépne.
+Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív lesz a lépés mértéke, ebben a helyzetben a visszafelő történő lépésnek nincs értelme, így felbomlik kisebb kúpokra anélkül, hogy lépne.
 
 \begin{figure}[H]
 	\centering
@@ -190,7 +190,7 @@ Az algoritmus kiszámítása folyamán lehetséges az a helyzet, hogy negatív l
 	\caption{Az ábrán a felsőbb két pixeles kúpnak az második iterációja látható, ahol a lépés mértéke megint csak kisebb lenne mint, az epszilon paraméter.}
 \end{figure}
 
-Mivel most már a kúpjaink csakis egy-egy „pixeleknek” felelnének meg így nincs értelme tovább alkalmazni a kúpkövetést, ezért majd valamelyik sugárkövető (naiv/relaxált/javított) algoritmussal fogjuk folytatni, jelen példában ez a naiv módszer lesz az egyszerűség kedvéért.
+Mivel most már a kúpjaink csakis egy-egy „pixeleknek” felelnének meg így nincs értelme tovább alkalmazni a kúpkövetést, ezért majd valamelyik sugárkövető (naiv/relaxált/javított) algoritmussal fogjuk folytatni. Jelen példában ez a naiv módszer lesz az egyszerűség kedvéért.
 
 \begin{figure}[H]
 	\centering
@@ -204,19 +204,18 @@ Az algoritmus utolsó lépése, hogy valamelyik hagyományos gömbkövetési mó
 	\centering
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_13_1.png}
 	\includegraphics[width=0.45\textwidth,keepaspectratio,frame]{geogebra/cone_tracing/cone_tracing_13_2.png}
-	\caption{Az ábrán a felsőbb kúp felbomlása utáni 2 sugárnak a naiv gömbkövetései láthatóak.}
+	\caption{Az ábrán a felsőbb kúp felbomlása utáni két sugárnak a naiv gömbkövetései láthatóak.}
 \end{figure}
 
 \subsection{A kúpkövetés algoritmus párhuzamosítása}
 
-Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, amik az abbahagyott távolságtól folytatják az iterációt. Én úgy implementáltam ezt, hogy mindig negyedelődik a kúpokat alkotó pixelek száma és négyszereződik a kúpok száma, mindaddig, amíg 2x2-es nem lesz, majd utána a korábbi módszerek egyikét (alap/relaxált/javított) alkalmazom pixelenként kiindulva a már kúpkövetés által megtett távolságból.
+Ha a kúpkövetés befejezte az iterációt, akkor több kisebb kúpra bomlik, amik az aktuális távolságtól folytatják az iterációt. Én úgy implementáltam ezt, hogy mindig negyedelődik a kúpokat alkotó pixelek száma és négyszereződik a kúpok száma, mindaddig, amíg 2x2-es nem lesz. Majd utána a korábbi módszerek egyikét (alap/relaxált/javított) alkalmazom pixelenként kiindulva a már kúpkövetés által megtett távolságból.
 
 \begin{algorithm}[H]
 \caption{Az adaptív kúpkövetés pszeudokódja}
 \textbf{\underline{Funct}} Kúpkövetés(paraméterek)
 \begin{algorithmic}[1]
 \State $K$ kúpok inicializálása, irányaik és méreteik meghatározása, megtett távolság 0.0 ra állítása
-\State
 \State $\text{kúpméret} \gets$ kezdeti kúpméret paraméter
 \State
 \While{(\textbf{kúpméret} $\ge 2$)}
@@ -258,15 +257,15 @@ Példaként legyen egy kitalált képernyő, ami 1920x1080 pixeles és a kezdeti
 	\item alap/relaxált/javított sugárkövetés pixelenként (1920x1080 szálon) a megfelelő 2x2-es kúpok eredményeit felhasználva
 \end{enumerate}
 
-A gyorsítás itt abból fog adódni, hogy az SDF kiértékelések száma összességében kevesebb lesz, ami általában a domináns faktor a számítási időben. Ez a módszer azt használja ki, hogy szomszédos sugarak a kiindulási ponttól vett adott távolságra lévő SDF kiértékeléseikből származó távolságaik nagyban hasonlítanak, így úgymond összevonja őket.
+A gyorsítás itt abból fog adódni, hogy az SDF kiértékelések száma összességében kevesebb lesz, ami általában a domináns faktor a számítási időben. Ez a módszer azt használja ki, hogy szomszédos sugarak a kiindulási ponttól vett adott távolságra lévő SDF kiértékeléseikből származó távolságaik nagyban hasonlítanak, így úgymond össze lehet vonni azokat.
 
 \subsection{A kúpkövetés nagy limitációja}
 
-A probléma az az, hogy az első metszés után a kúpkövetés folytatásának sok értelme nincsen, mivel, ha a sugár tükröződik/megtörik akkor jó eséllyel más irányba fog indulni, mint valamelyik szomszédja így kúpot nem igazán tudnánk definiálni és nem is lenne sok értelme.
+A probléma az az, hogy az első metszés után a kúpkövetés folytatása nehézkes, mivel ha a sugár tükröződik/megtörik, akkor jó eséllyel más irányba fog indulni, mint valamelyik szomszédja, így csak nagyon nagy kúpot tudnánk definiálni.
 
 \subsection{Relaxált/javított kúpkövetés}
 
-Kis módosítással a relaxált/javított módszert is tudjuk alkalmazni a kúpkövetésre, azaz a lépés mértékét valamilyen értékkel, legyen az konstans/heurisztikus beszorozzuk és ha ez nem jött be akkor csak visszalépünk. Ez meglehetősen jól fog működni, hiszen a kúpok általában nagyon keskenyek, mivel a GPU jó kihasználtsága érdekében általában nincs értelme 8x8 vagy 16x16 pixeles gúláknál nagyobbakból kiindulni, amik meglehetősen keskeny kúpokat adnak.
+Kis módosítással a relaxált/javított módszert is tudjuk alkalmazni a kúpkövetésre, azaz a lépés mértékét valamilyen értékkel, legyen az konstans/heurisztikus beszorozzuk, ha pedig a lépés mértéke túl nagy, akkor hasonlóan az eredeti módszerekhez visszalépünk. Ez meglehetősen jól fog működni, hiszen a kúpok általában nagyon keskenyek, mivel a GPU jó kihasználtsága érdekében általában nem praktikus 8x8 vagy 16x16 pixeles gúláknál nagyobbakból kiindulni, amik meglehetősen keskeny kúpokat adnak.
 
 
 

@@ -396,7 +396,8 @@
 \RequirePackage[
 	backend=biber,
 	style=numeric, % style of bibliography
-	sorting=none   % sorting of references
+	sorting=none,   % sorting of references
+	maxnames=99 
 ]{biblatex}
 % ------------------------------
 

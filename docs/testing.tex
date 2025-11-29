@@ -221,7 +221,7 @@ A futási időt kettő különböző módszerrel is mértem, az egyik a C++ stan
 	\caption{Az ábrán az elsődleges és másodlagos sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak.}
 \end{figure}
 
-Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvények hívásainak a száma, kivéve: az ambiens kitakarás, puha árnyékok, normál irány kiszámításához szükséges kiértékelések számát. Fontos, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
+Az iterációk számának a mérése is fontos szerintem, vagyis az SDF függvények hívásainak a száma a megjelenítése alatt, kivéve az ambiens kitakarás, puha árnyékok és normál irány kiszámításához szükséges SDF kiértékelések számát. Fontos, mivel egyrészt ez egy jó képet ad az algoritmusok hatékonyságáról, másrészt ez egy determinisztikus érték (mérés alatt idő nullára van állítva), ami platformfüggetlen és ismételhető.
 
 \begin{figure}[H]
 	\centering
@@ -246,7 +246,7 @@ A mért eredmények erősen függenek, attól, hogy milyen SDF függvényt jelen
 
 \subsection{Elsődleges sugarak Lambert árnyalással}
 
-A mérések itt Debug megjelenítési módban lettek lefuttatva, a mód részletesebb leírásáért lásd: a(z) \ref{se:rendering_modes}. fejezetet.
+A használt megjelenítési mód részletesebb leírásáért lásd: a(z) \ref{se:rendering_modes}. fejezetet.
 
 \begin{figure}[H]
 	\centering
@@ -322,7 +322,7 @@ A különbség leginkább feltűnő, ha az elsődleges sugarakat megjelenító m
     \caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
-1080p esetében aligha gyorsabb, ez valószínűleg a videókártya rossz kihasználtsága miatt és az extra memória szinkronizáció miatt van, hiszen az SDF hívások száma (pixelenkénti átlag) drasztikusan lecsökkent.
+A 1080p felbontás esetében aligha gyorsabb, ez valószínűleg a videókártya rossz kihasználtsága miatt és az extra memória szinkronizáció miatt van, hiszen az SDF hívások száma (pixelenkénti átlag) drasztikusan lecsökkent.
 
 \begin{figure}[H]
 	\centering
@@ -336,7 +336,7 @@ A különbség leginkább feltűnő, ha az elsődleges sugarakat megjelenító m
 	\caption{Az ábrán az elsődleges sugarakat megjelenítő mód SDF hívásainak egy pixelre jutó átlagai láthatóak 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
-Viszont 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
+Azonban 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
 
 \begin{figure}[H]
 	\centering
@@ -350,7 +350,7 @@ Viszont 3840x2160 (4K) felbontás mellett már nagyobb a különbség.
     \caption{Az ábrán az elsődleges sugarakat megjelenítő mód OpenGL query által mért futási idejei láthatóak 4K felbontás mellett és 8x8-as kezdeti kúpmérettel.}
 \end{figure}
 
-Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is (még) hatékonyabb lett.
+Ez nem csak a jobb kihasználtságnak köszönhető, maga a kúpkövetés is hatékonyabb lett.
 
 \begin{figure}[H]
 	\centering
@@ -380,11 +380,11 @@ A nem konvergált pixelek számai is csökkentek helyenként, de nem sokkal.
 
 \subsection{Mérések összegzése, megfigyelések}
 
-A mérések elkülönülnek 2 nagy kategóriába:
+A mérések elkülönülnek kettő nagy kategóriába:
 
 \begin{itemize}
-	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF árnyalású mérései, vagyis a Normál megjelenítési mód mérései
-	\item elsődleges sugarak Lambert árnyalású mérései, azaz a Debug megjelenítési mód mérései
+	\item elsődleges és másodlagos sugarak Cook-Torreance BRDF árnyalású mérései
+	\item elsődleges sugarak Lambert árnyalású mérései
 \end{itemize}
 
 Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a naiv módszerhez képest:
@@ -402,7 +402,7 @@ Az alábbi táblázat előbbi kategória összesített eredményeit mutatja a na
 		kúpkövetés & + 70-90\% & - 60-70\%\\
 		\hline
 	\end{tabular}
-	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges és másodlagos sugarakat megjelenítő módban a naiv módszerhez képest.}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges és másodlagos sugarakat megjelenítő módban a naiv módszerhez képest azonos vizuális minőség mellett.}
 \end{table}
 
 Sajnos az SSIM nem a legjobb mértékegysége a vizuális minőségnek jelen esetben, így a fenti táblázatban szereplő értékeket inkább érzésre, saját szememre hagyatkozva adtam meg.
@@ -422,17 +422,17 @@ Az alábbi táblázatban az utóbbi kategória összesített eredményei láthat
 		kúpkövetés & + 200-370\% & - 80-90\%\\
 		\hline
 	\end{tabular}
-	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges sugarakat megjelenítő módban a naiv módszerhez képest.}
+	\caption{Összesített időbeli gyorsulások és SDF hívások számainak csökkenései láthatóak az elsődleges sugarakat megjelenítő módban a naiv módszerhez képest azonos vizuális minőség mellett.}
 \end{table}
 
-Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet ad a vizuális minőségről, mint az SSIM.
+Ha csak az elsődleges sugarakkal foglalkozunk, akkor az SSIM érték helyett használni tudjuk a nem konvergált pixelek számát, azaz mennyi pixel haladta meg az iteráció limitet a felület eltalálása, maximum távolság elérése előtt. A nem konvergált pixelek számai szerintem egy sokkal pontosabb képet adnak a vizuális minőségről, mint az SSIM.
 
-A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más, mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínűleg a globális szinkronizáció a „flip-flop” textúrákon a probléma, ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
+A relaxált és javított módszereknél a futási idő csökkenése, valamint az SDF hívások átlagainak a csökkenése többnyire megegyezik, ami arra utal, hogy a futási idő domináns faktora nem más, mint az SDF kiértékelések. A kúpkövetésnél a futási idő és SDF hívások számai nem azonosan csökkennek, ami arra utal, hogy az implementáció nem tökéletes és a videókártya kihasználtsága se optimális, valószínűleg a globális szinkronizáció a „flip-flop” textúrákon a probléma. Ideális esetben a domináns faktor a futási időben kizárólag az SDF függvény kiértékelése lenne itt is.
 
 Egy érdekes megfigyelés, hogy a kúpkövetés bizonyos esetekben pixelenként átlagban kevesebb SDF hívást tesz nagyobb iteráció limit mellett, ez valószínűleg azért van, mert, ha túl alacsony az iteráció limit, akkor a kúpkövetés hamarabb felbomlik, mint ami optimális lenne, így romlik a hatékonysága.
 
 A kúpkövetés különböző változatai között nagyobb különbségek nincsenek, nagyjából 5-10\% az eltérés.
 
-A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségében lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületeket hatékonyan tud kezelni, de cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez ez a mérés: \ref{im:temple_sdf_avg} szerint.
+A méréseket többnyire a Newton ingája nevezetű távolságfüggvényre alapoztam, ami többnyire gömbökből és vékony hasábokból ál, ezért a javított módszer a mérések többségében lemarad a relaxált és helyenként még a naiv módszerhez képest is. A javított módszer előnye, hogy nagy lapos felületeket hatékonyan tud kezelni, cserébe az algoritmus jóval bonyolultabb, valamint konkáv régiókat (például: egy sarok) is rosszul tud kezelni. A „temple” nevezetű SDF függvény például pont, hogy a javított módszernek kedvez a(z) \ref{im:temple_sdf_avg}. ábrán látható mérés szerint.
 
-A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől, ... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.
+A kúpkövetésnél 1080p esetén a 4x4 vagy a 8x8 pixeles kezdeti kúpok ideálisak a mérések szerint, ez függ az SDF függvénytől, hardvertől, választott paraméterektől... 4K felbontásnál 8x8 vagy 16x16 tűnik ideálisnak.

@@ -7,7 +7,7 @@ A szakdolgozatomban két különböző főbb feladattal foglalkoztam, a különb
 
 Az előbbi lényege, hogy valós időben, egy kiválasztott távolságfüggvényt az egyik módszerrel masszívan párhuzamosan megjelenítse. A program lehetőséget ad, hogy a kamerával körbejárhassuk a kiválasztott távolságfüggvényt, a különböző paramétereket valós időben módosíthassuk.
 
-A tesztelés egy szinte automatikus folyamat, amely elindítása előtt, megadhatjuk, hogy mekkora iterációlimiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb, a megjelenítéséhez és teszteléshez tartozó paramétereket, az egyszerűség és ismételhetőség kedvéért az idő automatikusan nullára van állítva a tesztek alatt. Miután elindult a teszt az a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként, ezentúl még a pixelekre eső iterációszámok által alkotott képeket is elmenti. Az elmentett png képeket és a mért időket majd Jupyter notebookok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet. Azért png formátumban mentem el a képeket, mert az SDL2 könyvtár támogatja és veszteségmentes, ami fontos hiszen nem a veszteséges tömörítés zaját szeretném mérni.
+A tesztelés egy automatizált folyamat, amely elindítása előtt megadhatjuk, hogy mekkora iterációlimiteket szeretnénk tesztelni, beállíthatjuk a kamera pozícióját és egyéb, a megjelenítéséhez és teszteléshez tartozó paramétereket. Az egyszerűség és ismételhetőség kedvéért az idő automatikusan nullára van állítva a tesztek alatt. Miután elindult a teszt, a különböző módszerek mindegyikét egy állítható paraméter szerint többször lefuttatja, majd az egy kirajzolásra jutó átlagos időket fájlba kiírja, a kirajzolás eredményeit elmenti képekként. Ezentúl még a pixelekre eső iterációszámok által alkotott képeket is elmenti. Az elmentett png képeket és a mért időket majd Jupyter notebookok segítségével elemzem, erről bővebben lásd a(z) \ref{se:performance_visual_testing}. fejezetet. Azért png formátumban mentem el a képeket, mert az SDL2 könyvtár támogatja és veszteségmentes, ami fontos hiszen nem a veszteséges tömörítés zaját szeretném mérni.
 
 A program ezen túl tartalmaz még egység teszteket is.
 
@@ -24,10 +24,10 @@ Az applikáció áll egy \texttt{main.cpp} C++ fájlból, egy statikus C++ köny
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/classdiagram.png}
-	\caption{A program osztálydiagramja.}
+	\caption{Az ábrán a program osztálydiagramja látható.}
 \end{figure}
 
-A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) absztrakció egy OpenGL két dimenziós textúra köré, hasonlóan a \texttt{Skybox} osztály egy „cubemap”-et absztraktál. A \texttt{Framebuffer} osztály, ahogy a neve is mondja, egy OpenGL „framebuffer”-t absztraktál, de itt helyezkedik el a képernyőfotó készítő logika is. A \texttt{CompShader} osztály GLSL „compute” shader-t hoz létre. A \texttt{Framebuffer} és \texttt{CompShader} osztály is követi a RAII-t. A \texttt{Camera} és \texttt{CameraManipulátor} osztályok a kamera projekciós és nézetimátrixok lekérdezését, billentyűzet és egér események általi módosítását végzik. Az \texttt{App} osztály meg ezeket összekötve adja az applikációt.
+A \texttt{Texture2D} osztály egy RAII (Resource Allocation Is Initialization) absztrakció egy OpenGL kétdimenziós textúra köré, hasonlóan a \texttt{Skybox} osztály egy „cubemap”-et absztraktál. A \texttt{Framebuffer} osztály, ahogy a neve is mondja, egy OpenGL „framebuffer”-t absztraktál, de itt helyezkedik el a képernyőfotó készítő logika is. A \texttt{CompShader} osztály GLSL „compute” shader-t hoz létre. A \texttt{Framebuffer} és \texttt{CompShader} osztály is követi a RAII-t. A \texttt{Camera} és \texttt{CameraManipulátor} osztályok a kamera projekciós és nézetimátrixok lekérdezését, billentyűzet és egér események általi módosítását végzik. Az \texttt{App} osztály meg ezeket összekötve adja az applikációt.
 
 \subsection{Az \texttt{App} osztály}
 
@@ -59,7 +59,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/App_class_diagram.png}
-	\caption{Az \texttt{App} osztály osztálydiagramja.}
+	\caption{Az ábrán az \texttt{App} osztály osztálydiagramja látható.}
 \end{figure}
 
 \subsection{A \texttt{Camera} osztály}
@@ -67,7 +67,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth,keepaspectratio]{plantuml/Camera_class_diagram.png}
-	\caption{A \texttt{Camera} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{Camera} osztály osztálydiagramja látható.}
 \end{figure}
 
 \subsection{A \texttt{CameraManipulator} osztály}
@@ -75,7 +75,7 @@ Az App osztály egyik főbb feladata a grafikus felület kezelése. A felület t
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth,keepaspectratio]{plantuml/CameraManipulator_class_diagram.png}
-	\caption{A \texttt{CameraManipulator} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{CameraManipulator} osztály osztálydiagramja látható.}
 \end{figure}
 
 \subsection{A \texttt{CompShader} osztály működése, a shaderek fordítása}
@@ -119,7 +119,7 @@ Az osztály ezenkívül lehetőséget ad, hogy ezeket a paramétereket dinamikus
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/CompShader_class_diagram.png}
-	\caption{A \texttt{CompShader} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{CompShader} osztály osztálydiagramja látható.}
 \end{figure}
 
 Az osztály \texttt{m\_shader\_source\_code} privát változója eltárolja a programhoz tartozó forrás kódot, az \texttt{\#include} preprocesszor makró utáni, de az „in” változók (\texttt{@változó@}) konfigurálása előtti állapotban, a forráskód eltárolása azért hasznos, mert ha a konfigurációt megváltoztatnánk és a programot ezzel újrafordítanánk, akkor így nem kell a fájlt/fájlokat újra beolvasni.
@@ -133,7 +133,7 @@ A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Framebuffer_class_diagram.png}
-	\caption{A \texttt{Framebuffer} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{Framebuffer} osztály osztálydiagramja látható.}
 \end{figure}
 
 \subsection{A \texttt{Skybox} osztály}
@@ -141,17 +141,17 @@ A Framebuffer osztály lehetőséget ad, hogy egy megadott útvonalba lementsük
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.5\textwidth,keepaspectratio]{plantuml/Skybox_class_diagram.png}
-	\caption{A \texttt{Skybox} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{Skybox} osztály osztálydiagramja látható.}
 \end{figure}
 
 \subsection{A \texttt{Texture2D} osztály}
 
-A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (opcionális), ha nincs konkrét érték megadva, akkor értéke 1 lesz, azaz egy szimpla 2 dimenziós sík textúra lesz. Többszintű textúrákat a kúpkövetésnél használom a megtett távolságok eltárolására a rétegek között, ahol mindig négyszereződik a szálak száma és azzal együtt az elvárt textúra mérete is.
+A konstruktorba paraméterül meg lehet adni a „mipmap” szintek számát (opcionális), ha nincs konkrét érték megadva, akkor értéke egy lesz, azaz egy szimpla kétdimenziós sík textúra lesz. Többszintű textúrákat a kúpkövetésnél használom a megtett távolságok eltárolására a rétegek között, ahol mindig négyszereződik a szálak száma és azzal együtt az elvárt textúra mérete is.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.9\textwidth,keepaspectratio]{plantuml/Texture2D_class_diagram.png}
-	\caption{A \texttt{Texture2D} osztály osztálydiagramja.}
+	\caption{Az ábrán a \texttt{Texture2D} osztály osztálydiagramja látható.}
 \end{figure}
 
 
@@ -161,7 +161,7 @@ A kód nagyrésze az \texttt{app} mappa alatt található, itt helyezkedik el a 
 
 \section{Futtatási környezet}
 
-A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit python Jupyter nootbook segítségével hasonlítom össze. C++ 17 és GLSL 430-as verziókat használom, a program OpenGL API-t használ GLEW keretrendszerrel és SDL2 könyvtárral együtt. A GUI-t ImGui segítségével hoztam létre. Az egységtesztek pedig GoogleTest keretrendszerrel lettek létrehozva. A programot Linux Mint 22 alatt és Visual Studio Code-ban fejlesztettem, a használt csomagok kezeléséről conan (2-es verzió) gondoskodik, a projektet pedig meson segítségével lehet fordítani.
+A programot C++ nyelven és GLSL shader nyelven írtam, a mérések eredményeit python Jupyter nootbook segítségével hasonlítom össze. C++ 17 és GLSL 430-as verziókat használom, a program OpenGL API-t használ GLEW keretrendszerrel és SDL2 könyvtárral együtt. A GUI-t ImGui segítségével hoztam létre. Az egységtesztek pedig GoogleTest keretrendszerrel lettek létrehozva. A programot Linux Mint 22 alatt és Visual Studio Code-ban fejlesztettem, a használt csomagok kezeléséről conan (2.0+ verzió) gondoskodik, a projektet pedig meson segítségével lehet fordítani.
 
 
 \section{Meson és conan}
@@ -178,7 +178,7 @@ Mivel az egyedi preprocesszorom a CompShader osztályban a C nyelvben találhat�
 
 \section{Kúpok előre történő kiszámolása}
 
-A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre ki vannak számolva és egy textúrában eltárolva a program indításakor majd azt frissíti minden, képernyő átméretezésekor, kúpkövetés kezdeti kúpméretének módosításakor és az egér görgőjével történő nagyításakor. Mivel előre nem lehet tudni a nézetimátrixot így valójában nem a végleges irány van meghatározva, hanem az inverz projekciós mátrix által beszorzott irány van, így a kúp mérete meghatározható, de a tényleges irányhoz még az inverz nézetimátrixxal is be kell szorozni, de ez egy relatív gyors művelet.
+A kúpok irányai és méreteik (alapjának sugara egység távolságban) előre ki vannak számolva és egy textúrában eltárolva a program indításakor majd azt frissíti minden, képernyő átméretezésekor, kúpkövetés kezdeti kúpméretének módosításakor és az egér görgőjével történő nagyításakor. Mivel előre nem lehet tudni a nézetimátrixot így valójában nem a végleges irány van meghatározva, hanem az inverz projekciós mátrix által beszorzott irány van, így a kúp mérete meghatározható, de a tényleges irányhoz még az inverz nézetimátrixszal is be kell szorozni, de ez egy relatív gyors művelet.
 
 \section{SDF-ek közti váltogatás}
 
@@ -221,7 +221,7 @@ A preprocesszor makró egyik nagy előnye, hogy sok függvény név ütközést 
 \section{Különböző nézeti módok}
 \label{se:rendering_modes}
 
-A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva, például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4-es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
+A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen keresztül. A kúpkövetésnél az iterációk száma pixelekre van átlagolva. Például, ha van egy 8x8-as kúpunk, ami tett 24 iterációt és ez a kúp felbomlik 4 darab 4x4-es kúpra, akkor mindegyik kúp úgymond 6 iterációt tett.
 
 \begin{itemize}
 	\item \textbf{Normál:} Ez egy BRDF alapon rekurzívan követi a sugarat, majd a kapott színt jeleníti meg, minden ütközésnél fog indítani sugarakat a fényforrás felé a puha árnyékok miatt és egy sugarat a normál mentén az ambiens kitakarás (ambient occlusion) közelítése céljából.
@@ -229,14 +229,14 @@ A nézeti módok között dinamikusan lehet váltogatni a grafikus felületen ke
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/iter_count.png}
-    	\caption{A Newton ingája SDF iterációszámai láthatóak, minél világosabb annál nagyobb az iterációszám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
+    	\caption{Az ábrán a Newton ingája SDF iterációszámai láthatóak, minél világosabb annál nagyobb az iterációszám, ahol fekete = 0 iteráció és fehér = iteráció limit.}
     \end{figure}
     \item \textbf{SDF hívások száma:} A Normál mód összes SDF hívásainak száma elosztva egy felső korláttal, úgy, hogy az eredmény garantáltan 0 és 1 között legyen.
 	\item \textbf{Debug:} Ebben a módban a sugarak csakis az első ütközésig mennek vagy amíg a feltételek igazak (max iterációszám, max távolság), ha ütközik, akkor egy Lambert árnyalás alapú szürke színt kap, ha átlépi a max távolságot, akkor a skybox színét kapja, ha pedig az iterációlimitet haladja meg, akkor pedig egy fix piros színt kap.
 	\begin{figure}[H]
     	\centering
     	\includegraphics[width=0.9\textwidth,keepaspectratio]{gui/debug.png}
-    	\caption{A Newton ingájának SDF-je látható Debug megjelenítési módban.}
+    	\caption{Az ábrán a Newton ingájának SDF-je látható Debug megjelenítési módban.}
     \end{figure}
 	\item \textbf{Debug megjelenítési mód iterációszámai:} Itt a 0 és 1 közé beszorított pixelenként megtett iterációszámok (az első ütközésig) lesznek.
     \item \textbf{Mélység:} Szimplán a mélységet fogja kirajzolni.
